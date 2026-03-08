@@ -1,6 +1,12 @@
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import IconButton from "@mui/material/IconButton";
+import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { Note } from "./types";
 
 interface NoteEditorProps {
@@ -9,6 +15,12 @@ interface NoteEditorProps {
 }
 
 function NoteEditor({ note, onUpdateNote }: NoteEditorProps) {
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    setEditing(false);
+  }, [note?.id]);
+
   if (!note) {
     return (
       <Box
@@ -37,62 +49,139 @@ function NoteEditor({ note, onUpdateNote }: NoteEditorProps) {
         overflow: "hidden",
       }}
     >
-      <Box sx={{ p: 3, pb: 1 }}>
-        <TextField
-          fullWidth
-          variant="standard"
-          value={note.title}
-          onChange={(e) => onUpdateNote(note.id, { title: e.target.value })}
-          slotProps={{
-            input: {
-              disableUnderline: true,
-              sx: {
-                fontSize: "1.75rem",
-                fontWeight: 600,
-              },
-            },
-          }}
-        />
-        <Typography variant="caption" color="text.secondary">
-          Last updated{" "}
-          {new Date(note.updatedAt).toLocaleDateString(undefined, {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-            hour: "numeric",
-            minute: "2-digit",
-          })}
-        </Typography>
+      <Box sx={{ p: 3, pb: 1, display: "flex", alignItems: "flex-start", gap: 1 }}>
+        <Box sx={{ flex: 1 }}>
+          {editing ? (
+            <TextField
+              fullWidth
+              variant="standard"
+              value={note.title}
+              onChange={(e) => onUpdateNote(note.id, { title: e.target.value })}
+              slotProps={{
+                input: {
+                  disableUnderline: true,
+                  sx: {
+                    fontSize: "1.75rem",
+                    fontWeight: 600,
+                  },
+                },
+              }}
+            />
+          ) : (
+            <Typography variant="h4" sx={{ fontWeight: 600 }}>
+              {note.title}
+            </Typography>
+          )}
+          <Typography variant="caption" color="text.secondary">
+            Last updated{" "}
+            {new Date(note.updatedAt).toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+              hour: "numeric",
+              minute: "2-digit",
+            })}
+          </Typography>
+        </Box>
+        <IconButton
+          size="small"
+          onClick={() => setEditing((prev) => !prev)}
+          title={editing ? "View" : "Edit"}
+        >
+          {editing ? <VisibilityIcon fontSize="small" /> : <EditIcon fontSize="small" />}
+        </IconButton>
       </Box>
       <Box sx={{ flex: 1, px: 3, pb: 3, overflow: "auto" }}>
-        <TextField
-          fullWidth
-          multiline
-          variant="standard"
-          placeholder="Start writing…"
-          value={note.content}
-          onChange={(e) => onUpdateNote(note.id, { content: e.target.value })}
-          slotProps={{
-            input: {
-              disableUnderline: true,
-              sx: {
-                fontSize: "1rem",
-                lineHeight: 1.8,
-                alignItems: "flex-start",
+        {editing ? (
+          <TextField
+            fullWidth
+            multiline
+            variant="standard"
+            placeholder="Start writing…"
+            value={note.content}
+            onChange={(e) => onUpdateNote(note.id, { content: e.target.value })}
+            slotProps={{
+              input: {
+                disableUnderline: true,
+                sx: {
+                  fontSize: "1rem",
+                  lineHeight: 1.8,
+                  alignItems: "flex-start",
+                },
               },
-            },
-          }}
-          sx={{
-            height: "100%",
-            "& .MuiInputBase-root": {
+            }}
+            sx={{
               height: "100%",
-            },
-            "& .MuiInputBase-input": {
-              height: "100% !important",
-              overflow: "auto !important",
-            },
-          }}
-        />
+              "& .MuiInputBase-root": {
+                height: "100%",
+              },
+              "& .MuiInputBase-input": {
+                height: "100% !important",
+                overflow: "auto !important",
+              },
+            }}
+          />
+        ) : (
+          <Box
+            sx={{
+              "& table": {
+                borderCollapse: "collapse",
+                width: "100%",
+                my: 2,
+              },
+              "& th, & td": {
+                border: 1,
+                borderColor: "divider",
+                px: 1.5,
+                py: 0.75,
+                textAlign: "left",
+              },
+              "& th": {
+                bgcolor: "grey.100",
+                fontWeight: 600,
+              },
+              "& pre": {
+                bgcolor: "grey.100",
+                p: 2,
+                borderRadius: 1,
+                overflow: "auto",
+                fontSize: "0.875rem",
+              },
+              "& code": {
+                fontSize: "0.875rem",
+                bgcolor: "grey.100",
+                px: 0.5,
+                borderRadius: 0.5,
+              },
+              "& pre code": {
+                bgcolor: "transparent",
+                px: 0,
+              },
+              "& blockquote": {
+                borderLeft: 4,
+                borderColor: "grey.300",
+                pl: 2,
+                ml: 0,
+                color: "text.secondary",
+                fontStyle: "italic",
+              },
+              "& img": {
+                maxWidth: "100%",
+              },
+              "& a": {
+                color: "primary.main",
+              },
+              "& hr": {
+                border: "none",
+                borderTop: 1,
+                borderColor: "divider",
+                my: 2,
+              },
+            }}
+          >
+            <Markdown remarkPlugins={[remarkGfm]}>{note.content}</Markdown>
+          </Box>
+        )}
       </Box>
     </Box>
   );
