@@ -1,0 +1,24 @@
+{
+  "name": "@repo/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@repo/domain": "*",
+    "@repo/repository": "*",
+    "@repo/types": "*",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "*",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.2"
+  }
+}

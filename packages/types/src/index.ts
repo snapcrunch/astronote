@@ -9,3 +9,17 @@ export const NoteSchema = z.object({
 });
 
 export type Note = z.infer<typeof NoteSchema>;
+
+export const CreateNoteInputSchema = z.object({
+  title: z.string().min(1),
+  content: z.string().optional(),
+});
+
+export type CreateNoteInput = z.infer<typeof CreateNoteInputSchema>;
+
+export const UpdateNoteInputSchema = z.object({
+  title: z.string().min(1).optional(),
+  content: z.string().optional(),
+});
+
+export type UpdateNoteInput = z.infer<typeof UpdateNoteInputSchema>;

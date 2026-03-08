@@ -1,0 +1,10 @@
+{
+  "extends": "@repo/typescript-config/node.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "module": "preserve",
+    "moduleResolution": "bundler"
+  },
+  "include": ["src", "../../packages/repository/sql.js.d.ts"]
+}
