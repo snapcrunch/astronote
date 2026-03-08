@@ -119,8 +119,8 @@ function Sidebar() {
           }}
         />
       </Box>
-      <List sx={{ flex: 1, overflow: "auto", pt: 0 }}>
-        {notes.map((note) => (
+      <List sx={{ flex: 1, overflow: "auto", pt: 0 }} disablePadding>
+        {notes.map((note, index) => (
           <ListItemButton
             key={note.id}
             selected={note.id === selectedNoteId}
@@ -128,7 +128,11 @@ function Sidebar() {
             sx={{
               mx: 0,
               borderRadius: 0,
-              mb: 0.5,
+              py: 0.5,
+              px: 2,
+              borderBottom: 1,
+              borderColor: "divider",
+              bgcolor: index % 2 === 0 ? "background.paper" : "grey.50",
               "&.Mui-selected": {
                 bgcolor: "primary.main",
                 color: "primary.contrastText",
