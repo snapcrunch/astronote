@@ -88,13 +88,7 @@ function Sidebar() {
         position: "relative",
       }}
     >
-      <Box sx={{ p: 2, pb: 1, borderBottom: 1, borderColor: "divider" }}>
-        <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
-          Astronote
-        </Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: "block" }}>
-          {notes.length} {notes.length === 1 ? "Note" : "Notes"}
-        </Typography>
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <TextField
           fullWidth
           size="small"
@@ -114,7 +108,10 @@ function Sidebar() {
           sx={{
             "& .MuiOutlinedInput-root": {
               bgcolor: "background.paper",
-              borderRadius: 2,
+              borderRadius: 0,
+            },
+            "& .MuiOutlinedInput-notchedOutline": {
+              border: "none",
             },
           }}
         />
