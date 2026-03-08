@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import List from "@mui/material/List";
@@ -9,9 +9,40 @@ import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNoteStore } from "./store";
 
-const SIDEBAR_WIDTH = 320;
+const MIN_WIDTH = 350;
+const MAX_WIDTH = 700;
 
 function Sidebar() {
+  const sidebarWidth = useNoteStore((s) => s.sidebarWidth);
+  const setSidebarWidth = useNoteStore((s) => s.setSidebarWidth);
+  const dragging = useRef(false);
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      dragging.current = true;
+
+      const onMouseMove = (ev: MouseEvent) => {
+        if (!dragging.current) return;
+        setSidebarWidth(ev.clientX);
+      };
+
+      const onMouseUp = () => {
+        dragging.current = false;
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      };
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+    },
+    [setSidebarWidth],
+  );
+
   const notes = useNoteStore((s) => s.getFilteredNotes());
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
   const searchQuery = useNoteStore((s) => s.searchQuery);
@@ -47,14 +78,14 @@ function Sidebar() {
   return (
     <Box
       sx={{
-        width: SIDEBAR_WIDTH,
-        minWidth: SIDEBAR_WIDTH,
+        width: sidebarWidth,
+        minWidth: MIN_WIDTH,
+        maxWidth: MAX_WIDTH,
         height: "100%",
-        borderRight: 1,
-        borderColor: "divider",
         display: "flex",
         flexDirection: "column",
         bgcolor: "grey.50",
+        position: "relative",
       }}
     >
       <Box sx={{ p: 2, pb: 1, borderBottom: 1, borderColor: "divider" }}>
@@ -95,12 +126,10 @@ function Sidebar() {
             selected={note.id === selectedNoteId}
             onClick={() => setSelectedNoteId(note.id)}
             sx={{
-              mx: 1,
-              borderRadius: 2,
+              mx: 0,
+              borderRadius: 0,
               mb: 0.5,
               "&.Mui-selected": {
-                borderRadius: 0,
-                mx: 0,
                 bgcolor: "primary.main",
                 color: "primary.contrastText",
                 "&:hover": {
@@ -145,6 +174,21 @@ function Sidebar() {
           </Box>
         )}
       </List>
+      <Box
+        onMouseDown={handleMouseDown}
+        sx={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          width: 4,
+          height: "100%",
+          cursor: "col-resize",
+          bgcolor: "divider",
+          "&:hover": {
+            bgcolor: "primary.main",
+          },
+        }}
+      />
     </Box>
   );
 }

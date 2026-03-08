@@ -14,8 +14,10 @@ interface NoteStore {
   notes: Note[];
   selectedNoteId: string | null;
   searchQuery: string;
+  sidebarWidth: number;
 
   setSearchQuery: (query: string) => void;
+  setSidebarWidth: (width: number) => void;
   setSelectedNoteId: (id: string | null) => void;
   createNote: (title: string) => void;
   updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content">>) => void;
@@ -28,8 +30,10 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   notes: initialNotes,
   selectedNoteId: null,
   searchQuery: "",
+  sidebarWidth: 350,
 
   setSearchQuery: (query) => set({ searchQuery: query }),
+  setSidebarWidth: (width) => set({ sidebarWidth: Math.min(700, Math.max(350, width)) }),
   setSelectedNoteId: (id) => set({ selectedNoteId: id }),
 
   createNote: (title) => {
