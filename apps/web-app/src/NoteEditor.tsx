@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
@@ -59,28 +58,10 @@ function NoteEditor() {
           borderColor: "divider",
         }}
       >
-        <Box sx={{ flex: 1 }}>
-          {editing ? (
-            <TextField
-              fullWidth
-              variant="standard"
-              value={note.title}
-              onChange={(e) => updateNote(note.id, { title: e.target.value })}
-              slotProps={{
-                input: {
-                  disableUnderline: true,
-                  sx: {
-                    fontSize: "1.75rem",
-                    fontWeight: 600,
-                  },
-                },
-              }}
-            />
-          ) : (
-            <Typography variant="h4" sx={{ fontWeight: 600 }}>
-              {note.title}
-            </Typography>
-          )}
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography variant="h4" sx={{ fontWeight: 600 }} noWrap>
+            {note.title}
+          </Typography>
           <Typography variant="caption" color="text.secondary">
             Last updated{" "}
             {new Date(note.updatedAt).toLocaleDateString(undefined, {
