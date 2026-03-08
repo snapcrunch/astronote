@@ -8,6 +8,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNoteStore, useSelectedNote } from "./store";
+import MarkdownEditor from "./MarkdownEditor";
 
 function NoteEditor() {
   const note = useSelectedNote();
@@ -101,33 +102,9 @@ function NoteEditor() {
       </Box>
       <Box sx={{ flex: 1, px: 3, pb: 3, overflow: "auto" }}>
         {editing ? (
-          <TextField
-            fullWidth
-            multiline
-            variant="standard"
-            placeholder="Start writing…"
+          <MarkdownEditor
             value={note.content}
-            onChange={(e) => updateNote(note.id, { content: e.target.value })}
-            slotProps={{
-              input: {
-                disableUnderline: true,
-                sx: {
-                  fontSize: "1rem",
-                  lineHeight: 1.8,
-                  alignItems: "flex-start",
-                },
-              },
-            }}
-            sx={{
-              height: "100%",
-              "& .MuiInputBase-root": {
-                height: "100%",
-              },
-              "& .MuiInputBase-input": {
-                height: "100% !important",
-                overflow: "auto !important",
-              },
-            }}
+            onChange={(content) => updateNote(note.id, { content })}
           />
         ) : (
           <Box
