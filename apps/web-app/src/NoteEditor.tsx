@@ -7,14 +7,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { Note } from "@repo/types";
+import { useNoteStore } from "./store";
 
-interface NoteEditorProps {
-  note: Note | null;
-  onUpdateNote: (id: string, updates: Partial<Pick<Note, "title" | "content">>) => void;
-}
-
-function NoteEditor({ note, onUpdateNote }: NoteEditorProps) {
+function NoteEditor() {
+  const note = useNoteStore((s) => s.getSelectedNote());
+  const updateNote = useNoteStore((s) => s.updateNote);
   const [editing, setEditing] = useState(false);
 
   useEffect(() => {
@@ -56,7 +53,7 @@ function NoteEditor({ note, onUpdateNote }: NoteEditorProps) {
               fullWidth
               variant="standard"
               value={note.title}
-              onChange={(e) => onUpdateNote(note.id, { title: e.target.value })}
+              onChange={(e) => updateNote(note.id, { title: e.target.value })}
               slotProps={{
                 input: {
                   disableUnderline: true,
@@ -99,7 +96,7 @@ function NoteEditor({ note, onUpdateNote }: NoteEditorProps) {
             variant="standard"
             placeholder="Start writing…"
             value={note.content}
-            onChange={(e) => onUpdateNote(note.id, { content: e.target.value })}
+            onChange={(e) => updateNote(note.id, { content: e.target.value })}
             slotProps={{
               input: {
                 disableUnderline: true,

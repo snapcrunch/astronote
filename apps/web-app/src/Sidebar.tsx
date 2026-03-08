@@ -7,27 +7,18 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
-import type { Note } from "@repo/types";
+import { useNoteStore } from "./store";
 
 const SIDEBAR_WIDTH = 320;
 
-interface SidebarProps {
-  notes: Note[];
-  selectedNoteId: string | null;
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  onSelectNote: (id: string) => void;
-  onCreateNote: (title: string) => void;
-}
+function Sidebar() {
+  const notes = useNoteStore((s) => s.getFilteredNotes());
+  const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
+  const searchQuery = useNoteStore((s) => s.searchQuery);
+  const setSearchQuery = useNoteStore((s) => s.setSearchQuery);
+  const setSelectedNoteId = useNoteStore((s) => s.setSelectedNoteId);
+  const createNote = useNoteStore((s) => s.createNote);
 
-function Sidebar({
-  notes,
-  selectedNoteId,
-  searchQuery,
-  onSearchChange,
-  onSelectNote,
-  onCreateNote,
-}: SidebarProps) {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter" && searchQuery.trim()) {
@@ -35,13 +26,13 @@ function Sidebar({
           (n) => n.title.toLowerCase() === searchQuery.trim().toLowerCase(),
         );
         if (exactMatch) {
-          onSelectNote(exactMatch.id);
+          setSelectedNoteId(exactMatch.id);
         } else {
-          onCreateNote(searchQuery.trim());
+          createNote(searchQuery.trim());
         }
       }
     },
-    [searchQuery, notes, onSelectNote, onCreateNote],
+    [searchQuery, notes, setSelectedNoteId, createNote],
   );
 
   const formatDate = (dateStr: string) => {
@@ -78,7 +69,7 @@ function Sidebar({
           size="small"
           placeholder="Search or create a note…"
           value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           slotProps={{
             input: {
@@ -102,7 +93,7 @@ function Sidebar({
           <ListItemButton
             key={note.id}
             selected={note.id === selectedNoteId}
-            onClick={() => onSelectNote(note.id)}
+            onClick={() => setSelectedNoteId(note.id)}
             sx={{
               mx: 1,
               borderRadius: 2,
