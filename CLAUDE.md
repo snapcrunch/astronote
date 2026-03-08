@@ -8,7 +8,8 @@ The web-based frontend is developed using:
 
 - TypeScript
 - React
-- [Material UI](https://mui.com/material-ui/getting-started/)
+- [Material UI](https://mui.com/material-ui/getting-started/) (UI components library)
+- [Zustand](https://zustand.docs.pmnd.rs/learn/getting-started/introduction) (State management library)
 
 ### Layout
 
