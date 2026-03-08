@@ -7,7 +7,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
-import { useNoteStore } from "./store";
+import { useNoteStore, useFilteredNotes } from "./store";
 
 const MIN_WIDTH = 350;
 const MAX_WIDTH = 700;
@@ -55,7 +55,7 @@ function Sidebar() {
     [setSidebarWidth],
   );
 
-  const notes = useNoteStore((s) => s.getFilteredNotes());
+  const notes = useFilteredNotes();
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
   const searchQuery = useNoteStore((s) => s.searchQuery);
   const setSearchQuery = useNoteStore((s) => s.setSearchQuery);

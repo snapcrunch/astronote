@@ -7,10 +7,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { useNoteStore } from "./store";
+import { useNoteStore, useSelectedNote } from "./store";
 
 function NoteEditor() {
-  const note = useNoteStore((s) => s.getSelectedNote());
+  const note = useSelectedNote();
   const updateNote = useNoteStore((s) => s.updateNote);
   const [editing, setEditing] = useState(false);
 

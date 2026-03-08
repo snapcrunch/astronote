@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { create } from "zustand";
 import type { Note } from "@repo/types";
 import seedNotes from "./notes.json";
@@ -21,9 +22,6 @@ interface NoteStore {
   setSelectedNoteId: (id: string | null) => void;
   createNote: (title: string) => void;
   updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content">>) => void;
-
-  getFilteredNotes: () => Note[];
-  getSelectedNote: () => Note | null;
 }
 
 export const useNoteStore = create<NoteStore>((set, get) => ({
@@ -61,9 +59,12 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       ),
     }));
   },
+}));
 
-  getFilteredNotes: () => {
-    const { notes, searchQuery } = get();
+export function useFilteredNotes() {
+  const notes = useNoteStore((s) => s.notes);
+  const searchQuery = useNoteStore((s) => s.searchQuery);
+  return useMemo(() => {
     if (!searchQuery.trim()) return notes;
     const q = searchQuery.toLowerCase();
     return notes.filter(
@@ -71,10 +72,14 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
         n.title.toLowerCase().includes(q) ||
         n.content.toLowerCase().includes(q),
     );
-  },
+  }, [notes, searchQuery]);
+}
 
-  getSelectedNote: () => {
-    const { notes, selectedNoteId } = get();
-    return notes.find((n) => n.id === selectedNoteId) ?? null;
-  },
-}));
+export function useSelectedNote() {
+  const notes = useNoteStore((s) => s.notes);
+  const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
+  return useMemo(
+    () => notes.find((n) => n.id === selectedNoteId) ?? null,
+    [notes, selectedNoteId],
+  );
+}
