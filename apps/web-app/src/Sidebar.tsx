@@ -62,8 +62,25 @@ function Sidebar() {
   const setSelectedNoteId = useNoteStore((s) => s.setSelectedNoteId);
   const createNote = useNoteStore((s) => s.createNote);
 
-  const handleKeyDown = useCallback(
+  const listRef = useRef<HTMLUListElement>(null);
+
+  const focusNoteAtIndex = useCallback(
+    (index: number) => {
+      if (index < 0 || index >= notes.length) return;
+      setSelectedNoteId(notes[index]!.id);
+      const items = listRef.current?.querySelectorAll<HTMLElement>('[role="button"]');
+      items?.[index]?.focus();
+    },
+    [notes, setSelectedNoteId],
+  );
+
+  const handleOmnibarKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if ((e.key === "ArrowDown" || e.key === "ArrowUp") && notes.length > 0) {
+        e.preventDefault();
+        focusNoteAtIndex(0);
+        return;
+      }
       if (e.key === "Enter" && searchQuery.trim()) {
         const exactMatch = notes.find(
           (n) => n.title.toLowerCase() === searchQuery.trim().toLowerCase(),
@@ -75,7 +92,24 @@ function Sidebar() {
         }
       }
     },
-    [searchQuery, notes, setSelectedNoteId, createNote],
+    [searchQuery, notes, setSelectedNoteId, createNote, focusNoteAtIndex],
+  );
+
+  const handleListItemKeyDown = useCallback(
+    (e: React.KeyboardEvent, index: number) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        focusNoteAtIndex(index + 1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (index === 0) {
+          omnibarRef.current?.focus();
+        } else {
+          focusNoteAtIndex(index - 1);
+        }
+      }
+    },
+    [focusNoteAtIndex],
   );
 
   const formatDate = (dateStr: string) => {
@@ -110,7 +144,7 @@ function Sidebar() {
           placeholder="Search or create a note…"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleOmnibarKeyDown}
           slotProps={{
             input: {
               startAdornment: (
@@ -131,12 +165,13 @@ function Sidebar() {
           }}
         />
       </Box>
-      <List sx={{ flex: 1, overflow: "auto", pt: 0 }} disablePadding>
+      <List ref={listRef} sx={{ flex: 1, overflow: "auto", pt: 0 }} disablePadding>
         {notes.map((note, index) => (
           <ListItemButton
             key={note.id}
             selected={note.id === selectedNoteId}
             onClick={() => setSelectedNoteId(note.id)}
+            onKeyDown={(e) => handleListItemKeyDown(e, index)}
             sx={{
               mx: 0,
               borderRadius: 0,
@@ -150,6 +185,9 @@ function Sidebar() {
                 color: "primary.contrastText",
                 "&:hover": {
                   bgcolor: "primary.dark",
+                },
+                "&.Mui-focusVisible": {
+                  bgcolor: "primary.main",
                 },
                 "& .MuiListItemText-secondary": {
                   color: "primary.contrastText",
