@@ -3,6 +3,15 @@ import Box from "@mui/material/Box";
 import Sidebar from "./Sidebar";
 import NoteEditor from "./NoteEditor";
 import type { Note } from "./types";
+import seedNotes from "./notes.json";
+
+const initialNotes: Note[] = seedNotes.map((n) => ({
+  id: crypto.randomUUID(),
+  title: n.title,
+  content: n.content,
+  createdAt: n.created,
+  updatedAt: n.updated,
+}));
 
 function createNote(title: string): Note {
   const now = new Date().toISOString();
@@ -16,7 +25,7 @@ function createNote(title: string): Note {
 }
 
 function App() {
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
