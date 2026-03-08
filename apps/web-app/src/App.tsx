@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import Box from "@mui/material/Box";
 import Sidebar from "./Sidebar";
 import NoteEditor from "./NoteEditor";
-import type { Note } from "./types";
+import type { Note } from "@repo/types";
 import seedNotes from "./notes.json";
 
 const initialNotes: Note[] = seedNotes.map((n) => ({

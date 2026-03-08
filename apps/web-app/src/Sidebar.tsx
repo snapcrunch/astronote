@@ -7,7 +7,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
-import type { Note } from "./types";
+import type { Note } from "@repo/types";
 
 const SIDEBAR_WIDTH = 320;
 

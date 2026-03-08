@@ -7,7 +7,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { Note } from "./types";
+import type { Note } from "@repo/types";
 
 interface NoteEditorProps {
   note: Note | null;
