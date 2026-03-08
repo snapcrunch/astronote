@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import List from "@mui/material/List";
@@ -16,6 +16,18 @@ function Sidebar() {
   const sidebarWidth = useNoteStore((s) => s.sidebarWidth);
   const setSidebarWidth = useNoteStore((s) => s.setSidebarWidth);
   const dragging = useRef(false);
+  const omnibarRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey && e.key === "k") {
+        e.preventDefault();
+        omnibarRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -90,6 +102,7 @@ function Sidebar() {
     >
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <TextField
+          inputRef={omnibarRef}
           fullWidth
           size="small"
           placeholder="Search or create a note…"
