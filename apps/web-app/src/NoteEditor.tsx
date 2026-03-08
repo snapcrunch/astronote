@@ -46,7 +46,18 @@ function NoteEditor() {
         overflow: "hidden",
       }}
     >
-      <Box sx={{ p: 3, pb: 1, display: "flex", alignItems: "flex-start", gap: 1 }}>
+      <Box
+        sx={{
+          px: 3,
+          py: 1.5,
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 1,
+          bgcolor: "grey.100",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
         <Box sx={{ flex: 1 }}>
           {editing ? (
             <TextField

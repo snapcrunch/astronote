@@ -98,6 +98,8 @@ function Sidebar() {
         flexDirection: "column",
         bgcolor: "grey.50",
         position: "relative",
+        borderRight: 1,
+        borderColor: "divider",
       }}
     >
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -202,7 +204,7 @@ function Sidebar() {
           width: 4,
           height: "100%",
           cursor: "col-resize",
-          bgcolor: "divider",
+          bgcolor: "transparent",
           "&:hover": {
             bgcolor: "primary.main",
           },
