@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx turbo run check-types --filter='@astronote/*')",
+      "Bash(node /Users/timambler/repos/astronote-factory/apps/cli/dist/index.js --help)",
+      "Bash(/Users/timambler/repos/astronote-factory/packages/runtime/package.json:*)",
+      "Bash(node --import tsx /Users/timambler/repos/astronote-factory/apps/cli/src/index.ts --help)",
+      "Bash(node --import tsx apps/cli/src/index.ts --help)",
+      "Bash(node -e \":*)",
+      "Bash(node --import tsx apps/cli/src/index.ts -e \"console.log\\(JSON.stringify\\(process.argv\\)\\)\")",
+      "Bash(node --import tsx apps/cli/src/index.ts ./tmp/spec.md -s docker -v)",
+      "Bash(docker info)"
+    ]
+  }
+}
