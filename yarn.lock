@@ -178,6 +178,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@repo/root@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@repo/root@workspace:."
+  dependencies:
+    prettier: ^3.7.4
+    turbo: ^2.8.14
+    typescript: 5.9.2
+  languageName: unknown
+  linkType: soft
+
 "@repo/typescript-config@workspace:packages/typescript-config":
   version: 0.0.0-use.local
   resolution: "@repo/typescript-config@workspace:packages/typescript-config"
@@ -470,16 +480,6 @@ __metadata:
   checksum: b1d1fd20be4e972a3779b1569226f6740170dca10f07aa4421d42cefeec61391e79c557cda8e771f5baefe47d878178cd4438f60916ce831813c08132bced765
   languageName: node
   linkType: hard
-
-"astronote-factory@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "astronote-factory@workspace:."
-  dependencies:
-    prettier: ^3.7.4
-    turbo: ^2.8.14
-    typescript: 5.9.2
-  languageName: unknown
-  linkType: soft
 
 "async-function@npm:^1.0.0":
   version: 1.0.0
