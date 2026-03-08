@@ -152,6 +152,26 @@ function Sidebar() {
                   <SearchIcon fontSize="small" />
                 </InputAdornment>
               ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      bgcolor: "grey.200",
+                      color: "text.secondary",
+                      px: 0.75,
+                      py: 0.25,
+                      borderRadius: 0.5,
+                      fontSize: "0.7rem",
+                      fontWeight: 600,
+                      lineHeight: 1,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    ⌘K
+                  </Typography>
+                </InputAdornment>
+              ),
             },
           }}
           sx={{
