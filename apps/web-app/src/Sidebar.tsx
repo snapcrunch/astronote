@@ -175,6 +175,11 @@ function Sidebar() {
           </Box>
         )}
       </List>
+      <Box sx={{ borderTop: 1, borderColor: "divider", px: 2, py: 0.5 }}>
+        <Typography variant="caption" color="text.secondary">
+          {notes.length} {notes.length === 1 ? "Note" : "Notes"}
+        </Typography>
+      </Box>
       <Box
         onMouseDown={handleMouseDown}
         sx={{
