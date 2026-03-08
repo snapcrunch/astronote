@@ -57,7 +57,7 @@ function Sidebar() {
         bgcolor: "grey.50",
       }}
     >
-      <Box sx={{ p: 2, pb: 1 }}>
+      <Box sx={{ p: 2, pb: 1, borderBottom: 1, borderColor: "divider" }}>
         <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
           Astronote
         </Typography>
@@ -99,6 +99,8 @@ function Sidebar() {
               borderRadius: 2,
               mb: 0.5,
               "&.Mui-selected": {
+                borderRadius: 0,
+                mx: 0,
                 bgcolor: "primary.main",
                 color: "primary.contrastText",
                 "&:hover": {
