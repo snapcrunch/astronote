@@ -18,6 +18,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
+import LinearProgress from "@mui/material/LinearProgress";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import JSZip from "jszip";
@@ -264,26 +265,40 @@ function titleFromFilename(name: string): string {
 }
 
 function ImportSection() {
-  const createNote = useNoteStore((s) => s.createNote);
+  const importNote = useNoteStore((s) => s.importNote);
   const fetchNotes = useNoteStore((s) => s.fetchNotes);
+  const fetchTags = useNoteStore((s) => s.fetchTags);
   const [dragOver, setDragOver] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const importMarkdownFiles = useCallback(
     async (files: { name: string; content: string }[]) => {
-      let count = 0;
-      for (const file of files) {
-        const title = titleFromFilename(file.name);
-        if (!title) continue;
-        await createNote(title, file.content);
-        count++;
+      const validFiles = files.filter((f) => titleFromFilename(f.name));
+      if (validFiles.length === 0) {
+        setStatus("No markdown files found.");
+        setTimeout(() => setStatus(null), 3000);
+        return;
       }
-      await fetchNotes();
-      setStatus(`Imported ${count} ${count === 1 ? "note" : "notes"}.`);
-      setTimeout(() => setStatus(null), 3000);
+
+      setProgress({ current: 0, total: validFiles.length });
+      useNoteStore.setState({ importing: true });
+
+      try {
+        for (let i = 0; i < validFiles.length; i++) {
+          const file = validFiles[i]!;
+          await importNote(titleFromFilename(file.name), file.content);
+          setProgress({ current: i + 1, total: validFiles.length });
+        }
+        await fetchNotes();
+        fetchTags();
+      } finally {
+        useNoteStore.setState({ importing: false });
+        setProgress(null);
+      }
     },
-    [createNote, fetchNotes],
+    [importNote, fetchNotes, fetchTags],
   );
 
   const processFiles = useCallback(
@@ -385,6 +400,18 @@ function ImportSection() {
           {status}
         </Typography>
       )}
+      <Dialog open={progress !== null}>
+        <DialogTitle>Importing Notes</DialogTitle>
+        <DialogContent sx={{ minWidth: 400 }}>
+          <DialogContentText sx={{ mb: 2 }}>
+            {progress && `Importing note ${progress.current} of ${progress.total}...`}
+          </DialogContentText>
+          <LinearProgress
+            variant="determinate"
+            value={progress ? (progress.current / progress.total) * 100 : 0}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -85,6 +85,8 @@ interface NoteStore {
   deleteCollection: (id: number) => Promise<void>;
   setDefaultCollection: (id: number) => Promise<void>;
   createNote: (title: string, content?: string) => Promise<void>;
+  importNote: (title: string, content: string) => Promise<void>;
+  importing: boolean;
   updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content">>) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
   addTag: (noteId: string, tag: string) => Promise<void>;
@@ -104,6 +106,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   settings: { default_view: "renderer" as DefaultView, show_info_panel: true, theme: "default" as const },
   settingsLoaded: false,
   editOnCreate: false,
+  importing: false,
   saving: false,
   archiving: false,
   view: initialUrl.view,
@@ -247,6 +250,15 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     }
   },
 
+  importNote: async (title, content) => {
+    const { activeCollectionId } = get();
+    await fetch(API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, content, collectionId: activeCollectionId }),
+    });
+  },
+
   updateNote: async (id, updates) => {
     set({ saving: true });
     try {
@@ -327,6 +339,8 @@ export function useFilteredNotes() {
 export function useStatusMessage() {
   const saving = useNoteStore((s) => s.saving);
   const archiving = useNoteStore((s) => s.archiving);
+  const importing = useNoteStore((s) => s.importing);
+  if (importing) return "Importing notes...";
   if (archiving) return "Archiving note...";
   if (saving) return "Saving note...";
   return null;
