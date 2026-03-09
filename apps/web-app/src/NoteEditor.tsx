@@ -32,6 +32,8 @@ function CodeBlock({ children, ...props }: React.ComponentPropsWithoutRef<"pre">
           borderRadius: 1,
           overflow: "auto",
           fontSize: "0.875rem",
+          border: 1,
+          borderColor: "divider",
         }}
       >
         {children}
