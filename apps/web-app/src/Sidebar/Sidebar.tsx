@@ -23,6 +23,7 @@ function Sidebar() {
         display: "flex",
         flexDirection: "column",
         bgcolor: "grey.50",
+        userSelect: "none",
         borderRight: 1,
         borderColor: "divider",
       }}
