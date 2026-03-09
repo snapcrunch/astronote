@@ -179,6 +179,7 @@ function InfoPanel() {
         borderLeft: 1,
         borderColor: "divider",
         bgcolor: "grey.50",
+        userSelect: "none",
       }}
     >
       <Box
