@@ -131,12 +131,12 @@ function InfoPanel() {
         </Typography>
       </Box>
       <Box sx={{ px: 2, py: 1.5, overflow: "auto" }}>
-        <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 0.5 }}>
+        <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 1, pb: 0.5, mx: -2, px: 2, borderBottom: 1, borderColor: "divider" }}>
           Tags
         </Typography>
         <TagManager noteId={note.id} tags={note.tags} />
 
-        <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mt: 2, mb: 0.5 }}>
+        <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mt: 2, mb: 1, pb: 0.5, mx: -2, px: 2, borderBottom: 1, borderColor: "divider" }}>
           Statistics
         </Typography>
         <StatRow label="Words" value={stats.words} />
@@ -144,7 +144,7 @@ function InfoPanel() {
         <StatRow label="Sentences" value={stats.sentences} />
         <StatRow label="Paragraphs" value={stats.paragraphs} />
 
-        <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mt: 2, mb: 0.5 }}>
+        <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mt: 2, mb: 1, pb: 0.5, mx: -2, px: 2, borderBottom: 1, borderColor: "divider" }}>
           Dates
         </Typography>
         <StatRow label="Created" value={formatDateTime(note.createdAt)} />
