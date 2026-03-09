@@ -71,6 +71,7 @@ interface NoteStore {
 
   fetchSettings: () => Promise<void>;
   updateSettings: (updates: Partial<Settings>) => Promise<void>;
+  resetAll: () => Promise<void>;
   setView: (view: View) => void;
   toggleInfoPanel: () => void;
   setSearchQuery: (query: string) => void;
@@ -125,6 +126,22 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     });
     const settings: Settings = await res.json();
     set({ settings });
+  },
+  resetAll: async () => {
+    const res = await fetch("/api/settings/reset", { method: "POST" });
+    const defaultCollection: Collection = await res.json();
+    set({
+      notes: [],
+      tags: [],
+      collections: [defaultCollection],
+      activeCollectionId: defaultCollection.id,
+      selectedNoteId: null,
+      searchQuery: "",
+      selectedTags: [],
+      view: "notes",
+    });
+    syncUrl("notes", null, get().showInfoPanel);
+    await get().fetchSettings();
   },
   toggleInfoPanel: () => {
     const next = !get().showInfoPanel;
@@ -214,10 +231,11 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   createNote: async (title) => {
     set({ saving: true });
     try {
+      const { activeCollectionId } = get();
       const res = await fetch(API_BASE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ title, collectionId: activeCollectionId }),
       });
       const note: Note = await res.json();
       set({ searchQuery: "", selectedNoteId: note.id, editOnCreate: true, view: "notes" });

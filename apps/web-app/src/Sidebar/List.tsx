@@ -144,12 +144,17 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
         anchorPosition={
           contextMenu ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined
         }
+        slotProps={{
+          paper: {
+            sx: { minWidth: 120, py: 0.5 },
+          },
+        }}
       >
-        <MenuItem onClick={handleDelete}>
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" />
+        <MenuItem onClick={handleDelete} dense>
+          <ListItemIcon sx={{ minWidth: 28 }}>
+            <DeleteIcon sx={{ fontSize: 16 }} />
           </ListItemIcon>
-          Delete
+          <Typography variant="body2">Delete</Typography>
         </MenuItem>
       </Menu>
     </>

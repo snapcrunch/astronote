@@ -24,7 +24,7 @@ export async function getNote(id: string): Promise<Note | null> {
   return repository.getNoteById(id);
 }
 
-export async function createNote(input: CreateNoteInput & { tags?: string[] }): Promise<Note> {
+export async function createNote(input: CreateNoteInput & { tags?: string[]; collectionId?: number }): Promise<Note> {
   const now = new Date().toISOString();
   const tags = (input.tags ?? []).map((t) => t.toLowerCase());
   const note: Note = {
@@ -35,7 +35,7 @@ export async function createNote(input: CreateNoteInput & { tags?: string[] }): 
     createdAt: now,
     updatedAt: now,
   };
-  const created = await repository.createNote(note);
+  const created = await repository.createNote(note, input.collectionId);
   await repository.incrementTags(tags);
   return created;
 }
@@ -97,4 +97,8 @@ export async function getSettings(): Promise<Settings> {
 
 export async function updateSettings(updates: Partial<Settings>): Promise<Settings> {
   return repository.updateSettings(updates);
+}
+
+export async function resetAll(): Promise<Collection> {
+  return repository.resetAll();
 }

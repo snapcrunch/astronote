@@ -12,6 +12,12 @@ import StarIcon from "@mui/icons-material/Star";
 import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNoteStore, useSelectedNote } from "./store";
@@ -102,6 +108,7 @@ function SettingsView() {
   const settings = useNoteStore((s) => s.settings);
   const settingsLoaded = useNoteStore((s) => s.settingsLoaded);
   const updateSettings = useNoteStore((s) => s.updateSettings);
+  const resetAll = useNoteStore((s) => s.resetAll);
 
   if (!settingsLoaded) return null;
 
@@ -238,8 +245,43 @@ function SettingsView() {
               <MenuItem key={id} value={id}>{label}</MenuItem>
             ))}
         </Select>
+        <ResetSection onReset={resetAll} />
       </Box>
     </Box>
+  );
+}
+
+function ResetSection({ onReset }: { onReset: () => Promise<void> }) {
+  const [open, setOpen] = useState(false);
+
+  const handleConfirm = async () => {
+    setOpen(false);
+    await onReset();
+  };
+
+  return (
+    <>
+      <Typography variant="subtitle2" sx={{ mt: 3, mb: 1 }}>
+        Reset
+      </Typography>
+      <Button variant="outlined" color="error" onClick={() => setOpen(true)}>
+        Reset All Data
+      </Button>
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <DialogTitle>Reset All Data</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This will permanently delete all notes, collections, and tags, and
+            revert all settings to their default values. This action cannot be
+            undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={handleConfirm} color="error">Reset</Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
 

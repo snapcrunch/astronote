@@ -18,3 +18,8 @@ settingsRouter.patch("/", async (req, res) => {
   const settings = await domain.updateSettings(result.data);
   res.json(settings);
 });
+
+settingsRouter.post("/reset", async (_req, res) => {
+  const defaultCollection = await domain.resetAll();
+  res.json(defaultCollection);
+});

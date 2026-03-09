@@ -29,7 +29,8 @@ notesRouter.post("/", async (req, res) => {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const note = await domain.createNote(result.data);
+  const collectionId = typeof req.body.collectionId === "number" ? req.body.collectionId : undefined;
+  const note = await domain.createNote({ ...result.data, collectionId });
   res.status(201).json(note);
 });
 

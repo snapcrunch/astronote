@@ -73,11 +73,12 @@ export async function getNoteById(id: string): Promise<Note | null> {
   return rowToNote(row);
 }
 
-export async function createNote(note: Note): Promise<Note> {
+export async function createNote(note: Note, collectionId?: number): Promise<Note> {
   await db("notes").insert({
     id: note.id,
     title: note.title,
     content: note.content,
+    collectionId: collectionId ?? null,
     createdAt: note.createdAt,
     updatedAt: note.updatedAt,
   });
@@ -221,4 +222,16 @@ export async function updateSettings(updates: Partial<Settings>): Promise<Settin
   const value = JSON.stringify(merged);
   await db("settings").where("key", "settings").update({ value });
   return merged;
+}
+
+export async function resetAll(): Promise<Collection> {
+  await db("note_tags").delete();
+  await db("tags").delete();
+  await db("notes").delete();
+  await db("collections").delete();
+  await db("settings")
+    .where("key", "settings")
+    .update({ value: JSON.stringify(DEFAULT_SETTINGS) });
+  const [id] = await db("collections").insert({ name: "Default", isDefault: 1 });
+  return { id, name: "Default", isDefault: true };
 }
