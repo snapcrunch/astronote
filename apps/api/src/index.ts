@@ -7,6 +7,7 @@ import { tagsRouter } from "./routes/tags";
 import { collectionsRouter } from "./routes/collections";
 import { settingsRouter } from "./routes/settings";
 import { errorHandler } from "./middleware/errorHandler";
+import { basicAuth } from "./middleware/basicAuth";
 
 const PORT = process.env.PORT ?? 3001;
 const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), "astronote.db");
@@ -19,6 +20,7 @@ async function main() {
 
   app.use(cors());
   app.use(express.json());
+  app.use(basicAuth);
 
   app.use("/api/notes", notesRouter);
   app.use("/api/tags", tagsRouter);
