@@ -32,6 +32,13 @@ export async function initDatabase(path: string): Promise<void> {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS tags (
+      tag TEXT PRIMARY KEY,
+      count INTEGER NOT NULL DEFAULT 0
+    )
+  `);
+
   // Add archived column to existing databases
   const cols = db.exec("PRAGMA table_info(notes)");
   const hasArchived = cols[0]?.values.some((row) => row[1] === "archived");
@@ -120,6 +127,26 @@ export function archiveNote(id: string): boolean {
   ]);
   save();
   return true;
+}
+
+export function incrementTags(tags: string[]): void {
+  if (tags.length === 0) return;
+  for (const tag of tags) {
+    db.run(
+      "INSERT INTO tags (tag, count) VALUES (?, 1) ON CONFLICT(tag) DO UPDATE SET count = count + 1",
+      [tag],
+    );
+  }
+  save();
+}
+
+export function decrementTags(tags: string[]): void {
+  if (tags.length === 0) return;
+  for (const tag of tags) {
+    db.run("UPDATE tags SET count = count - 1 WHERE tag = ?", [tag]);
+  }
+  db.run("DELETE FROM tags WHERE count <= 0");
+  save();
 }
 
 export function getNoteCount(): number {
