@@ -12,6 +12,11 @@ export function useOmnibar() {
         e.preventDefault();
         omnibarRef.current?.focus();
       }
+      if (e.metaKey && e.key === "d") {
+        e.preventDefault();
+        const { selectedNoteId, deleteNote } = useNoteStore.getState();
+        if (selectedNoteId) deleteNote(selectedNoteId);
+      }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
