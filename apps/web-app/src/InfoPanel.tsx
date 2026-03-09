@@ -69,7 +69,7 @@ function TagManager({ noteId, tags }: { noteId: string; tags: string[] }) {
         onKeyDown={handleKeyDown}
         sx={{
           mb: 1,
-          "& .MuiOutlinedInput-root": { fontSize: "0.8rem" },
+          "& .MuiOutlinedInput-root": { fontSize: "0.8rem", bgcolor: "background.paper" },
           "& .MuiOutlinedInput-input": { py: 0.75 },
         }}
       />
@@ -80,6 +80,7 @@ function TagManager({ noteId, tags }: { noteId: string; tags: string[] }) {
             label={tag}
             size="small"
             onDelete={() => removeTag(noteId, tag)}
+            color="primary"
             sx={{ fontSize: "0.8rem", height: 24 }}
           />
         ))}
