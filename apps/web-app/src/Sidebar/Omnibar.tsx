@@ -12,7 +12,7 @@ interface OmnibarProps {
 
 function Omnibar({ omnibarRef, localQuery, onSearchChange, onKeyDown }: OmnibarProps) {
   return (
-    <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+    <Box sx={{ borderBottom: 1, borderColor: "divider", height: 40, minHeight: 40, boxSizing: "content-box", display: "flex", alignItems: "center" }}>
       <TextField
         inputRef={omnibarRef}
         fullWidth

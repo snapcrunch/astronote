@@ -70,7 +70,7 @@ function NoteEditor() {
         }}
       >
         <Typography variant="h6" color="text.secondary">
-          Select a note or create a new one
+          Select a note or create a new one.
         </Typography>
       </Box>
     );
@@ -89,28 +89,20 @@ function NoteEditor() {
       <Box
         sx={{
           px: 3,
-          py: 1.5,
           display: "flex",
-          alignItems: "flex-start",
+          alignItems: "center",
           gap: 1,
           bgcolor: "grey.100",
           borderBottom: 1,
           borderColor: "divider",
+          height: 40,
+          minHeight: 40,
+          boxSizing: "content-box",
         }}
       >
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="h4" sx={{ fontWeight: 600 }} noWrap>
+          <Typography variant="body1" sx={{ fontWeight: 600 }} noWrap>
             {note.title}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            Last updated{" "}
-            {new Date(note.updatedAt).toLocaleDateString(undefined, {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-              hour: "numeric",
-              minute: "2-digit",
-            })}
           </Typography>
         </Box>
         <IconButton

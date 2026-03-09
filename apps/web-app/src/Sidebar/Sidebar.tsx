@@ -38,7 +38,7 @@ function Sidebar() {
         selectedNoteId={selectedNoteId}
         localQuery={localQuery}
         listRef={listRef}
-        onSelectNote={setSelectedNoteId}
+        onSelectNote={(id) => setSelectedNoteId(selectedNoteId === id ? null : id)}
         onDeleteNote={deleteNote}
         onItemKeyDown={handleListItemKeyDown}
       />
