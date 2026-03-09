@@ -15,13 +15,32 @@ function NoteEditor() {
   const [editing, setEditing] = useState(false);
   const debounceTimer = useRef<ReturnType<typeof setTimeout>>(null);
 
+  const pendingUpdate = useRef<{ id: string; updates: Parameters<typeof updateNote>[1] } | null>(null);
+
   const debouncedUpdateNote = useCallback(
     (id: string, updates: Parameters<typeof updateNote>[1]) => {
+      pendingUpdate.current = { id, updates };
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
-      debounceTimer.current = setTimeout(() => updateNote(id, updates), 500);
+      debounceTimer.current = setTimeout(() => {
+        pendingUpdate.current = null;
+        updateNote(id, updates);
+      }, 500);
     },
     [updateNote],
   );
+
+  const flushAndExitEdit = useCallback(() => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+      debounceTimer.current = null;
+    }
+    if (pendingUpdate.current) {
+      const { id, updates } = pendingUpdate.current;
+      pendingUpdate.current = null;
+      updateNote(id, updates);
+    }
+    setEditing(false);
+  }, [updateNote]);
 
   useEffect(() => {
     return () => {
@@ -30,7 +49,13 @@ function NoteEditor() {
   }, []);
 
   useEffect(() => {
-    setEditing(false);
+    const { editOnCreate } = useNoteStore.getState();
+    if (editOnCreate) {
+      setEditing(true);
+      useNoteStore.setState({ editOnCreate: false });
+    } else {
+      setEditing(false);
+    }
   }, [note?.id]);
 
   if (!note) {
@@ -101,6 +126,8 @@ function NoteEditor() {
           <MarkdownEditor
             value={note.content}
             onChange={(content) => debouncedUpdateNote(note.id, { content })}
+            onEscape={flushAndExitEdit}
+            autoFocus
           />
         ) : (
           <Box

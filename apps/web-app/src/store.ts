@@ -8,6 +8,7 @@ interface NoteStore {
   notes: Note[];
   selectedNoteId: string | null;
   searchQuery: string;
+  editOnCreate: boolean;
 
   setSearchQuery: (query: string) => void;
   setSelectedNoteId: (id: string | null) => void;
@@ -20,6 +21,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   notes: [],
   selectedNoteId: null,
   searchQuery: "",
+  editOnCreate: false,
 
   setSearchQuery: (query) => {
     set({ searchQuery: query });
@@ -42,7 +44,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       body: JSON.stringify({ title }),
     });
     const note: Note = await res.json();
-    set({ searchQuery: "", selectedNoteId: note.id });
+    set({ searchQuery: "", selectedNoteId: note.id, editOnCreate: true });
     await get().fetchNotes();
   },
 

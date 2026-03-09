@@ -8,13 +8,17 @@ import { basicSetup } from "codemirror";
 interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;
+  autoFocus?: boolean;
+  onEscape?: () => void;
 }
 
-function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
+function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+  const onEscapeRef = useRef(onEscape);
+  onEscapeRef.current = onEscape;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -51,13 +55,22 @@ function MarkdownEditor({ value, onChange }: MarkdownEditorProps) {
               outline: "none",
             },
           }),
-          keymap.of([]),
+          keymap.of([
+            {
+              key: "Escape",
+              run: () => {
+                onEscapeRef.current?.();
+                return true;
+              },
+            },
+          ]),
         ],
       }),
       parent: containerRef.current,
     });
 
     viewRef.current = view;
+    if (autoFocus) view.focus();
 
     return () => {
       view.destroy();
