@@ -45,7 +45,7 @@ function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditor
               overflow: "auto",
             },
             ".cm-content": {
-              fontFamily: "'Roboto', sans-serif",
+              fontFamily: "'Roboto Mono', monospace",
               lineHeight: "1.8",
             },
             ".cm-gutters": {

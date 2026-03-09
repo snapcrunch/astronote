@@ -54,6 +54,7 @@ interface NoteStore {
   notes: Note[];
   tags: Tag[];
   collections: Collection[];
+  activeCollectionId: number | null;
   selectedNoteId: string | null;
   searchQuery: string;
   selectedTags: string[];
@@ -67,6 +68,7 @@ interface NoteStore {
   toggleInfoPanel: () => void;
   setSearchQuery: (query: string) => void;
   setSelectedNoteId: (id: string | null) => void;
+  setActiveCollectionId: (id: number) => void;
   toggleTag: (tag: string) => void;
   fetchNotes: () => Promise<void>;
   fetchTags: () => Promise<void>;
@@ -87,6 +89,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   notes: [],
   tags: [],
   collections: [],
+  activeCollectionId: null,
   selectedNoteId: initialUrl.selectedNoteId,
   searchQuery: "",
   selectedTags: [],
@@ -115,6 +118,11 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     set({ selectedNoteId: id, view });
     syncUrl(view, id, get().showInfoPanel);
   },
+  setActiveCollectionId: (id) => {
+    set({ activeCollectionId: id, selectedNoteId: null });
+    syncUrl("notes", null, get().showInfoPanel);
+    get().fetchNotes();
+  },
   toggleTag: (tag) => {
     const current = get().selectedTags;
     const next = current.includes(tag)
@@ -133,7 +141,14 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   fetchCollections: async () => {
     const res = await fetch("/api/collections");
     const collections: Collection[] = await res.json();
-    set({ collections });
+    const { activeCollectionId } = get();
+    if (activeCollectionId == null && collections.length > 0) {
+      const defaultCol = collections.find((c) => c.isDefault) ?? collections[0]!;
+      set({ collections, activeCollectionId: defaultCol.id });
+      get().fetchNotes();
+    } else {
+      set({ collections });
+    }
   },
 
   createCollection: async (name) => {
@@ -157,10 +172,11 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   },
 
   fetchNotes: async () => {
-    const { searchQuery, selectedTags } = get();
+    const { searchQuery, selectedTags, activeCollectionId } = get();
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
     if (selectedTags.length > 0) params.set("tags", selectedTags.join(","));
+    if (activeCollectionId != null) params.set("collectionId", String(activeCollectionId));
     const qs = params.toString();
     const url = qs ? `${API_BASE}?${qs}` : API_BASE;
     const res = await fetch(url);

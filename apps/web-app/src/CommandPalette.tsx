@@ -16,7 +16,7 @@ interface Command {
   action: () => void;
 }
 
-function useCommands(onClose: () => void): Command[] {
+function useCommands(onClose: () => void, onOpenCollectionPicker: () => void): Command[] {
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
   return useMemo(() => {
     const run = (fn: () => void) => () => {
@@ -45,6 +45,15 @@ function useCommands(onClose: () => void): Command[] {
         }),
       },
       {
+        id: "change-collection",
+        label: "Change Collection",
+        shortcut: "⌘⇧C",
+        action: () => {
+          onClose();
+          onOpenCollectionPicker();
+        },
+      },
+      {
         id: "clear-search",
         label: "Clear Search",
         action: run(() => {
@@ -67,29 +76,34 @@ function useCommands(onClose: () => void): Command[] {
         }),
       },
     ];
-  }, [onClose, selectedNoteId]);
+  }, [onClose, onOpenCollectionPicker, selectedNoteId]);
 }
 
-function CommandPalette() {
-  const [open, setOpen] = useState(false);
+function PaletteDialog({
+  open,
+  onClose,
+  placeholder,
+  items,
+  renderItem,
+  onSelect,
+}: {
+  open: boolean;
+  onClose: () => void;
+  placeholder: string;
+  items: { id: string | number; label: string; disabled?: boolean }[];
+  renderItem?: (item: { id: string | number; label: string; disabled?: boolean }, selected: boolean) => React.ReactNode;
+  onSelect: (item: { id: string | number; label: string }) => void;
+}) {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  const handleClose = useCallback(() => {
-    setOpen(false);
-    setQuery("");
-    setSelectedIndex(0);
-  }, []);
-
-  const commands = useCommands(handleClose);
-
   const filtered = useMemo(() => {
-    if (!query.trim()) return commands;
+    if (!query.trim()) return items;
     const q = query.toLowerCase();
-    return commands.filter((c) => c.label.toLowerCase().includes(q));
-  }, [commands, query]);
+    return items.filter((item) => item.label.toLowerCase().includes(q));
+  }, [items, query]);
 
   const filteredRef = useRef(filtered);
   filteredRef.current = filtered;
@@ -101,20 +115,9 @@ function CommandPalette() {
   }, [filtered.length]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey && e.shiftKey && e.key === "p") {
-        e.preventDefault();
-        setOpen((prev) => !prev);
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  // Focus input when dialog opens
-  useEffect(() => {
     if (open) {
-      // Use a short timeout to ensure the Dialog has rendered
+      setQuery("");
+      setSelectedIndex(0);
       const timer = setTimeout(() => inputRef.current?.focus(), 50);
       return () => clearTimeout(timer);
     }
@@ -122,22 +125,22 @@ function CommandPalette() {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      const cmds = filteredRef.current;
+      const list = filteredRef.current;
       const idx = selectedIndexRef.current;
       if (e.key === "ArrowDown") {
         e.preventDefault();
         e.stopPropagation();
-        setSelectedIndex((i) => Math.min(i + 1, cmds.length - 1));
+        setSelectedIndex((i) => Math.min(i + 1, list.length - 1));
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         e.stopPropagation();
         setSelectedIndex((i) => Math.max(i - 1, 0));
-      } else if (e.key === "Enter" && cmds[idx] && !cmds[idx].disabled) {
+      } else if (e.key === "Enter" && list[idx] && !list[idx].disabled) {
         e.preventDefault();
-        cmds[idx].action();
+        onSelect(list[idx]);
       }
     },
-    [],
+    [onSelect],
   );
 
   useEffect(() => {
@@ -148,7 +151,7 @@ function CommandPalette() {
   return (
     <Dialog
       open={open}
-      onClose={handleClose}
+      onClose={onClose}
       maxWidth="sm"
       fullWidth
       slotProps={{
@@ -166,7 +169,7 @@ function CommandPalette() {
       <InputBase
         inputRef={inputRef}
         fullWidth
-        placeholder="Type a command…"
+        placeholder={placeholder}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -179,25 +182,150 @@ function CommandPalette() {
         }}
       />
       <List ref={listRef} sx={{ maxHeight: 300, overflow: "auto", py: 0.5 }}>
-        {filtered.map((cmd, index) => (
+        {filtered.map((item, index) => (
           <ListItemButton
-            key={cmd.id}
+            key={item.id}
             selected={index === selectedIndex}
-            disabled={cmd.disabled}
-            onClick={() => cmd.action()}
+            disabled={item.disabled}
+            onClick={() => onSelect(item)}
             onMouseEnter={() => setSelectedIndex(index)}
             sx={{ px: 2, py: 0.75 }}
           >
+            {renderItem ? (
+              renderItem(item, index === selectedIndex)
+            ) : (
+              <ListItemText
+                primary={item.label}
+                primaryTypographyProps={{ fontSize: "0.9rem" }}
+              />
+            )}
+          </ListItemButton>
+        ))}
+        {filtered.length === 0 && (
+          <Box sx={{ p: 2, textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary">
+              No results found.
+            </Typography>
+          </Box>
+        )}
+      </List>
+    </Dialog>
+  );
+}
+
+function CommandPalette() {
+  const [open, setOpen] = useState(false);
+  const [collectionPickerOpen, setCollectionPickerOpen] = useState(false);
+  const collections = useNoteStore((s) => s.collections);
+  const activeCollectionId = useNoteStore((s) => s.activeCollectionId);
+
+  const handleClose = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  const handleOpenCollectionPicker = useCallback(() => {
+    setCollectionPickerOpen(true);
+  }, []);
+
+  const commands = useCommands(handleClose, handleOpenCollectionPicker);
+
+  const commandItems = useMemo(
+    () => commands.map((c) => ({ id: c.id, label: c.label, disabled: c.disabled, shortcut: c.shortcut, action: c.action })),
+    [commands],
+  );
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey && e.shiftKey && e.key === "p") {
+        e.preventDefault();
+        setOpen((prev) => !prev);
+      }
+      if (e.metaKey && e.shiftKey && (e.key === "c" || e.key === "C")) {
+        e.preventDefault();
+        setCollectionPickerOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const collectionItems = useMemo(
+    () => collections.map((c) => ({ id: c.id, label: c.name })),
+    [collections],
+  );
+
+  const handleSelectCommand = useCallback(
+    (item: { id: string | number }) => {
+      const cmd = commands.find((c) => c.id === item.id);
+      cmd?.action();
+    },
+    [commands],
+  );
+
+  const handleSelectCollection = useCallback(
+    (item: { id: string | number }) => {
+      setCollectionPickerOpen(false);
+      useNoteStore.getState().setActiveCollectionId(item.id as number);
+    },
+    [],
+  );
+
+  return (
+    <>
+      <PaletteDialog
+        open={open}
+        onClose={handleClose}
+        placeholder="Type a command…"
+        items={commandItems}
+        onSelect={handleSelectCommand}
+        renderItem={(item) => {
+          const cmd = commandItems.find((c) => c.id === item.id);
+          return (
+            <>
+              <ListItemText
+                primary={item.label}
+                primaryTypographyProps={{ fontSize: "0.9rem" }}
+              />
+              {cmd?.shortcut && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    bgcolor: "grey.200",
+                    color: "text.secondary",
+                    px: 0.75,
+                    py: 0.25,
+                    borderRadius: 0.5,
+                    fontSize: "0.7rem",
+                    fontWeight: 600,
+                    lineHeight: 1,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {cmd.shortcut}
+                </Typography>
+              )}
+            </>
+          );
+        }}
+      />
+      <PaletteDialog
+        open={collectionPickerOpen}
+        onClose={() => setCollectionPickerOpen(false)}
+        placeholder="Select a collection…"
+        items={collectionItems}
+        onSelect={handleSelectCollection}
+        renderItem={(item) => (
+          <>
             <ListItemText
-              primary={cmd.label}
+              primary={item.label}
               primaryTypographyProps={{ fontSize: "0.9rem" }}
             />
-            {cmd.shortcut && (
+            {item.id === activeCollectionId && (
               <Typography
                 variant="caption"
                 sx={{
-                  bgcolor: "grey.200",
-                  color: "text.secondary",
+                  bgcolor: "primary.main",
+                  color: "primary.contrastText",
                   px: 0.75,
                   py: 0.25,
                   borderRadius: 0.5,
@@ -207,20 +335,13 @@ function CommandPalette() {
                   whiteSpace: "nowrap",
                 }}
               >
-                {cmd.shortcut}
+                Active
               </Typography>
             )}
-          </ListItemButton>
-        ))}
-        {filtered.length === 0 && (
-          <Box sx={{ p: 2, textAlign: "center" }}>
-            <Typography variant="body2" color="text.secondary">
-              No commands found.
-            </Typography>
-          </Box>
+          </>
         )}
-      </List>
-    </Dialog>
+      />
+    </>
   );
 }
 

@@ -1212,6 +1212,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fontsource/roboto-mono@npm:^5.2.8":
+  version: 5.2.8
+  resolution: "@fontsource/roboto-mono@npm:5.2.8"
+  checksum: 330d4fd7e2277bd5f2f8bff81590c159e9ce2c3f080fdf4eb7672fc74b094f12503187d5ecd446f4376916160b046bd14e413742f2659dce620afff859eaf136
+  languageName: node
+  linkType: hard
+
 "@fontsource/roboto@npm:^5.2.10":
   version: 5.2.10
   resolution: "@fontsource/roboto@npm:5.2.10"
@@ -1823,6 +1830,7 @@ __metadata:
     "@emotion/react": ^11.14.0
     "@emotion/styled": ^11.14.1
     "@fontsource/roboto": ^5.2.10
+    "@fontsource/roboto-mono": ^5.2.8
     "@mui/icons-material": ^7.3.9
     "@mui/material": ^7.3.9
     "@repo/eslint-config": "*"

@@ -42,8 +42,12 @@ async function rowToNote(row: Record<string, unknown>): Promise<Note> {
   };
 }
 
-export async function getNotes(query?: string, tags?: string[]): Promise<Note[]> {
+export async function getNotes(query?: string, tags?: string[], collectionId?: number): Promise<Note[]> {
   let q = db("notes").where("archived", 0);
+
+  if (collectionId != null) {
+    q = q.andWhere("collectionId", collectionId);
+  }
 
   if (query) {
     const pattern = `%${query}%`;
