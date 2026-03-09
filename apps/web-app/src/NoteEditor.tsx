@@ -4,10 +4,60 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CheckIcon from "@mui/icons-material/Check";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNoteStore, useSelectedNote } from "./store";
 import MarkdownEditor from "./MarkdownEditor";
+
+function CodeBlock({ children, ...props }: React.ComponentPropsWithoutRef<"pre">) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    const code = (children as React.ReactElement)?.props?.children ?? "";
+    navigator.clipboard.writeText(String(code).replace(/\n$/, ""));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Box sx={{ position: "relative" }}>
+      <Box
+        component="pre"
+        {...props}
+        sx={{
+          bgcolor: "grey.100",
+          p: 2,
+          borderRadius: 1,
+          overflow: "auto",
+          fontSize: "0.875rem",
+        }}
+      >
+        {children}
+      </Box>
+      <IconButton
+        size="small"
+        onClick={handleCopy}
+        title="Copy to clipboard"
+        sx={{
+          position: "absolute",
+          top: 8,
+          right: 8,
+          bgcolor: "background.paper",
+          border: 1,
+          borderColor: "divider",
+          opacity: 0.7,
+          "&:hover": { opacity: 1, bgcolor: "background.paper" },
+          width: 28,
+          height: 28,
+        }}
+      >
+        {copied ? <CheckIcon sx={{ fontSize: 16 }} /> : <ContentCopyIcon sx={{ fontSize: 16 }} />}
+      </IconButton>
+    </Box>
+  );
+}
 
 function NoteEditor() {
   const view = useNoteStore((s) => s.view);
@@ -183,13 +233,6 @@ function NoteEditor() {
                 bgcolor: "grey.100",
                 fontWeight: 600,
               },
-              "& pre": {
-                bgcolor: "grey.100",
-                p: 2,
-                borderRadius: 1,
-                overflow: "auto",
-                fontSize: "0.875rem",
-              },
               "& code": {
                 fontSize: "0.875rem",
                 bgcolor: "grey.100",
@@ -222,7 +265,7 @@ function NoteEditor() {
               },
             }}
           >
-            <Markdown remarkPlugins={[remarkGfm]}>{note.content}</Markdown>
+            <Markdown remarkPlugins={[remarkGfm]} components={{ pre: CodeBlock }}>{note.content}</Markdown>
           </Box>
         )}
       </Box>
