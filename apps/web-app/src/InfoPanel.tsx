@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { useSelectedNote } from "./store";
+import { useNoteStore, useSelectedNote } from "./store";
 
 const INFO_PANEL_WIDTH = 260;
 
@@ -41,6 +41,7 @@ function StatRow({ label, value }: { label: string; value: string | number }) {
 }
 
 function InfoPanel() {
+  const showInfoPanel = useNoteStore((s) => s.showInfoPanel);
   const note = useSelectedNote();
 
   const stats = useMemo(() => {
@@ -48,7 +49,7 @@ function InfoPanel() {
     return countStats(note.content);
   }, [note]);
 
-  if (!note || !stats) return null;
+  if (!note || !stats || !showInfoPanel) return null;
 
   return (
     <Box

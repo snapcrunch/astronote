@@ -6,6 +6,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckIcon from "@mui/icons-material/Check";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNoteStore, useSelectedNote } from "./store";
@@ -63,6 +64,8 @@ function CodeBlock({ children, ...props }: React.ComponentPropsWithoutRef<"pre">
 
 function NoteEditor() {
   const view = useNoteStore((s) => s.view);
+  const showInfoPanel = useNoteStore((s) => s.showInfoPanel);
+  const toggleInfoPanel = useNoteStore((s) => s.toggleInfoPanel);
   const note = useSelectedNote();
   const updateNote = useNoteStore((s) => s.updateNote);
   const [editing, setEditing] = useState(false);
@@ -206,6 +209,14 @@ function NoteEditor() {
           title={editing ? "View" : "Edit"}
         >
           {editing ? <VisibilityIcon fontSize="small" /> : <EditIcon fontSize="small" />}
+        </IconButton>
+        <IconButton
+          size="small"
+          onClick={toggleInfoPanel}
+          title={showInfoPanel ? "Hide info panel" : "Show info panel"}
+          color={showInfoPanel ? "primary" : "default"}
+        >
+          <InfoOutlinedIcon fontSize="small" />
         </IconButton>
       </Box>
       <Box sx={{ flex: 1, px: 3, pb: 3, overflow: "auto" }}>

@@ -21,8 +21,10 @@ interface NoteStore {
   saving: boolean;
   archiving: boolean;
   view: View;
+  showInfoPanel: boolean;
 
   setView: (view: View) => void;
+  toggleInfoPanel: () => void;
   setSearchQuery: (query: string) => void;
   setSelectedNoteId: (id: string | null) => void;
   toggleTag: (tag: string) => void;
@@ -43,7 +45,9 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   saving: false,
   archiving: false,
   view: "notes",
+  showInfoPanel: true,
 
+  toggleInfoPanel: () => set((s) => ({ showInfoPanel: !s.showInfoPanel })),
   setView: (view) => set({ view, ...(view === "settings" ? { selectedNoteId: null } : {}) }),
   setSearchQuery: (query) => {
     set({ searchQuery: query });
