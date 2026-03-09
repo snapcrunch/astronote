@@ -17,6 +17,21 @@ export function useOmnibar() {
         const { selectedNoteId, deleteNote } = useNoteStore.getState();
         if (selectedNoteId) deleteNote(selectedNoteId);
       }
+      if ((e.key === "ArrowDown" || e.key === "ArrowUp") && (!document.activeElement || document.activeElement === document.body)) {
+        e.preventDefault();
+        const { notes, selectedNoteId, setSelectedNoteId } = useNoteStore.getState();
+        if (notes.length === 0) return;
+        if (!selectedNoteId) {
+          setSelectedNoteId(notes[0]!.id);
+          return;
+        }
+        const currentIndex = notes.findIndex((n) => n.id === selectedNoteId);
+        if (e.key === "ArrowDown" && currentIndex < notes.length - 1) {
+          setSelectedNoteId(notes[currentIndex + 1]!.id);
+        } else if (e.key === "ArrowUp" && currentIndex > 0) {
+          setSelectedNoteId(notes[currentIndex - 1]!.id);
+        }
+      }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
