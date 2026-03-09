@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import Box from "@mui/material/Box";
 import Sidebar from "./Sidebar";
 import NoteEditor from "./NoteEditor";
+import CommandPalette from "./CommandPalette";
 import { useNoteStore } from "./store";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
     <Box sx={{ display: "flex", height: "100%" }}>
       <Sidebar />
       <NoteEditor />
+      <CommandPalette />
     </Box>
   );
 }
