@@ -1,6 +1,7 @@
 import knexLib from "knex";
 import type { Knex } from "knex";
-import type { Note, Collection } from "@repo/types";
+import type { Note, Collection, Settings } from "@repo/types";
+import { DEFAULT_SETTINGS } from "@repo/types";
 import { createKnexConfig } from "./knexfile";
 
 let db: Knex;
@@ -204,4 +205,20 @@ export async function setDefaultCollection(id: number): Promise<boolean> {
   await db("collections").update({ isDefault: 0 });
   await db("collections").where("id", id).update({ isDefault: 1 });
   return true;
+}
+
+// Settings
+
+export async function getSettings(): Promise<Settings> {
+  const row = await db("settings").where("key", "settings").first();
+  if (!row) return { ...DEFAULT_SETTINGS };
+  return JSON.parse(row.value as string) as Settings;
+}
+
+export async function updateSettings(updates: Partial<Settings>): Promise<Settings> {
+  const current = await getSettings();
+  const merged = { ...current, ...updates };
+  const value = JSON.stringify(merged);
+  await db("settings").where("key", "settings").update({ value });
+  return merged;
 }

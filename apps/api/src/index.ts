@@ -5,6 +5,7 @@ import { initDatabase, seedDatabase } from "@repo/repository";
 import { notesRouter } from "./routes/notes";
 import { tagsRouter } from "./routes/tags";
 import { collectionsRouter } from "./routes/collections";
+import { settingsRouter } from "./routes/settings";
 import { errorHandler } from "./middleware/errorHandler";
 
 const PORT = process.env.PORT ?? 3001;
@@ -22,6 +23,7 @@ async function main() {
   app.use("/api/notes", notesRouter);
   app.use("/api/tags", tagsRouter);
   app.use("/api/collections", collectionsRouter);
+  app.use("/api/settings", settingsRouter);
   app.use(errorHandler);
 
   app.listen(PORT, () => {

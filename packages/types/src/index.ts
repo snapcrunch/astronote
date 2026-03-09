@@ -32,3 +32,17 @@ export const CollectionSchema = z.object({
 });
 
 export type Collection = z.infer<typeof CollectionSchema>;
+
+export const DefaultViewSchema = z.enum(["editor", "renderer"]);
+
+export type DefaultView = z.infer<typeof DefaultViewSchema>;
+
+export const SettingsSchema = z.object({
+  default_view: DefaultViewSchema,
+});
+
+export type Settings = z.infer<typeof SettingsSchema>;
+
+export const DEFAULT_SETTINGS: Settings = {
+  default_view: "renderer",
+};

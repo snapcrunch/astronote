@@ -10,12 +10,14 @@ function App() {
   const fetchNotes = useNoteStore((s) => s.fetchNotes);
   const fetchTags = useNoteStore((s) => s.fetchTags);
   const fetchCollections = useNoteStore((s) => s.fetchCollections);
+  const fetchSettings = useNoteStore((s) => s.fetchSettings);
 
   useEffect(() => {
     fetchNotes();
     fetchTags();
     fetchCollections();
-  }, [fetchNotes, fetchTags, fetchCollections]);
+    fetchSettings();
+  }, [fetchNotes, fetchTags, fetchCollections, fetchSettings]);
 
   useEffect(() => {
     const onPopState = () => restoreFromUrl();

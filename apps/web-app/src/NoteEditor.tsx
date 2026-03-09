@@ -10,6 +10,8 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import StarIcon from "@mui/icons-material/Star";
 import StarOutlineIcon from "@mui/icons-material/StarOutline";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNoteStore, useSelectedNote } from "./store";
@@ -95,6 +97,8 @@ function SettingsView() {
   const collections = useNoteStore((s) => s.collections);
   const deleteCollection = useNoteStore((s) => s.deleteCollection);
   const setDefaultCollection = useNoteStore((s) => s.setDefaultCollection);
+  const settings = useNoteStore((s) => s.settings);
+  const updateSettings = useNoteStore((s) => s.updateSettings);
 
   return (
     <Box
@@ -190,6 +194,20 @@ function SettingsView() {
             ))}
           </tbody>
         </Box>
+        <Typography variant="subtitle2" sx={{ mt: 3, mb: 1 }}>
+          Default View
+        </Typography>
+        <ToggleButtonGroup
+          value={settings.default_view}
+          exclusive
+          onChange={(_e, value) => {
+            if (value) updateSettings({ default_view: value });
+          }}
+          size="small"
+        >
+          <ToggleButton value="renderer">Renderer</ToggleButton>
+          <ToggleButton value="editor">Editor</ToggleButton>
+        </ToggleButtonGroup>
       </Box>
     </Box>
   );
@@ -238,12 +256,12 @@ function NoteEditor() {
   }, []);
 
   useEffect(() => {
-    const { editOnCreate } = useNoteStore.getState();
+    const { editOnCreate, settings } = useNoteStore.getState();
     if (editOnCreate) {
       setEditing(true);
       useNoteStore.setState({ editOnCreate: false });
     } else {
-      setEditing(false);
+      setEditing(settings.default_view === "editor");
     }
   }, [note?.id]);
 

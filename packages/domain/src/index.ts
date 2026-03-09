@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import type { Note, Collection, CreateNoteInput, UpdateNoteInput } from "@repo/types";
+import type { Note, Collection, CreateNoteInput, UpdateNoteInput, Settings } from "@repo/types";
 import * as repository from "@repo/repository";
 
 export function parseTags(text: string): string[] {
@@ -87,4 +87,14 @@ export async function deleteCollection(id: number): Promise<boolean> {
 
 export async function setDefaultCollection(id: number): Promise<boolean> {
   return repository.setDefaultCollection(id);
+}
+
+// Settings
+
+export async function getSettings(): Promise<Settings> {
+  return repository.getSettings();
+}
+
+export async function updateSettings(updates: Partial<Settings>): Promise<Settings> {
+  return repository.updateSettings(updates);
 }

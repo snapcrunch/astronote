@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { create } from "zustand";
-import type { Note, Collection } from "@repo/types";
+import type { Note, Collection, Settings, DefaultView } from "@repo/types";
 
 const API_BASE = "/api/notes";
 
@@ -61,9 +61,12 @@ interface NoteStore {
   editOnCreate: boolean;
   saving: boolean;
   archiving: boolean;
+  settings: Settings;
   view: View;
   showInfoPanel: boolean;
 
+  fetchSettings: () => Promise<void>;
+  updateSettings: (updates: Partial<Settings>) => Promise<void>;
   setView: (view: View) => void;
   toggleInfoPanel: () => void;
   setSearchQuery: (query: string) => void;
@@ -93,12 +96,27 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   selectedNoteId: initialUrl.selectedNoteId,
   searchQuery: "",
   selectedTags: [],
+  settings: { default_view: "renderer" as DefaultView },
   editOnCreate: false,
   saving: false,
   archiving: false,
   view: initialUrl.view,
   showInfoPanel: initialUrl.showInfoPanel,
 
+  fetchSettings: async () => {
+    const res = await fetch("/api/settings");
+    const settings: Settings = await res.json();
+    set({ settings });
+  },
+  updateSettings: async (updates) => {
+    const res = await fetch("/api/settings", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    });
+    const settings: Settings = await res.json();
+    set({ settings });
+  },
   toggleInfoPanel: () => {
     const next = !get().showInfoPanel;
     set({ showInfoPanel: next });
