@@ -64,6 +64,7 @@ function NoteEditor() {
         sx={{
           flex: 1,
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           height: "100%",
@@ -71,6 +72,9 @@ function NoteEditor() {
       >
         <Typography variant="h6" color="text.secondary">
           Select a note or create a new one.
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Press ⌘⇧P to open the command palette.
         </Typography>
       </Box>
     );

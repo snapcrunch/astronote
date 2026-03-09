@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Dialog from "@mui/material/Dialog";
-import TextField from "@mui/material/TextField";
+import InputBase from "@mui/material/InputBase";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
@@ -12,10 +12,12 @@ interface Command {
   id: string;
   label: string;
   shortcut?: string;
+  disabled?: boolean;
   action: () => void;
 }
 
 function useCommands(onClose: () => void): Command[] {
+  const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
   return useMemo(() => {
     const run = (fn: () => void) => () => {
       onClose();
@@ -33,17 +35,10 @@ function useCommands(onClose: () => void): Command[] {
         }),
       },
       {
-        id: "new-note",
-        label: "New Note",
-        action: run(() => {
-          const title = prompt("Note title:");
-          if (title?.trim()) useNoteStore.getState().createNote(title.trim());
-        }),
-      },
-      {
         id: "delete-note",
         label: "Delete Selected Note",
         shortcut: "⌘D",
+        disabled: !selectedNoteId,
         action: run(() => {
           const { selectedNoteId, deleteNote } = useNoteStore.getState();
           if (selectedNoteId) deleteNote(selectedNoteId);
@@ -65,13 +60,14 @@ function useCommands(onClose: () => void): Command[] {
         }),
       },
     ];
-  }, [onClose]);
+  }, [onClose, selectedNoteId]);
 }
 
 function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
   const handleClose = useCallback(() => {
@@ -88,6 +84,11 @@ function CommandPalette() {
     return commands.filter((c) => c.label.toLowerCase().includes(q));
   }, [commands, query]);
 
+  const filteredRef = useRef(filtered);
+  filteredRef.current = filtered;
+  const selectedIndexRef = useRef(selectedIndex);
+  selectedIndexRef.current = selectedIndex;
+
   useEffect(() => {
     setSelectedIndex(0);
   }, [filtered.length]);
@@ -103,18 +104,34 @@ function CommandPalette() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setSelectedIndex((i) => Math.min(i + 1, filtered.length - 1));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setSelectedIndex((i) => Math.max(i - 1, 0));
-    } else if (e.key === "Enter" && filtered[selectedIndex]) {
-      e.preventDefault();
-      filtered[selectedIndex].action();
+  // Focus input when dialog opens
+  useEffect(() => {
+    if (open) {
+      // Use a short timeout to ensure the Dialog has rendered
+      const timer = setTimeout(() => inputRef.current?.focus(), 50);
+      return () => clearTimeout(timer);
     }
-  };
+  }, [open]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const cmds = filteredRef.current;
+      const idx = selectedIndexRef.current;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        e.stopPropagation();
+        setSelectedIndex((i) => Math.min(i + 1, cmds.length - 1));
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        e.stopPropagation();
+        setSelectedIndex((i) => Math.max(i - 1, 0));
+      } else if (e.key === "Enter" && cmds[idx] && !cmds[idx].disabled) {
+        e.preventDefault();
+        cmds[idx].action();
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     const el = listRef.current?.children[selectedIndex] as HTMLElement | undefined;
@@ -139,22 +156,19 @@ function CommandPalette() {
         },
       }}
     >
-      <TextField
-        autoFocus
+      <InputBase
+        inputRef={inputRef}
         fullWidth
         placeholder="Type a command…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
         sx={{
-          "& .MuiOutlinedInput-root": {
-            borderRadius: 0,
-          },
-          "& .MuiOutlinedInput-notchedOutline": {
-            border: "none",
-            borderBottom: 1,
-            borderColor: "divider",
-          },
+          px: 2,
+          py: 1.5,
+          borderBottom: 1,
+          borderColor: "divider",
+          fontSize: "0.95rem",
         }}
       />
       <List ref={listRef} sx={{ maxHeight: 300, overflow: "auto", py: 0.5 }}>
@@ -162,6 +176,7 @@ function CommandPalette() {
           <ListItemButton
             key={cmd.id}
             selected={index === selectedIndex}
+            disabled={cmd.disabled}
             onClick={() => cmd.action()}
             onMouseEnter={() => setSelectedIndex(index)}
             sx={{ px: 2, py: 0.75 }}
