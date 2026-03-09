@@ -1,0 +1,101 @@
+import Box from "@mui/material/Box";
+import MuiList from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import Typography from "@mui/material/Typography";
+import type { Note } from "@repo/types";
+
+interface NoteListProps {
+  notes: Note[];
+  selectedNoteId: string | null;
+  localQuery: string;
+  listRef: React.RefObject<HTMLUListElement | null>;
+  onSelectNote: (id: string) => void;
+  onItemKeyDown: (e: React.KeyboardEvent, index: number) => void;
+}
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, onItemKeyDown }: NoteListProps) {
+  return (
+    <>
+      <MuiList ref={listRef} sx={{ flex: 1, overflow: "auto", pt: 0 }} disablePadding>
+        {notes.map((note, index) => (
+          <ListItemButton
+            key={note.id}
+            selected={note.id === selectedNoteId}
+            onClick={() => onSelectNote(note.id)}
+            onKeyDown={(e) => onItemKeyDown(e, index)}
+            sx={{
+              mx: 0,
+              borderRadius: 0,
+              py: 0.5,
+              px: 2,
+              borderBottom: 1,
+              borderColor: "divider",
+              bgcolor: index % 2 === 0 ? "background.paper" : "grey.50",
+              "&.Mui-selected": {
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+                "&:hover": {
+                  bgcolor: "primary.dark",
+                },
+                "&.Mui-focusVisible": {
+                  bgcolor: "primary.main",
+                },
+                "& .MuiListItemText-secondary": {
+                  color: "primary.contrastText",
+                  opacity: 0.7,
+                },
+              },
+            }}
+          >
+            <ListItemText
+              primary={note.title}
+              secondary={formatDate(note.updatedAt)}
+              primaryTypographyProps={{
+                noWrap: true,
+                fontWeight: 500,
+              }}
+              secondaryTypographyProps={{
+                variant: "caption",
+                noWrap: true,
+              }}
+            />
+          </ListItemButton>
+        ))}
+        {notes.length === 0 && localQuery && (
+          <Box sx={{ p: 2, textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary">
+              No notes found.
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Press Enter to create "{localQuery}"
+            </Typography>
+          </Box>
+        )}
+        {notes.length === 0 && !localQuery && (
+          <Box sx={{ p: 2, textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary">
+              No notes yet. Type in the search bar and press Enter to create one.
+            </Typography>
+          </Box>
+        )}
+      </MuiList>
+      <Box sx={{ borderTop: 1, borderColor: "divider", px: 2, py: 0.5 }}>
+        <Typography variant="caption" color="text.secondary">
+          {notes.length} {notes.length === 1 ? "Note" : "Notes"}
+        </Typography>
+      </Box>
+    </>
+  );
+}
+
+export default NoteList;
