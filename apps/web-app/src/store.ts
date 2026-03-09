@@ -8,10 +8,8 @@ interface NoteStore {
   notes: Note[];
   selectedNoteId: string | null;
   searchQuery: string;
-  sidebarWidth: number;
 
   setSearchQuery: (query: string) => void;
-  setSidebarWidth: (width: number) => void;
   setSelectedNoteId: (id: string | null) => void;
   fetchNotes: () => Promise<void>;
   createNote: (title: string) => Promise<void>;
@@ -22,13 +20,11 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   notes: [],
   selectedNoteId: null,
   searchQuery: "",
-  sidebarWidth: 350,
 
   setSearchQuery: (query) => {
     set({ searchQuery: query });
     get().fetchNotes();
   },
-  setSidebarWidth: (width) => set({ sidebarWidth: Math.min(700, Math.max(350, width)) }),
   setSelectedNoteId: (id) => set({ selectedNoteId: id }),
 
   fetchNotes: async () => {

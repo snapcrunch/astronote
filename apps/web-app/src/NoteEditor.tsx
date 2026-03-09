@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
@@ -13,6 +13,21 @@ function NoteEditor() {
   const note = useSelectedNote();
   const updateNote = useNoteStore((s) => s.updateNote);
   const [editing, setEditing] = useState(false);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const debouncedUpdateNote = useCallback(
+    (id: string, updates: Parameters<typeof updateNote>[1]) => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      debounceTimer.current = setTimeout(() => updateNote(id, updates), 500);
+    },
+    [updateNote],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, []);
 
   useEffect(() => {
     setEditing(false);
@@ -85,7 +100,7 @@ function NoteEditor() {
         {editing ? (
           <MarkdownEditor
             value={note.content}
-            onChange={(content) => updateNote(note.id, { content })}
+            onChange={(content) => debouncedUpdateNote(note.id, { content })}
           />
         ) : (
           <Box

@@ -9,13 +9,9 @@ import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNoteStore, useFilteredNotes } from "./store";
 
-const MIN_WIDTH = 350;
-const MAX_WIDTH = 700;
+const SIDEBAR_WIDTH = 475;
 
 function Sidebar() {
-  const sidebarWidth = useNoteStore((s) => s.sidebarWidth);
-  const setSidebarWidth = useNoteStore((s) => s.setSidebarWidth);
-  const dragging = useRef(false);
   const omnibarRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -28,32 +24,6 @@ function Sidebar() {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
-
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      dragging.current = true;
-
-      const onMouseMove = (ev: MouseEvent) => {
-        if (!dragging.current) return;
-        setSidebarWidth(ev.clientX);
-      };
-
-      const onMouseUp = () => {
-        dragging.current = false;
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
-        document.body.style.cursor = "";
-        document.body.style.userSelect = "";
-      };
-
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
-      document.body.style.cursor = "col-resize";
-      document.body.style.userSelect = "none";
-    },
-    [setSidebarWidth],
-  );
 
   const notes = useFilteredNotes();
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
@@ -124,14 +94,11 @@ function Sidebar() {
   return (
     <Box
       sx={{
-        width: sidebarWidth,
-        minWidth: MIN_WIDTH,
-        maxWidth: MAX_WIDTH,
+        width: SIDEBAR_WIDTH,
         height: "100%",
         display: "flex",
         flexDirection: "column",
         bgcolor: "grey.50",
-        position: "relative",
         borderRight: 1,
         borderColor: "divider",
       }}
@@ -253,21 +220,6 @@ function Sidebar() {
           {notes.length} {notes.length === 1 ? "Note" : "Notes"}
         </Typography>
       </Box>
-      <Box
-        onMouseDown={handleMouseDown}
-        sx={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          width: 4,
-          height: "100%",
-          cursor: "col-resize",
-          bgcolor: "transparent",
-          "&:hover": {
-            bgcolor: "primary.main",
-          },
-        }}
-      />
     </Box>
   );
 }
