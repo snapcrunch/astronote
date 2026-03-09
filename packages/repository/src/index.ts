@@ -212,7 +212,7 @@ export async function setDefaultCollection(id: number): Promise<boolean> {
 export async function getSettings(): Promise<Settings> {
   const row = await db("settings").where("key", "settings").first();
   if (!row) return { ...DEFAULT_SETTINGS };
-  return JSON.parse(row.value as string) as Settings;
+  return { ...DEFAULT_SETTINGS, ...JSON.parse(row.value as string) };
 }
 
 export async function updateSettings(updates: Partial<Settings>): Promise<Settings> {

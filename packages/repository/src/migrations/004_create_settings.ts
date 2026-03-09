@@ -8,7 +8,7 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex("settings").insert({
     key: "settings",
-    value: JSON.stringify({ default_view: "renderer", show_info_panel: true }),
+    value: JSON.stringify({ default_view: "renderer", show_info_panel: true, theme: "default" }),
   });
 }
 

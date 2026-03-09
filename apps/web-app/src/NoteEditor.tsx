@@ -10,11 +10,13 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import StarIcon from "@mui/icons-material/Star";
 import StarOutlineIcon from "@mui/icons-material/StarOutline";
-import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNoteStore, useSelectedNote } from "./store";
+import type { ThemeId, DefaultView } from "@repo/types";
+import { themes as themeEntries } from "./themes";
 import MarkdownEditor from "./MarkdownEditor";
 import { slugify } from "./utils";
 
@@ -200,31 +202,42 @@ function SettingsView() {
         <Typography variant="subtitle2" sx={{ mt: 3, mb: 1 }}>
           Default View
         </Typography>
-        <ToggleButtonGroup
+        <Select
           value={settings.default_view}
-          exclusive
-          onChange={(_e, value) => {
-            if (value) updateSettings({ default_view: value });
-          }}
+          onChange={(e) => updateSettings({ default_view: e.target.value as DefaultView })}
           size="small"
+          sx={{ minWidth: 200 }}
         >
-          <ToggleButton value="renderer">Renderer</ToggleButton>
-          <ToggleButton value="editor">Editor</ToggleButton>
-        </ToggleButtonGroup>
+          <MenuItem value="renderer">Renderer</MenuItem>
+          <MenuItem value="editor">Editor</MenuItem>
+        </Select>
         <Typography variant="subtitle2" sx={{ mt: 3, mb: 1 }}>
           Show Info Panel
         </Typography>
-        <ToggleButtonGroup
+        <Select
           value={settings.show_info_panel ? "yes" : "no"}
-          exclusive
-          onChange={(_e, value) => {
-            if (value) updateSettings({ show_info_panel: value === "yes" });
-          }}
+          onChange={(e) => updateSettings({ show_info_panel: e.target.value === "yes" })}
           size="small"
+          sx={{ minWidth: 200 }}
         >
-          <ToggleButton value="yes">Open</ToggleButton>
-          <ToggleButton value="no">Closed</ToggleButton>
-        </ToggleButtonGroup>
+          <MenuItem value="yes">Open</MenuItem>
+          <MenuItem value="no">Closed</MenuItem>
+        </Select>
+        <Typography variant="subtitle2" sx={{ mt: 3, mb: 1 }}>
+          Theme
+        </Typography>
+        <Select
+          value={settings.theme}
+          onChange={(e) => updateSettings({ theme: e.target.value as ThemeId })}
+          size="small"
+          sx={{ minWidth: 200 }}
+        >
+          {Object.entries(themeEntries)
+            .sort(([, a], [, b]) => a.label.localeCompare(b.label))
+            .map(([id, { label }]) => (
+              <MenuItem key={id} value={id}>{label}</MenuItem>
+            ))}
+        </Select>
       </Box>
     </Box>
   );

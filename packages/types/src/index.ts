@@ -37,9 +37,22 @@ export const DefaultViewSchema = z.enum(["editor", "renderer"]);
 
 export type DefaultView = z.infer<typeof DefaultViewSchema>;
 
+export const ThemeIdSchema = z.enum([
+  "default",
+  "dark",
+  "solarized-light",
+  "solarized-dark",
+  "nord",
+  "dracula",
+  "geek-light",
+]);
+
+export type ThemeId = z.infer<typeof ThemeIdSchema>;
+
 export const SettingsSchema = z.object({
   default_view: DefaultViewSchema,
   show_info_panel: z.boolean(),
+  theme: ThemeIdSchema,
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;
@@ -47,4 +60,5 @@ export type Settings = z.infer<typeof SettingsSchema>;
 export const DEFAULT_SETTINGS: Settings = {
   default_view: "renderer",
   show_info_panel: true,
+  theme: "default",
 };

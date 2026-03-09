@@ -100,7 +100,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   selectedNoteId: initialUrl.selectedNoteId,
   searchQuery: "",
   selectedTags: [],
-  settings: { default_view: "renderer" as DefaultView, show_info_panel: true },
+  settings: { default_view: "renderer" as DefaultView, show_info_panel: true, theme: "default" as const },
   settingsLoaded: false,
   editOnCreate: false,
   saving: false,
