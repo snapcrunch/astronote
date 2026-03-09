@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import MuiList from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -37,7 +37,25 @@ function extractTags(text: string): string[] {
   return [...new Set(matches.map((t) => t.toLowerCase()))];
 }
 
+function useIsScrollable(ref: React.RefObject<HTMLElement | null>) {
+  const [scrollable, setScrollable] = useState(false);
+  const check = useCallback(() => {
+    const el = ref.current;
+    setScrollable(el ? el.scrollHeight > el.clientHeight : false);
+  }, [ref]);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, check]);
+  return scrollable;
+}
+
 function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, onDeleteNote, onItemKeyDown }: NoteListProps) {
+  const isScrollable = useIsScrollable(listRef);
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; noteId: string } | null>(null);
 
   const handleContextMenu = (e: React.MouseEvent, noteId: string) => {
@@ -69,7 +87,7 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
               borderRadius: 0,
               py: 0.5,
               px: 2,
-              borderBottom: 1,
+              borderBottom: (isScrollable && index === notes.length - 1) ? 0 : 1,
               borderColor: "divider",
               bgcolor: index % 2 === 0 ? "background.paper" : "grey.50",
               "&.Mui-selected": {
