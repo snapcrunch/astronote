@@ -6,7 +6,9 @@ export const notesRouter = Router();
 
 notesRouter.get("/", (req, res) => {
   const query = typeof req.query.q === "string" ? req.query.q : undefined;
-  const notes = domain.listNotes(query);
+  const tagsParam = typeof req.query.tags === "string" ? req.query.tags : undefined;
+  const tags = tagsParam ? tagsParam.split(",") : undefined;
+  const notes = domain.listNotes(query, tags);
   res.json(notes);
 });
 

@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { initDatabase } from "@repo/repository";
 import { notesRouter } from "./routes/notes";
+import { tagsRouter } from "./routes/tags";
 import { errorHandler } from "./middleware/errorHandler";
 import { seedDatabase } from "./seed";
 
@@ -19,6 +20,7 @@ async function main() {
   app.use(express.json());
 
   app.use("/api/notes", notesRouter);
+  app.use("/api/tags", tagsRouter);
   app.use(errorHandler);
 
   app.listen(PORT, () => {

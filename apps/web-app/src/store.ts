@@ -4,17 +4,26 @@ import type { Note } from "@repo/types";
 
 const API_BASE = "/api/notes";
 
+interface Tag {
+  tag: string;
+  count: number;
+}
+
 interface NoteStore {
   notes: Note[];
+  tags: Tag[];
   selectedNoteId: string | null;
   searchQuery: string;
+  selectedTags: string[];
   editOnCreate: boolean;
   saving: boolean;
   archiving: boolean;
 
   setSearchQuery: (query: string) => void;
   setSelectedNoteId: (id: string | null) => void;
+  toggleTag: (tag: string) => void;
   fetchNotes: () => Promise<void>;
+  fetchTags: () => Promise<void>;
   createNote: (title: string) => Promise<void>;
   updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content">>) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
@@ -22,8 +31,10 @@ interface NoteStore {
 
 export const useNoteStore = create<NoteStore>((set, get) => ({
   notes: [],
+  tags: [],
   selectedNoteId: null,
   searchQuery: "",
+  selectedTags: [],
   editOnCreate: false,
   saving: false,
   archiving: false,
@@ -33,10 +44,28 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     get().fetchNotes();
   },
   setSelectedNoteId: (id) => set({ selectedNoteId: id }),
+  toggleTag: (tag) => {
+    const current = get().selectedTags;
+    const next = current.includes(tag)
+      ? current.filter((t) => t !== tag)
+      : [...current, tag];
+    set({ selectedTags: next });
+    get().fetchNotes();
+  },
+
+  fetchTags: async () => {
+    const res = await fetch("/api/tags");
+    const tags: Tag[] = await res.json();
+    set({ tags });
+  },
 
   fetchNotes: async () => {
-    const query = get().searchQuery;
-    const url = query ? `${API_BASE}?q=${encodeURIComponent(query)}` : API_BASE;
+    const { searchQuery, selectedTags } = get();
+    const params = new URLSearchParams();
+    if (searchQuery) params.set("q", searchQuery);
+    if (selectedTags.length > 0) params.set("tags", selectedTags.join(","));
+    const qs = params.toString();
+    const url = qs ? `${API_BASE}?${qs}` : API_BASE;
     const res = await fetch(url);
     const notes: Note[] = await res.json();
     set({ notes });
@@ -53,6 +82,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       const note: Note = await res.json();
       set({ searchQuery: "", selectedNoteId: note.id, editOnCreate: true });
       await get().fetchNotes();
+      get().fetchTags();
     } finally {
       set({ saving: false });
     }
@@ -70,6 +100,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       set((state) => ({
         notes: state.notes.map((n) => (n.id === id ? updated : n)),
       }));
+      get().fetchTags();
     } finally {
       set({ saving: false });
     }
@@ -90,6 +121,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
           selectedNoteId: next?.id ?? null,
         };
       });
+      get().fetchTags();
     } finally {
       set({ archiving: false });
     }

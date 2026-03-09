@@ -9,8 +9,6 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import DeleteIcon from "@mui/icons-material/Delete";
 import type { Note } from "@repo/types";
-import { useStatusMessage } from "../store";
-
 interface NoteListProps {
   notes: Note[];
   selectedNoteId: string | null;
@@ -31,7 +29,6 @@ function formatDate(dateStr: string) {
 }
 
 function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, onDeleteNote, onItemKeyDown }: NoteListProps) {
-  const statusMessage = useStatusMessage();
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; noteId: string } | null>(null);
 
   const handleContextMenu = (e: React.MouseEvent, noteId: string) => {
@@ -114,16 +111,6 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
           </Box>
         )}
       </MuiList>
-      <Box sx={{ borderTop: 1, borderColor: "divider", px: 2, py: 0.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Typography variant="caption" color="text.secondary">
-          {notes.length} {notes.length === 1 ? "Note" : "Notes"}
-        </Typography>
-        {statusMessage && (
-          <Typography variant="caption" color="text.secondary">
-            {statusMessage}
-          </Typography>
-        )}
-      </Box>
       <Menu
         open={contextMenu !== null}
         onClose={handleClose}

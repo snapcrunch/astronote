@@ -13,8 +13,12 @@ export function parseTags(text: string): string[] {
   return [...unique];
 }
 
-export function listNotes(query?: string): Note[] {
-  return repository.getNotes(query);
+export function listTags(): { tag: string; count: number }[] {
+  return repository.getTags();
+}
+
+export function listNotes(query?: string, tags?: string[]): Note[] {
+  return repository.getNotes(query, tags);
 }
 
 export function getNote(id: string): Note | null {

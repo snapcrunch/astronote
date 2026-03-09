@@ -1,8 +1,10 @@
 import Box from "@mui/material/Box";
-import { useNoteStore } from "../store";
+import Typography from "@mui/material/Typography";
+import { useNoteStore, useStatusMessage } from "../store";
 import { useOmnibar, useSearch, useNoteList } from "./hooks";
 import Omnibar from "./Omnibar";
 import NoteList from "./List";
+import Tags from "./Tags";
 
 const SIDEBAR_WIDTH = 475;
 
@@ -11,6 +13,7 @@ function Sidebar() {
   const { localQuery, handleSearchChange } = useSearch();
   const { notes, selectedNoteId, setSelectedNoteId, listRef, handleOmnibarKeyDown, handleListItemKeyDown } = useNoteList(omnibarRef, localQuery);
   const deleteNote = useNoteStore((s) => s.deleteNote);
+  const statusMessage = useStatusMessage();
 
   return (
     <Box
@@ -39,6 +42,17 @@ function Sidebar() {
         onDeleteNote={deleteNote}
         onItemKeyDown={handleListItemKeyDown}
       />
+      <Tags />
+      <Box sx={{ borderTop: 1, borderColor: "divider", px: 2, py: 0.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography variant="caption" color="text.secondary">
+          {notes.length} {notes.length === 1 ? "Note" : "Notes"}
+        </Typography>
+        {statusMessage && (
+          <Typography variant="caption" color="text.secondary">
+            {statusMessage}
+          </Typography>
+        )}
+      </Box>
     </Box>
   );
 }

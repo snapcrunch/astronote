@@ -6,10 +6,12 @@ import { useNoteStore } from "./store";
 
 function App() {
   const fetchNotes = useNoteStore((s) => s.fetchNotes);
+  const fetchTags = useNoteStore((s) => s.fetchTags);
 
   useEffect(() => {
     fetchNotes();
-  }, [fetchNotes]);
+    fetchTags();
+  }, [fetchNotes, fetchTags]);
 
   return (
     <Box sx={{ display: "flex", height: "100%" }}>

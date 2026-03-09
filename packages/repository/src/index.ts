@@ -49,17 +49,27 @@ export async function initDatabase(path: string): Promise<void> {
   save();
 }
 
-export function getNotes(query?: string): Note[] {
-  let stmt;
+export function getNotes(query?: string, tags?: string[]): Note[] {
+  let sql = "SELECT * FROM notes WHERE archived = 0";
+  const params: string[] = [];
+
   if (query) {
     const pattern = `%${query}%`;
-    stmt = db.prepare(
-      "SELECT * FROM notes WHERE archived = 0 AND (title LIKE ? OR content LIKE ?) ORDER BY updatedAt DESC",
-    );
-    stmt.bind([pattern, pattern]);
-  } else {
-    stmt = db.prepare("SELECT * FROM notes WHERE archived = 0 ORDER BY updatedAt DESC");
+    sql += " AND (title LIKE ? OR content LIKE ?)";
+    params.push(pattern, pattern);
   }
+
+  if (tags && tags.length > 0) {
+    for (const tag of tags) {
+      sql += " AND (title || ' ' || content) LIKE ?";
+      params.push(`%${tag}%`);
+    }
+  }
+
+  sql += " ORDER BY updatedAt DESC";
+
+  const stmt = db.prepare(sql);
+  stmt.bind(params);
 
   const results: Note[] = [];
   while (stmt.step()) {
@@ -147,6 +157,16 @@ export function decrementTags(tags: string[]): void {
   }
   db.run("DELETE FROM tags WHERE count <= 0");
   save();
+}
+
+export function getTags(): { tag: string; count: number }[] {
+  const stmt = db.prepare("SELECT tag, count FROM tags ORDER BY count DESC, tag ASC");
+  const results: { tag: string; count: number }[] = [];
+  while (stmt.step()) {
+    results.push(stmt.getAsObject() as { tag: string; count: number });
+  }
+  stmt.free();
+  return results;
 }
 
 export function getNoteCount(): number {
