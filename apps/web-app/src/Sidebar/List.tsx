@@ -34,7 +34,7 @@ function extractTags(text: string): string[] {
     .replace(/`[^`]*`/g, "");
   const matches = stripped.match(/#[a-zA-Z][a-zA-Z0-9]*/g);
   if (!matches) return [];
-  return [...new Set(matches.map((t) => t.toLowerCase()))];
+  return [...new Set(matches.map((t) => t.toLowerCase()))].sort();
 }
 
 function useIsScrollable(ref: React.RefObject<HTMLElement | null>) {
