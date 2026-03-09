@@ -108,7 +108,7 @@ function extractHeadings(content: string): Heading[] {
     if (inCodeBlock) continue;
     const match = line.match(/^(#{1,6})\s+(.+)/);
     if (match) {
-      headings.push({ level: match[1].length, text: match[2].replace(/[*_`]/g, "") });
+      headings.push({ level: match[1]!.length, text: match[2]!.replace(/[*_`]/g, "") });
     }
   }
   return headings;

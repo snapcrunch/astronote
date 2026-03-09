@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import type { Note, CreateNoteInput, UpdateNoteInput } from "@repo/types";
+import type { Note, Collection, CreateNoteInput, UpdateNoteInput } from "@repo/types";
 import * as repository from "@repo/repository";
 
 export function parseTags(text: string): string[] {
@@ -12,19 +12,19 @@ export function parseTags(text: string): string[] {
   return [...unique];
 }
 
-export function listTags(): { tag: string; count: number }[] {
+export async function listTags(): Promise<{ tag: string; count: number }[]> {
   return repository.getTags();
 }
 
-export function listNotes(query?: string, tags?: string[]): Note[] {
+export async function listNotes(query?: string, tags?: string[]): Promise<Note[]> {
   return repository.getNotes(query, tags);
 }
 
-export function getNote(id: string): Note | null {
+export async function getNote(id: string): Promise<Note | null> {
   return repository.getNoteById(id);
 }
 
-export function createNote(input: CreateNoteInput & { tags?: string[] }): Note {
+export async function createNote(input: CreateNoteInput & { tags?: string[] }): Promise<Note> {
   const now = new Date().toISOString();
   const tags = (input.tags ?? []).map((t) => t.toLowerCase());
   const note: Note = {
@@ -35,38 +35,56 @@ export function createNote(input: CreateNoteInput & { tags?: string[] }): Note {
     createdAt: now,
     updatedAt: now,
   };
-  const created = repository.createNote(note);
-  repository.incrementTags(tags);
+  const created = await repository.createNote(note);
+  await repository.incrementTags(tags);
   return created;
 }
 
-export function updateNote(id: string, input: UpdateNoteInput): Note | null {
-  const existing = repository.getNoteById(id);
+export async function updateNote(id: string, input: UpdateNoteInput): Promise<Note | null> {
+  const existing = await repository.getNoteById(id);
   if (!existing) return null;
 
-  const updated = repository.updateNote(id, {
+  const updated = await repository.updateNote(id, {
     ...input,
     updatedAt: new Date().toISOString(),
   });
   return updated;
 }
 
-export function addTag(noteId: string, tag: string): Note | null {
+export async function addTag(noteId: string, tag: string): Promise<Note | null> {
   const normalizedTag = tag.toLowerCase();
-  repository.addNoteTag(noteId, normalizedTag);
+  await repository.addNoteTag(noteId, normalizedTag);
   return repository.getNoteById(noteId);
 }
 
-export function removeTag(noteId: string, tag: string): Note | null {
+export async function removeTag(noteId: string, tag: string): Promise<Note | null> {
   const normalizedTag = tag.toLowerCase();
-  repository.removeNoteTag(noteId, normalizedTag);
+  await repository.removeNoteTag(noteId, normalizedTag);
   return repository.getNoteById(noteId);
 }
 
-export function deleteNote(id: string): boolean {
+export async function deleteNote(id: string): Promise<boolean> {
   return repository.deleteNote(id);
 }
 
-export function archiveNote(id: string): boolean {
+export async function archiveNote(id: string): Promise<boolean> {
   return repository.archiveNote(id);
+}
+
+// Collections
+
+export async function listCollections(): Promise<Collection[]> {
+  return repository.getCollections();
+}
+
+export async function createCollection(name: string): Promise<Collection> {
+  return repository.createCollection(name);
+}
+
+export async function deleteCollection(id: number): Promise<boolean> {
+  return repository.deleteCollection(id);
+}
+
+export async function setDefaultCollection(id: number): Promise<boolean> {
+  return repository.setDefaultCollection(id);
 }

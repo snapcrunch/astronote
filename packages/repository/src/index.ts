@@ -1,245 +1,203 @@
-import initSqlJs, { type Database } from "sql.js";
-import fs from "node:fs";
-import type { Note } from "@repo/types";
+import knexLib from "knex";
+import type { Knex } from "knex";
+import type { Note, Collection } from "@repo/types";
+import { createKnexConfig } from "./knexfile";
 
-let db: Database;
-let dbPath: string;
-
-function save(): void {
-  const data = db.export();
-  fs.writeFileSync(dbPath, Buffer.from(data));
-}
+let db: Knex;
 
 export async function initDatabase(path: string): Promise<void> {
-  dbPath = path;
-  const SQL = await initSqlJs();
+  db = knexLib(createKnexConfig(path));
+  await db.migrate.latest();
+}
 
-  if (fs.existsSync(path)) {
-    const buffer = fs.readFileSync(path);
-    db = new SQL.Database(buffer);
-  } else {
-    db = new SQL.Database();
-  }
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS notes (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      content TEXT NOT NULL DEFAULT '',
-      archived INTEGER NOT NULL DEFAULT 0,
-      createdAt TEXT NOT NULL,
-      updatedAt TEXT NOT NULL
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS tags (
-      tag TEXT PRIMARY KEY,
-      count INTEGER NOT NULL DEFAULT 0
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS note_tags (
-      noteId TEXT NOT NULL,
-      tag TEXT NOT NULL,
-      PRIMARY KEY (noteId, tag),
-      FOREIGN KEY (noteId) REFERENCES notes(id)
-    )
-  `);
-
-  // Add archived column to existing databases
-  const cols = db.exec("PRAGMA table_info(notes)");
-  const hasArchived = cols[0]?.values.some((row) => row[1] === "archived");
-  if (!hasArchived) {
-    db.run("ALTER TABLE notes ADD COLUMN archived INTEGER NOT NULL DEFAULT 0");
-  }
-
-  save();
+export async function seedDatabase(): Promise<void> {
+  await db.seed.run();
 }
 
 function getNoteTags(noteId: string): string[] {
-  const stmt = db.prepare("SELECT tag FROM note_tags WHERE noteId = ? ORDER BY tag ASC");
-  stmt.bind([noteId]);
-  const tags: string[] = [];
-  while (stmt.step()) {
-    const row = stmt.getAsObject() as { tag: string };
-    tags.push(row.tag);
-  }
-  stmt.free();
-  return tags;
+  const rows = db("note_tags")
+    .where("noteId", noteId)
+    .orderBy("tag", "asc")
+    .select("tag") as unknown as { tag: string }[];
+  return rows.map((r) => r.tag);
 }
 
-function rowToNote(row: Record<string, unknown>): Note {
+async function getNoteTagsAsync(noteId: string): Promise<string[]> {
+  const rows = await db("note_tags")
+    .where("noteId", noteId)
+    .orderBy("tag", "asc")
+    .select("tag");
+  return rows.map((r) => r.tag);
+}
+
+async function rowToNote(row: Record<string, unknown>): Promise<Note> {
   const id = row.id as string;
   return {
     id,
     title: row.title as string,
     content: row.content as string,
-    tags: getNoteTags(id),
+    tags: await getNoteTagsAsync(id),
     createdAt: row.createdAt as string,
     updatedAt: row.updatedAt as string,
   };
 }
 
-export function getNotes(query?: string, tags?: string[]): Note[] {
-  let sql = "SELECT * FROM notes WHERE archived = 0";
-  const params: string[] = [];
+export async function getNotes(query?: string, tags?: string[]): Promise<Note[]> {
+  let q = db("notes").where("archived", 0);
 
   if (query) {
     const pattern = `%${query}%`;
-    sql += " AND (title LIKE ? OR content LIKE ?)";
-    params.push(pattern, pattern);
+    q = q.andWhere(function () {
+      this.where("title", "like", pattern).orWhere("content", "like", pattern);
+    });
   }
 
   if (tags && tags.length > 0) {
     for (const tag of tags) {
-      sql += " AND id IN (SELECT noteId FROM note_tags WHERE tag = ?)";
-      params.push(tag);
+      q = q.andWhere("id", "in", db("note_tags").where("tag", tag).select("noteId"));
     }
   }
 
-  sql += " ORDER BY updatedAt DESC";
-
-  const stmt = db.prepare(sql);
-  stmt.bind(params);
-
-  const results: Note[] = [];
-  while (stmt.step()) {
-    results.push(rowToNote(stmt.getAsObject()));
-  }
-  stmt.free();
-  return results;
+  const rows = await q.orderBy("updatedAt", "desc");
+  return Promise.all(rows.map(rowToNote));
 }
 
-export function getNoteById(id: string): Note | null {
-  const stmt = db.prepare("SELECT * FROM notes WHERE id = ?");
-  stmt.bind([id]);
-  let result: Note | null = null;
-  if (stmt.step()) {
-    result = rowToNote(stmt.getAsObject());
-  }
-  stmt.free();
-  return result;
+export async function getNoteById(id: string): Promise<Note | null> {
+  const row = await db("notes").where("id", id).first();
+  if (!row) return null;
+  return rowToNote(row);
 }
 
-export function createNote(note: Note): Note {
-  db.run(
-    "INSERT INTO notes (id, title, content, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)",
-    [note.id, note.title, note.content, note.createdAt, note.updatedAt],
-  );
+export async function createNote(note: Note): Promise<Note> {
+  await db("notes").insert({
+    id: note.id,
+    title: note.title,
+    content: note.content,
+    createdAt: note.createdAt,
+    updatedAt: note.updatedAt,
+  });
   for (const tag of note.tags) {
-    db.run("INSERT OR IGNORE INTO note_tags (noteId, tag) VALUES (?, ?)", [note.id, tag]);
+    await db("note_tags").insert({ noteId: note.id, tag }).onConflict(["noteId", "tag"]).ignore();
   }
-  save();
-  return { ...note, tags: getNoteTags(note.id) };
+  return { ...note, tags: await getNoteTagsAsync(note.id) };
 }
 
-export function updateNote(
+export async function updateNote(
   id: string,
   updates: { title?: string; content?: string; updatedAt: string },
-): Note | null {
-  const existing = getNoteById(id);
+): Promise<Note | null> {
+  const existing = await getNoteById(id);
   if (!existing) return null;
 
   const title = updates.title ?? existing.title;
   const content = updates.content ?? existing.content;
 
-  db.run("UPDATE notes SET title = ?, content = ?, updatedAt = ? WHERE id = ?", [
+  await db("notes").where("id", id).update({
     title,
     content,
-    updates.updatedAt,
-    id,
-  ]);
-  save();
+    updatedAt: updates.updatedAt,
+  });
 
   return { ...existing, title, content, updatedAt: updates.updatedAt };
 }
 
-export function addNoteTag(noteId: string, tag: string): void {
-  db.run("INSERT OR IGNORE INTO note_tags (noteId, tag) VALUES (?, ?)", [noteId, tag]);
-  db.run(
+export async function addNoteTag(noteId: string, tag: string): Promise<void> {
+  await db("note_tags").insert({ noteId, tag }).onConflict(["noteId", "tag"]).ignore();
+  await db.raw(
     "INSERT INTO tags (tag, count) VALUES (?, 1) ON CONFLICT(tag) DO UPDATE SET count = count + 1",
     [tag],
   );
-  save();
 }
 
-export function removeNoteTag(noteId: string, tag: string): void {
-  const stmt = db.prepare("SELECT 1 FROM note_tags WHERE noteId = ? AND tag = ?");
-  stmt.bind([noteId, tag]);
-  const exists = stmt.step();
-  stmt.free();
+export async function removeNoteTag(noteId: string, tag: string): Promise<void> {
+  const exists = await db("note_tags").where({ noteId, tag }).first();
   if (!exists) return;
 
-  db.run("DELETE FROM note_tags WHERE noteId = ? AND tag = ?", [noteId, tag]);
-  db.run("UPDATE tags SET count = count - 1 WHERE tag = ?", [tag]);
-  db.run("DELETE FROM tags WHERE count <= 0");
-  save();
+  await db("note_tags").where({ noteId, tag }).delete();
+  await db("tags").where("tag", tag).decrement("count", 1);
+  await db("tags").where("count", "<=", 0).delete();
 }
 
-export function deleteNote(id: string): boolean {
-  const existing = getNoteById(id);
+export async function deleteNote(id: string): Promise<boolean> {
+  const existing = await getNoteById(id);
   if (!existing) return false;
-  db.run("DELETE FROM note_tags WHERE noteId = ?", [id]);
-  db.run("DELETE FROM notes WHERE id = ?", [id]);
-  save();
+  await db("note_tags").where("noteId", id).delete();
+  await db("notes").where("id", id).delete();
   return true;
 }
 
-export function archiveNote(id: string): boolean {
-  const existing = getNoteById(id);
+export async function archiveNote(id: string): Promise<boolean> {
+  const existing = await getNoteById(id);
   if (!existing) return false;
 
-  // Decrement tag counts for this note's tags
   for (const tag of existing.tags) {
-    db.run("UPDATE tags SET count = count - 1 WHERE tag = ?", [tag]);
+    await db("tags").where("tag", tag).decrement("count", 1);
   }
-  db.run("DELETE FROM tags WHERE count <= 0");
+  await db("tags").where("count", "<=", 0).delete();
 
-  db.run("DELETE FROM note_tags WHERE noteId = ?", [id]);
-  db.run("UPDATE notes SET archived = 1, updatedAt = ? WHERE id = ?", [
-    new Date().toISOString(),
-    id,
-  ]);
-  save();
+  await db("note_tags").where("noteId", id).delete();
+  await db("notes").where("id", id).update({
+    archived: 1,
+    updatedAt: new Date().toISOString(),
+  });
   return true;
 }
 
-export function incrementTags(tags: string[]): void {
-  if (tags.length === 0) return;
+export async function incrementTags(tags: string[]): Promise<void> {
   for (const tag of tags) {
-    db.run(
+    await db.raw(
       "INSERT INTO tags (tag, count) VALUES (?, 1) ON CONFLICT(tag) DO UPDATE SET count = count + 1",
       [tag],
     );
   }
-  save();
 }
 
-export function decrementTags(tags: string[]): void {
-  if (tags.length === 0) return;
+export async function decrementTags(tags: string[]): Promise<void> {
   for (const tag of tags) {
-    db.run("UPDATE tags SET count = count - 1 WHERE tag = ?", [tag]);
+    await db("tags").where("tag", tag).decrement("count", 1);
   }
-  db.run("DELETE FROM tags WHERE count <= 0");
-  save();
+  await db("tags").where("count", "<=", 0).delete();
 }
 
-export function getTags(): { tag: string; count: number }[] {
-  const stmt = db.prepare("SELECT tag, count FROM tags ORDER BY count DESC, tag ASC");
-  const results: { tag: string; count: number }[] = [];
-  while (stmt.step()) {
-    results.push(stmt.getAsObject() as { tag: string; count: number });
-  }
-  stmt.free();
-  return results;
+export async function getTags(): Promise<{ tag: string; count: number }[]> {
+  return db("tags").orderBy("count", "desc").orderBy("tag", "asc").select("tag", "count");
 }
 
-export function getNoteCount(): number {
-  const stmt = db.prepare("SELECT COUNT(*) as count FROM notes WHERE archived = 0");
-  stmt.step();
-  const row = stmt.getAsObject() as { count: number };
-  stmt.free();
-  return row.count;
+export async function getNoteCount(): Promise<number> {
+  const result = await db("notes").where("archived", 0).count("* as count").first();
+  return Number(result?.count ?? 0);
+}
+
+// Collections
+
+function rowToCollection(row: Record<string, unknown>): Collection {
+  return {
+    id: row.id as number,
+    name: row.name as string,
+    isDefault: (row.isDefault as number) === 1,
+  };
+}
+
+export async function getCollections(): Promise<Collection[]> {
+  const rows = await db("collections").orderBy("name", "asc");
+  return rows.map(rowToCollection);
+}
+
+export async function createCollection(name: string): Promise<Collection> {
+  const [id] = await db("collections").insert({ name });
+  return { id, name, isDefault: false };
+}
+
+export async function deleteCollection(id: number): Promise<boolean> {
+  await db("notes").where("collectionId", id).update({ collectionId: null });
+  const deleted = await db("collections").where("id", id).delete();
+  return deleted > 0;
+}
+
+export async function setDefaultCollection(id: number): Promise<boolean> {
+  const exists = await db("collections").where("id", id).first();
+  if (!exists) return false;
+  await db("collections").update({ isDefault: 0 });
+  await db("collections").where("id", id).update({ isDefault: 1 });
+  return true;
 }

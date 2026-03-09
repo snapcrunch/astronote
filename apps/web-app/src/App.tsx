@@ -4,16 +4,24 @@ import Sidebar from "./Sidebar";
 import NoteEditor from "./NoteEditor";
 import InfoPanel from "./InfoPanel";
 import CommandPalette from "./CommandPalette";
-import { useNoteStore } from "./store";
+import { useNoteStore, restoreFromUrl } from "./store";
 
 function App() {
   const fetchNotes = useNoteStore((s) => s.fetchNotes);
   const fetchTags = useNoteStore((s) => s.fetchTags);
+  const fetchCollections = useNoteStore((s) => s.fetchCollections);
 
   useEffect(() => {
     fetchNotes();
     fetchTags();
-  }, [fetchNotes, fetchTags]);
+    fetchCollections();
+  }, [fetchNotes, fetchTags, fetchCollections]);
+
+  useEffect(() => {
+    const onPopState = () => restoreFromUrl();
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   return (
     <Box sx={{ display: "flex", height: "100%" }}>

@@ -6,5 +6,5 @@
     "module": "preserve",
     "moduleResolution": "bundler"
   },
-  "include": ["src", "../../packages/repository/sql.js.d.ts"]
+  "include": ["src"]
 }

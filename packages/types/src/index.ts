@@ -24,3 +24,11 @@ export const UpdateNoteInputSchema = z.object({
 });
 
 export type UpdateNoteInput = z.infer<typeof UpdateNoteInputSchema>;
+
+export const CollectionSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  isDefault: z.boolean(),
+});
+
+export type Collection = z.infer<typeof CollectionSchema>;

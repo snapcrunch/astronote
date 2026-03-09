@@ -7,6 +7,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckIcon from "@mui/icons-material/Check";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import StarIcon from "@mui/icons-material/Star";
+import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useNoteStore, useSelectedNote } from "./store";
@@ -23,7 +26,7 @@ function extractText(children: React.ReactNode): string {
 }
 
 function HeadingWithId({ level, children, ...props }: React.PropsWithChildren<{ level: number } & React.HTMLAttributes<HTMLHeadingElement>>) {
-  const Tag = `h${level}` as keyof JSX.IntrinsicElements;
+  const Tag = `h${level}` as React.ElementType;
   const id = slugify(extractText(children));
   return <Tag id={id} {...props}>{children}</Tag>;
 }
@@ -88,6 +91,110 @@ function CodeBlock({ children, ...props }: React.PropsWithChildren<React.Compone
   );
 }
 
+function SettingsView() {
+  const collections = useNoteStore((s) => s.collections);
+  const deleteCollection = useNoteStore((s) => s.deleteCollection);
+  const setDefaultCollection = useNoteStore((s) => s.setDefaultCollection);
+
+  return (
+    <Box
+      sx={{
+        flex: 1,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }}
+    >
+      <Box
+        sx={{
+          px: 3,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          bgcolor: "grey.100",
+          borderBottom: 1,
+          borderColor: "divider",
+          height: 40,
+          minHeight: 40,
+          boxSizing: "content-box",
+        }}
+      >
+        <Typography variant="body1" sx={{ fontWeight: 600 }}>
+          Settings
+        </Typography>
+      </Box>
+      <Box sx={{ flex: 1, px: 3, py: 3, overflow: "auto" }}>
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>
+          Collections
+        </Typography>
+        <Box
+          component="table"
+          sx={{
+            width: "100%",
+            borderCollapse: "collapse",
+            "& th, & td": {
+              textAlign: "left",
+              py: 0.75,
+              px: 1,
+              borderBottom: 1,
+              borderColor: "divider",
+            },
+            "& th": {
+              fontWeight: 600,
+              fontSize: "0.75rem",
+              color: "text.secondary",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            },
+          }}
+        >
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Default</th>
+              <th style={{ width: 1 }} />
+            </tr>
+          </thead>
+          <tbody>
+            {collections.map((c) => (
+              <tr key={c.id}>
+                <td>
+                  <Typography variant="body2">{c.name}</Typography>
+                </td>
+                <td>
+                  <IconButton
+                    size="small"
+                    onClick={() => setDefaultCollection(c.id)}
+                    color={c.isDefault ? "primary" : "default"}
+                    title={c.isDefault ? "Default collection" : "Set as default"}
+                  >
+                    {c.isDefault ? (
+                      <StarIcon fontSize="small" />
+                    ) : (
+                      <StarOutlineIcon fontSize="small" />
+                    )}
+                  </IconButton>
+                </td>
+                <td>
+                  <IconButton
+                    size="small"
+                    onClick={() => deleteCollection(c.id)}
+                    title="Delete collection"
+                    color="error"
+                  >
+                    <DeleteOutlineIcon fontSize="small" />
+                  </IconButton>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
 function NoteEditor() {
   const view = useNoteStore((s) => s.view);
   const showInfoPanel = useNoteStore((s) => s.showInfoPanel);
@@ -141,41 +248,7 @@ function NoteEditor() {
   }, [note?.id]);
 
   if (view === "settings") {
-    return (
-      <Box
-        sx={{
-          flex: 1,
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
-      >
-        <Box
-          sx={{
-            px: 3,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            bgcolor: "grey.100",
-            borderBottom: 1,
-            borderColor: "divider",
-            height: 40,
-            minHeight: 40,
-            boxSizing: "content-box",
-          }}
-        >
-          <Typography variant="body1" sx={{ fontWeight: 600 }}>
-            Settings
-          </Typography>
-        </Box>
-        <Box sx={{ flex: 1, px: 3, py: 3, overflow: "auto" }}>
-          <Typography variant="body2" color="text.secondary">
-            Settings will appear here.
-          </Typography>
-        </Box>
-      </Box>
-    );
+    return <SettingsView />;
   }
 
   if (!note) {

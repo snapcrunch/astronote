@@ -1,8 +1,47 @@
 import { useMemo } from "react";
 import { create } from "zustand";
-import type { Note } from "@repo/types";
+import type { Note, Collection } from "@repo/types";
 
 const API_BASE = "/api/notes";
+
+function buildUrl(view: View, selectedNoteId: string | null, showInfoPanel: boolean): string {
+  let path: string;
+  if (view === "settings") {
+    path = "/settings";
+  } else if (selectedNoteId) {
+    path = `/notes/${selectedNoteId}`;
+  } else {
+    path = "/";
+  }
+  const params = new URLSearchParams();
+  if (!showInfoPanel) params.set("info", "0");
+  const qs = params.toString();
+  return qs ? `${path}?${qs}` : path;
+}
+
+function syncUrl(view: View, selectedNoteId: string | null, showInfoPanel: boolean) {
+  const url = buildUrl(view, selectedNoteId, showInfoPanel);
+  if (url !== window.location.pathname + window.location.search) {
+    window.history.pushState(null, "", url);
+  }
+}
+
+function parseUrl(): { view: View; selectedNoteId: string | null; showInfoPanel: boolean } {
+  const path = window.location.pathname;
+  const params = new URLSearchParams(window.location.search);
+  const showInfoPanel = params.get("info") !== "0";
+
+  if (path === "/settings") {
+    return { view: "settings", selectedNoteId: null, showInfoPanel };
+  }
+
+  const noteMatch = path.match(/^\/notes\/(.+)$/);
+  if (noteMatch) {
+    return { view: "notes", selectedNoteId: noteMatch[1]!, showInfoPanel };
+  }
+
+  return { view: "notes", selectedNoteId: null, showInfoPanel };
+}
 
 interface Tag {
   tag: string;
@@ -14,6 +53,7 @@ type View = "notes" | "settings";
 interface NoteStore {
   notes: Note[];
   tags: Tag[];
+  collections: Collection[];
   selectedNoteId: string | null;
   searchQuery: string;
   selectedTags: string[];
@@ -30,6 +70,10 @@ interface NoteStore {
   toggleTag: (tag: string) => void;
   fetchNotes: () => Promise<void>;
   fetchTags: () => Promise<void>;
+  fetchCollections: () => Promise<void>;
+  createCollection: (name: string) => Promise<void>;
+  deleteCollection: (id: number) => Promise<void>;
+  setDefaultCollection: (id: number) => Promise<void>;
   createNote: (title: string) => Promise<void>;
   updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content">>) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
@@ -37,25 +81,40 @@ interface NoteStore {
   removeTag: (noteId: string, tag: string) => Promise<void>;
 }
 
+const initialUrl = parseUrl();
+
 export const useNoteStore = create<NoteStore>((set, get) => ({
   notes: [],
   tags: [],
-  selectedNoteId: null,
+  collections: [],
+  selectedNoteId: initialUrl.selectedNoteId,
   searchQuery: "",
   selectedTags: [],
   editOnCreate: false,
   saving: false,
   archiving: false,
-  view: "notes",
-  showInfoPanel: true,
+  view: initialUrl.view,
+  showInfoPanel: initialUrl.showInfoPanel,
 
-  toggleInfoPanel: () => set((s) => ({ showInfoPanel: !s.showInfoPanel })),
-  setView: (view) => set({ view, ...(view === "settings" ? { selectedNoteId: null } : {}) }),
+  toggleInfoPanel: () => {
+    const next = !get().showInfoPanel;
+    set({ showInfoPanel: next });
+    syncUrl(get().view, get().selectedNoteId, next);
+  },
+  setView: (view) => {
+    const noteId = view === "settings" ? null : get().selectedNoteId;
+    set({ view, selectedNoteId: noteId });
+    syncUrl(view, noteId, get().showInfoPanel);
+  },
   setSearchQuery: (query) => {
     set({ searchQuery: query });
     get().fetchNotes();
   },
-  setSelectedNoteId: (id) => set({ selectedNoteId: id, ...(id ? { view: "notes" } : {}) }),
+  setSelectedNoteId: (id) => {
+    const view = id ? "notes" : get().view;
+    set({ selectedNoteId: id, view });
+    syncUrl(view, id, get().showInfoPanel);
+  },
   toggleTag: (tag) => {
     const current = get().selectedTags;
     const next = current.includes(tag)
@@ -69,6 +128,32 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     const res = await fetch("/api/tags");
     const tags: Tag[] = await res.json();
     set({ tags });
+  },
+
+  fetchCollections: async () => {
+    const res = await fetch("/api/collections");
+    const collections: Collection[] = await res.json();
+    set({ collections });
+  },
+
+  createCollection: async (name) => {
+    await fetch("/api/collections", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    await get().fetchCollections();
+  },
+
+  deleteCollection: async (id) => {
+    await fetch(`/api/collections/${id}`, { method: "DELETE" });
+    await get().fetchCollections();
+  },
+
+  setDefaultCollection: async (id) => {
+    const res = await fetch(`/api/collections/${id}/default`, { method: "POST" });
+    const collections: Collection[] = await res.json();
+    set({ collections });
   },
 
   fetchNotes: async () => {
@@ -92,7 +177,8 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
         body: JSON.stringify({ title }),
       });
       const note: Note = await res.json();
-      set({ searchQuery: "", selectedNoteId: note.id, editOnCreate: true });
+      set({ searchQuery: "", selectedNoteId: note.id, editOnCreate: true, view: "notes" });
+      syncUrl("notes", note.id, get().showInfoPanel);
       await get().fetchNotes();
       get().fetchTags();
     } finally {
@@ -128,9 +214,11 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
         }
         const index = state.notes.findIndex((n) => n.id === id);
         const next = state.notes[index - 1] ?? state.notes[index + 1] ?? null;
+        const nextId = next?.id ?? null;
+        syncUrl(state.view, nextId, state.showInfoPanel);
         return {
           notes: state.notes.filter((n) => n.id !== id),
-          selectedNoteId: next?.id ?? null,
+          selectedNoteId: nextId,
         };
       });
       get().fetchTags();
@@ -163,6 +251,11 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     get().fetchTags();
   },
 }));
+
+export function restoreFromUrl() {
+  const { view, selectedNoteId, showInfoPanel } = parseUrl();
+  useNoteStore.setState({ view, selectedNoteId, showInfoPanel });
+}
 
 export function useFilteredNotes() {
   const notes = useNoteStore((s) => s.notes);
