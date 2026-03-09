@@ -32,3 +32,7 @@ export function updateNote(id: string, input: UpdateNoteInput): Note | null {
 export function deleteNote(id: string): boolean {
   return repository.deleteNote(id);
 }
+
+export function archiveNote(id: string): boolean {
+  return repository.archiveNote(id);
+}

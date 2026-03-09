@@ -1,8 +1,13 @@
+import { useState } from "react";
 import Box from "@mui/material/Box";
 import MuiList from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
+import ListItemIcon from "@mui/material/ListItemIcon";
 import Typography from "@mui/material/Typography";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import DeleteIcon from "@mui/icons-material/Delete";
 import type { Note } from "@repo/types";
 
 interface NoteListProps {
@@ -11,6 +16,7 @@ interface NoteListProps {
   localQuery: string;
   listRef: React.RefObject<HTMLUListElement | null>;
   onSelectNote: (id: string) => void;
+  onDeleteNote: (id: string) => void;
   onItemKeyDown: (e: React.KeyboardEvent, index: number) => void;
 }
 
@@ -23,7 +29,23 @@ function formatDate(dateStr: string) {
   });
 }
 
-function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, onItemKeyDown }: NoteListProps) {
+function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, onDeleteNote, onItemKeyDown }: NoteListProps) {
+  const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; noteId: string } | null>(null);
+
+  const handleContextMenu = (e: React.MouseEvent, noteId: string) => {
+    e.preventDefault();
+    setContextMenu({ mouseX: e.clientX, mouseY: e.clientY, noteId });
+  };
+
+  const handleClose = () => setContextMenu(null);
+
+  const handleDelete = () => {
+    if (contextMenu) {
+      onDeleteNote(contextMenu.noteId);
+    }
+    handleClose();
+  };
+
   return (
     <>
       <MuiList ref={listRef} sx={{ flex: 1, overflow: "auto", pt: 0 }} disablePadding>
@@ -32,6 +54,7 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
             key={note.id}
             selected={note.id === selectedNoteId}
             onClick={() => onSelectNote(note.id)}
+            onContextMenu={(e) => handleContextMenu(e, note.id)}
             onKeyDown={(e) => onItemKeyDown(e, index)}
             sx={{
               mx: 0,
@@ -94,6 +117,21 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
           {notes.length} {notes.length === 1 ? "Note" : "Notes"}
         </Typography>
       </Box>
+      <Menu
+        open={contextMenu !== null}
+        onClose={handleClose}
+        anchorReference="anchorPosition"
+        anchorPosition={
+          contextMenu ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined
+        }
+      >
+        <MenuItem onClick={handleDelete}>
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" />
+          </ListItemIcon>
+          Delete
+        </MenuItem>
+      </Menu>
     </>
   );
 }

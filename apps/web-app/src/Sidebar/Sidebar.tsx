@@ -1,4 +1,5 @@
 import Box from "@mui/material/Box";
+import { useNoteStore } from "../store";
 import { useOmnibar, useSearch, useNoteList } from "./hooks";
 import Omnibar from "./Omnibar";
 import NoteList from "./List";
@@ -9,6 +10,7 @@ function Sidebar() {
   const omnibarRef = useOmnibar();
   const { localQuery, handleSearchChange } = useSearch();
   const { notes, selectedNoteId, setSelectedNoteId, listRef, handleOmnibarKeyDown, handleListItemKeyDown } = useNoteList(omnibarRef, localQuery);
+  const deleteNote = useNoteStore((s) => s.deleteNote);
 
   return (
     <Box
@@ -34,6 +36,7 @@ function Sidebar() {
         localQuery={localQuery}
         listRef={listRef}
         onSelectNote={setSelectedNoteId}
+        onDeleteNote={deleteNote}
         onItemKeyDown={handleListItemKeyDown}
       />
     </Box>

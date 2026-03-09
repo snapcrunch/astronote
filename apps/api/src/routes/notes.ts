@@ -44,8 +44,8 @@ notesRouter.patch("/:id", (req, res) => {
 });
 
 notesRouter.delete("/:id", (req, res) => {
-  const deleted = domain.deleteNote(req.params.id);
-  if (!deleted) {
+  const archived = domain.archiveNote(req.params.id);
+  if (!archived) {
     res.status(404).json({ error: "Note not found" });
     return;
   }

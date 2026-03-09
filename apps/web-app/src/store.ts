@@ -15,6 +15,7 @@ interface NoteStore {
   fetchNotes: () => Promise<void>;
   createNote: (title: string) => Promise<void>;
   updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content">>) => Promise<void>;
+  deleteNote: (id: string) => Promise<void>;
 }
 
 export const useNoteStore = create<NoteStore>((set, get) => ({
@@ -57,6 +58,14 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     const updated: Note = await res.json();
     set((state) => ({
       notes: state.notes.map((n) => (n.id === id ? updated : n)),
+    }));
+  },
+
+  deleteNote: async (id) => {
+    await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+    set((state) => ({
+      notes: state.notes.filter((n) => n.id !== id),
+      selectedNoteId: state.selectedNoteId === id ? null : state.selectedNoteId,
     }));
   },
 }));
