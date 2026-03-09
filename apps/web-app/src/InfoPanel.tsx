@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
+import Link from "@mui/material/Link";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useNoteStore, useSelectedNote } from "./store";
+import { slugify } from "./utils";
 
 const INFO_PANEL_WIDTH = 260;
 
@@ -89,6 +91,72 @@ function TagManager({ noteId, tags }: { noteId: string; tags: string[] }) {
   );
 }
 
+interface Heading {
+  level: number;
+  text: string;
+}
+
+function extractHeadings(content: string): Heading[] {
+  const lines = content.split("\n");
+  const headings: Heading[] = [];
+  let inCodeBlock = false;
+  for (const line of lines) {
+    if (line.trimStart().startsWith("```")) {
+      inCodeBlock = !inCodeBlock;
+      continue;
+    }
+    if (inCodeBlock) continue;
+    const match = line.match(/^(#{1,6})\s+(.+)/);
+    if (match) {
+      headings.push({ level: match[1].length, text: match[2].replace(/[*_`]/g, "") });
+    }
+  }
+  return headings;
+}
+
+function TableOfContents({ content }: { content: string }) {
+  const headings = useMemo(() => extractHeadings(content), [content]);
+
+  if (headings.length === 0) {
+    return (
+      <Typography variant="caption" color="text.secondary">
+        No headings found.
+      </Typography>
+    );
+  }
+
+  const minLevel = Math.min(...headings.map((h) => h.level));
+
+  const handleClick = (text: string) => {
+    const id = slugify(text);
+    const el = document.getElementById(id);
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 0.25 }}>
+      {headings.map((h, i) => (
+        <Link
+          key={i}
+          component="button"
+          variant="caption"
+          underline="hover"
+          onClick={() => handleClick(h.text)}
+          sx={{
+            pl: (h.level - minLevel) * 1.5,
+            lineHeight: 1.6,
+            color: "text.secondary",
+            textAlign: "left",
+            cursor: "pointer",
+          }}
+        >
+          {h.text}
+        </Link>
+      ))}
+    </Box>
+  );
+}
+
 function InfoPanel() {
   const showInfoPanel = useNoteStore((s) => s.showInfoPanel);
   const note = useSelectedNote();
@@ -132,6 +200,11 @@ function InfoPanel() {
       </Box>
       <Box sx={{ px: 2, py: 1.5, overflow: "auto" }}>
         <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 1, pb: 0.5, mx: -2, px: 2, borderBottom: 1, borderColor: "divider" }}>
+          Table of Contents
+        </Typography>
+        <TableOfContents content={note.content} />
+
+        <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mt: 2, mb: 1, pb: 0.5, mx: -2, px: 2, borderBottom: 1, borderColor: "divider" }}>
           Tags
         </Typography>
         <TagManager noteId={note.id} tags={note.tags} />
