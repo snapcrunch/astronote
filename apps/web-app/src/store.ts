@@ -4,7 +4,7 @@ import type { Note, Collection, Settings, DefaultView } from "@repo/types";
 
 const API_BASE = "/api/notes";
 
-function buildUrl(view: View, selectedNoteId: string | null, showInfoPanel: boolean): string {
+function buildUrl(view: View, selectedNoteId: string | null, showInfoPanel: boolean, settingDefault: boolean): string {
   let path: string;
   if (view === "settings") {
     path = "/settings";
@@ -14,22 +14,25 @@ function buildUrl(view: View, selectedNoteId: string | null, showInfoPanel: bool
     path = "/";
   }
   const params = new URLSearchParams();
-  if (!showInfoPanel) params.set("info", "0");
+  if (showInfoPanel !== settingDefault) {
+    params.set("info", showInfoPanel ? "1" : "0");
+  }
   const qs = params.toString();
   return qs ? `${path}?${qs}` : path;
 }
 
 function syncUrl(view: View, selectedNoteId: string | null, showInfoPanel: boolean) {
-  const url = buildUrl(view, selectedNoteId, showInfoPanel);
+  const settingDefault = useNoteStore.getState().settings.show_info_panel;
+  const url = buildUrl(view, selectedNoteId, showInfoPanel, settingDefault);
   if (url !== window.location.pathname + window.location.search) {
     window.history.pushState(null, "", url);
   }
 }
 
-function parseUrl(): { view: View; selectedNoteId: string | null; showInfoPanel: boolean } {
+function parseUrl(): { view: View; selectedNoteId: string | null; showInfoPanel: boolean | null } {
   const path = window.location.pathname;
   const params = new URLSearchParams(window.location.search);
-  const showInfoPanel = params.get("info") !== "0";
+  const showInfoPanel = params.has("info") ? params.get("info") !== "0" : null;
 
   if (path === "/settings") {
     return { view: "settings", selectedNoteId: null, showInfoPanel };
@@ -62,6 +65,7 @@ interface NoteStore {
   saving: boolean;
   archiving: boolean;
   settings: Settings;
+  settingsLoaded: boolean;
   view: View;
   showInfoPanel: boolean;
 
@@ -96,17 +100,22 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   selectedNoteId: initialUrl.selectedNoteId,
   searchQuery: "",
   selectedTags: [],
-  settings: { default_view: "renderer" as DefaultView },
+  settings: { default_view: "renderer" as DefaultView, show_info_panel: true },
+  settingsLoaded: false,
   editOnCreate: false,
   saving: false,
   archiving: false,
   view: initialUrl.view,
-  showInfoPanel: initialUrl.showInfoPanel,
+  showInfoPanel: initialUrl.showInfoPanel ?? true,
 
   fetchSettings: async () => {
     const res = await fetch("/api/settings");
     const settings: Settings = await res.json();
-    set({ settings });
+    set({ settings, settingsLoaded: true });
+    // Apply the setting only if the URL didn't explicitly specify
+    if (initialUrl.showInfoPanel === null) {
+      set({ showInfoPanel: settings.show_info_panel });
+    }
   },
   updateSettings: async (updates) => {
     const res = await fetch("/api/settings", {
@@ -288,7 +297,8 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
 
 export function restoreFromUrl() {
   const { view, selectedNoteId, showInfoPanel } = parseUrl();
-  useNoteStore.setState({ view, selectedNoteId, showInfoPanel });
+  const resolved = showInfoPanel ?? useNoteStore.getState().settings.show_info_panel;
+  useNoteStore.setState({ view, selectedNoteId, showInfoPanel: resolved });
 }
 
 export function useFilteredNotes() {

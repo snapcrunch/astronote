@@ -98,7 +98,10 @@ function SettingsView() {
   const deleteCollection = useNoteStore((s) => s.deleteCollection);
   const setDefaultCollection = useNoteStore((s) => s.setDefaultCollection);
   const settings = useNoteStore((s) => s.settings);
+  const settingsLoaded = useNoteStore((s) => s.settingsLoaded);
   const updateSettings = useNoteStore((s) => s.updateSettings);
+
+  if (!settingsLoaded) return null;
 
   return (
     <Box
@@ -207,6 +210,20 @@ function SettingsView() {
         >
           <ToggleButton value="renderer">Renderer</ToggleButton>
           <ToggleButton value="editor">Editor</ToggleButton>
+        </ToggleButtonGroup>
+        <Typography variant="subtitle2" sx={{ mt: 3, mb: 1 }}>
+          Show Info Panel
+        </Typography>
+        <ToggleButtonGroup
+          value={settings.show_info_panel ? "yes" : "no"}
+          exclusive
+          onChange={(_e, value) => {
+            if (value) updateSettings({ show_info_panel: value === "yes" });
+          }}
+          size="small"
+        >
+          <ToggleButton value="yes">Open</ToggleButton>
+          <ToggleButton value="no">Closed</ToggleButton>
         </ToggleButtonGroup>
       </Box>
     </Box>

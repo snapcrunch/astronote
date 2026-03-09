@@ -39,10 +39,12 @@ export type DefaultView = z.infer<typeof DefaultViewSchema>;
 
 export const SettingsSchema = z.object({
   default_view: DefaultViewSchema,
+  show_info_panel: z.boolean(),
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;
 
 export const DEFAULT_SETTINGS: Settings = {
   default_view: "renderer",
+  show_info_panel: true,
 };
