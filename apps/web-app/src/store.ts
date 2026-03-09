@@ -9,6 +9,7 @@ interface NoteStore {
   selectedNoteId: string | null;
   searchQuery: string;
   editOnCreate: boolean;
+  saving: boolean;
 
   setSearchQuery: (query: string) => void;
   setSelectedNoteId: (id: string | null) => void;
@@ -23,6 +24,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   selectedNoteId: null,
   searchQuery: "",
   editOnCreate: false,
+  saving: false,
 
   setSearchQuery: (query) => {
     set({ searchQuery: query });
@@ -39,26 +41,36 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   },
 
   createNote: async (title) => {
-    const res = await fetch(API_BASE, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title }),
-    });
-    const note: Note = await res.json();
-    set({ searchQuery: "", selectedNoteId: note.id, editOnCreate: true });
-    await get().fetchNotes();
+    set({ saving: true });
+    try {
+      const res = await fetch(API_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title }),
+      });
+      const note: Note = await res.json();
+      set({ searchQuery: "", selectedNoteId: note.id, editOnCreate: true });
+      await get().fetchNotes();
+    } finally {
+      set({ saving: false });
+    }
   },
 
   updateNote: async (id, updates) => {
-    const res = await fetch(`${API_BASE}/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updates),
-    });
-    const updated: Note = await res.json();
-    set((state) => ({
-      notes: state.notes.map((n) => (n.id === id ? updated : n)),
-    }));
+    set({ saving: true });
+    try {
+      const res = await fetch(`${API_BASE}/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+      const updated: Note = await res.json();
+      set((state) => ({
+        notes: state.notes.map((n) => (n.id === id ? updated : n)),
+      }));
+    } finally {
+      set({ saving: false });
+    }
   },
 
   deleteNote: async (id) => {
@@ -73,6 +85,12 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
 export function useFilteredNotes() {
   const notes = useNoteStore((s) => s.notes);
   return useMemo(() => notes, [notes]);
+}
+
+export function useStatusMessage() {
+  const saving = useNoteStore((s) => s.saving);
+  if (saving) return "Saving note...";
+  return null;
 }
 
 export function useSelectedNote() {
