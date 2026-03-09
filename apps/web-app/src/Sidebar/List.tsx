@@ -28,6 +28,15 @@ function formatDate(dateStr: string) {
   });
 }
 
+function extractTags(text: string): string[] {
+  const stripped = text
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/`[^`]*`/g, "");
+  const matches = stripped.match(/#[a-zA-Z][a-zA-Z0-9]*/g);
+  if (!matches) return [];
+  return [...new Set(matches.map((t) => t.toLowerCase()))];
+}
+
 function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, onDeleteNote, onItemKeyDown }: NoteListProps) {
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; noteId: string } | null>(null);
 
@@ -81,14 +90,22 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
           >
             <ListItemText
               primary={note.title}
-              secondary={formatDate(note.updatedAt)}
+              secondary={
+                <Box component="span" sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
+                  <Typography variant="caption" noWrap component="span" sx={{ flexShrink: 1, minWidth: 0 }}>
+                    {extractTags(`${note.title} ${note.content}`).join(", ")}
+                  </Typography>
+                  <Typography variant="caption" noWrap component="span" sx={{ flexShrink: 0 }}>
+                    {formatDate(note.updatedAt)}
+                  </Typography>
+                </Box>
+              }
               primaryTypographyProps={{
                 noWrap: true,
                 fontWeight: 500,
               }}
               secondaryTypographyProps={{
-                variant: "caption",
-                noWrap: true,
+                component: "div",
               }}
             />
           </ListItemButton>
