@@ -23,6 +23,7 @@
     "@mui/material": "^7.3.9",
     "@repo/types": "*",
     "codemirror": "^6.0.2",
+    "jszip": "^3.10.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-markdown": "^10.1.0",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
+    "@types/jszip": "^3.4.0",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.5.2",

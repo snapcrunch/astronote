@@ -561,7 +561,10 @@ export async function seed(knex: Knex): Promise<void> {
   if (existingCount && Number(existingCount.count) > 0) return;
 
   for (const collection of collections) {
-    await knex("collections").insert({ name: collection.name });
+    await knex("collections").insert({
+      name: collection.name,
+      isDefault: collection.name === "Personal" ? 1 : 0,
+    });
   }
 
   for (const note of seedNotes) {

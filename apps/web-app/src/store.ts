@@ -84,7 +84,7 @@ interface NoteStore {
   createCollection: (name: string) => Promise<void>;
   deleteCollection: (id: number) => Promise<void>;
   setDefaultCollection: (id: number) => Promise<void>;
-  createNote: (title: string) => Promise<void>;
+  createNote: (title: string, content?: string) => Promise<void>;
   updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content">>) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
   addTag: (noteId: string, tag: string) => Promise<void>;
@@ -228,14 +228,14 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     set({ notes });
   },
 
-  createNote: async (title) => {
+  createNote: async (title, content) => {
     set({ saving: true });
     try {
       const { activeCollectionId } = get();
       const res = await fetch(API_BASE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, collectionId: activeCollectionId }),
+        body: JSON.stringify({ title, content, collectionId: activeCollectionId }),
       });
       const note: Note = await res.json();
       set({ searchQuery: "", selectedNoteId: note.id, editOnCreate: true, view: "notes" });

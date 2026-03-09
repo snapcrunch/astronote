@@ -20,6 +20,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import JSZip from "jszip";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { useNoteStore, useSelectedNote } from "./store";
 import type { ThemeId, DefaultView } from "@repo/types";
 import { themes as themeEntries } from "./themes";
@@ -245,9 +247,145 @@ function SettingsView() {
               <MenuItem key={id} value={id}>{label}</MenuItem>
             ))}
         </Select>
+        <ImportSection />
         <ResetSection onReset={resetAll} />
       </Box>
     </Box>
+  );
+}
+
+function isMarkdownFile(name: string): boolean {
+  return /\.(md|markdown|mdown|mkd|mkdn|mdwn|mdtxt|mdtext|txt)$/i.test(name);
+}
+
+function titleFromFilename(name: string): string {
+  const basename = name.includes("/") ? name.split("/").pop()! : name;
+  return basename.replace(/\.[^.]+$/, "");
+}
+
+function ImportSection() {
+  const createNote = useNoteStore((s) => s.createNote);
+  const fetchNotes = useNoteStore((s) => s.fetchNotes);
+  const [dragOver, setDragOver] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const importMarkdownFiles = useCallback(
+    async (files: { name: string; content: string }[]) => {
+      let count = 0;
+      for (const file of files) {
+        const title = titleFromFilename(file.name);
+        if (!title) continue;
+        await createNote(title, file.content);
+        count++;
+      }
+      await fetchNotes();
+      setStatus(`Imported ${count} ${count === 1 ? "note" : "notes"}.`);
+      setTimeout(() => setStatus(null), 3000);
+    },
+    [createNote, fetchNotes],
+  );
+
+  const processFiles = useCallback(
+    async (fileList: File[]) => {
+      const mdFiles: { name: string; content: string }[] = [];
+      let zipFile: File | null = null;
+
+      for (const file of fileList) {
+        if (file.name.endsWith(".zip")) {
+          zipFile = file;
+        } else if (isMarkdownFile(file.name)) {
+          const content = await file.text();
+          mdFiles.push({ name: file.name, content });
+        }
+      }
+
+      if (zipFile) {
+        const buf = await zipFile.arrayBuffer();
+        const zip = await JSZip.loadAsync(buf);
+        const entries = Object.entries(zip.files);
+        for (const [path, entry] of entries) {
+          if (entry.dir) continue;
+          if (!isMarkdownFile(path)) continue;
+          const content = await entry.async("string");
+          mdFiles.push({ name: path, content });
+        }
+      }
+
+      if (mdFiles.length === 0) {
+        setStatus("No markdown files found.");
+        setTimeout(() => setStatus(null), 3000);
+        return;
+      }
+
+      await importMarkdownFiles(mdFiles);
+    },
+    [importMarkdownFiles],
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      const files = Array.from(e.dataTransfer.files);
+      processFiles(files);
+    },
+    [processFiles],
+  );
+
+  const handleFileInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files ?? []);
+      if (files.length > 0) processFiles(files);
+      e.target.value = "";
+    },
+    [processFiles],
+  );
+
+  return (
+    <>
+      <Typography variant="subtitle2" sx={{ mt: 3, mb: 1 }}>
+        Import
+      </Typography>
+      <Box
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+        sx={{
+          border: 2,
+          borderStyle: "dashed",
+          borderColor: dragOver ? "primary.main" : "divider",
+          borderRadius: 2,
+          p: 3,
+          textAlign: "center",
+          cursor: "pointer",
+          bgcolor: dragOver ? "action.hover" : "transparent",
+          transition: "all 0.15s",
+        }}
+      >
+        <UploadFileIcon sx={{ fontSize: 32, color: "text.secondary", mb: 1 }} />
+        <Typography variant="body2" color="text.secondary">
+          Drag and drop markdown files or a .zip file here, or click to browse.
+        </Typography>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".md,.markdown,.mdown,.mkd,.mkdn,.mdwn,.mdtxt,.mdtext,.txt,.zip"
+          multiple
+          onChange={handleFileInput}
+          hidden
+        />
+      </Box>
+      {status && (
+        <Typography variant="body2" sx={{ mt: 1 }} color="text.secondary">
+          {status}
+        </Typography>
+      )}
+    </>
   );
 }
 

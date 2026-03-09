@@ -12,6 +12,9 @@ export async function initDatabase(path: string): Promise<void> {
 }
 
 export async function seedDatabase(): Promise<void> {
+  const noteCount = await db("notes").count("* as count").first();
+  const collectionCount = await db("collections").count("* as count").first();
+  if (Number(noteCount?.count ?? 0) > 0 || Number(collectionCount?.count ?? 0) > 0) return;
   await db.seed.run();
 }
 
