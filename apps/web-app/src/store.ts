@@ -9,6 +9,8 @@ interface Tag {
   count: number;
 }
 
+type View = "notes" | "settings";
+
 interface NoteStore {
   notes: Note[];
   tags: Tag[];
@@ -18,7 +20,9 @@ interface NoteStore {
   editOnCreate: boolean;
   saving: boolean;
   archiving: boolean;
+  view: View;
 
+  setView: (view: View) => void;
   setSearchQuery: (query: string) => void;
   setSelectedNoteId: (id: string | null) => void;
   toggleTag: (tag: string) => void;
@@ -38,12 +42,14 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   editOnCreate: false,
   saving: false,
   archiving: false,
+  view: "notes",
 
+  setView: (view) => set({ view, ...(view === "settings" ? { selectedNoteId: null } : {}) }),
   setSearchQuery: (query) => {
     set({ searchQuery: query });
     get().fetchNotes();
   },
-  setSelectedNoteId: (id) => set({ selectedNoteId: id }),
+  setSelectedNoteId: (id) => set({ selectedNoteId: id, ...(id ? { view: "notes" } : {}) }),
   toggleTag: (tag) => {
     const current = get().selectedTags;
     const next = current.includes(tag)

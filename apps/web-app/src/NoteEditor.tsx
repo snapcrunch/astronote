@@ -10,6 +10,7 @@ import { useNoteStore, useSelectedNote } from "./store";
 import MarkdownEditor from "./MarkdownEditor";
 
 function NoteEditor() {
+  const view = useNoteStore((s) => s.view);
   const note = useSelectedNote();
   const updateNote = useNoteStore((s) => s.updateNote);
   const [editing, setEditing] = useState(false);
@@ -57,6 +58,44 @@ function NoteEditor() {
       setEditing(false);
     }
   }, [note?.id]);
+
+  if (view === "settings") {
+    return (
+      <Box
+        sx={{
+          flex: 1,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            px: 3,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            bgcolor: "grey.100",
+            borderBottom: 1,
+            borderColor: "divider",
+            height: 40,
+            minHeight: 40,
+            boxSizing: "content-box",
+          }}
+        >
+          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+            Settings
+          </Typography>
+        </Box>
+        <Box sx={{ flex: 1, px: 3, py: 3, overflow: "auto" }}>
+          <Typography variant="body2" color="text.secondary">
+            Settings will appear here.
+          </Typography>
+        </Box>
+      </Box>
+    );
+  }
 
   if (!note) {
     return (

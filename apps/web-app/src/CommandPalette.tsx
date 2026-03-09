@@ -59,6 +59,13 @@ function useCommands(onClose: () => void): Command[] {
           useNoteStore.getState().fetchNotes();
         }),
       },
+      {
+        id: "settings",
+        label: "Settings",
+        action: run(() => {
+          useNoteStore.getState().setView("settings");
+        }),
+      },
     ];
   }, [onClose, selectedNoteId]);
 }
