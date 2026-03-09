@@ -79,10 +79,17 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     set({ archiving: true });
     try {
       await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
-      set((state) => ({
-        notes: state.notes.filter((n) => n.id !== id),
-        selectedNoteId: state.selectedNoteId === id ? null : state.selectedNoteId,
-      }));
+      set((state) => {
+        if (state.selectedNoteId !== id) {
+          return { notes: state.notes.filter((n) => n.id !== id) };
+        }
+        const index = state.notes.findIndex((n) => n.id === id);
+        const next = state.notes[index - 1] ?? state.notes[index + 1] ?? null;
+        return {
+          notes: state.notes.filter((n) => n.id !== id),
+          selectedNoteId: next?.id ?? null,
+        };
+      });
     } finally {
       set({ archiving: false });
     }
