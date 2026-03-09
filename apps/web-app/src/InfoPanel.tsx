@@ -1,5 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
+import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useNoteStore, useSelectedNote } from "./store";
 
@@ -37,6 +39,52 @@ function StatRow({ label, value }: { label: string; value: string | number }) {
         {value}
       </Typography>
     </Box>
+  );
+}
+
+function TagManager({ noteId, tags }: { noteId: string; tags: string[] }) {
+  const [input, setInput] = useState("");
+  const addTag = useNoteStore((s) => s.addTag);
+  const removeTag = useNoteStore((s) => s.removeTag);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && input.trim()) {
+      e.preventDefault();
+      const tag = input.trim().toLowerCase().replace(/^#/, "");
+      if (tag && !tags.includes(tag)) {
+        addTag(noteId, tag);
+      }
+      setInput("");
+    }
+  };
+
+  return (
+    <>
+      <TextField
+        size="small"
+        fullWidth
+        placeholder="Add a tag…"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={handleKeyDown}
+        sx={{
+          mb: 1,
+          "& .MuiOutlinedInput-root": { fontSize: "0.8rem" },
+          "& .MuiOutlinedInput-input": { py: 0.75 },
+        }}
+      />
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+        {tags.map((tag) => (
+          <Chip
+            key={tag}
+            label={tag}
+            size="small"
+            onDelete={() => removeTag(noteId, tag)}
+            sx={{ fontSize: "0.8rem", height: 24 }}
+          />
+        ))}
+      </Box>
+    </>
   );
 }
 
@@ -83,6 +131,11 @@ function InfoPanel() {
       </Box>
       <Box sx={{ px: 2, py: 1.5, overflow: "auto" }}>
         <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 0.5 }}>
+          Tags
+        </Typography>
+        <TagManager noteId={note.id} tags={note.tags} />
+
+        <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mt: 2, mb: 0.5 }}>
           Statistics
         </Typography>
         <StatRow label="Words" value={stats.words} />

@@ -4,6 +4,7 @@ export const NoteSchema = z.object({
   id: z.string(),
   title: z.string(),
   content: z.string(),
+  tags: z.array(z.string()),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

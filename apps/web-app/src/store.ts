@@ -33,6 +33,8 @@ interface NoteStore {
   createNote: (title: string) => Promise<void>;
   updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content">>) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
+  addTag: (noteId: string, tag: string) => Promise<void>;
+  removeTag: (noteId: string, tag: string) => Promise<void>;
 }
 
 export const useNoteStore = create<NoteStore>((set, get) => ({
@@ -135,6 +137,30 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
     } finally {
       set({ archiving: false });
     }
+  },
+
+  addTag: async (noteId, tag) => {
+    const res = await fetch(`${API_BASE}/${noteId}/tags`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tag }),
+    });
+    const updated: Note = await res.json();
+    set((state) => ({
+      notes: state.notes.map((n) => (n.id === noteId ? updated : n)),
+    }));
+    get().fetchTags();
+  },
+
+  removeTag: async (noteId, tag) => {
+    const res = await fetch(`${API_BASE}/${noteId}/tags/${encodeURIComponent(tag)}`, {
+      method: "DELETE",
+    });
+    const updated: Note = await res.json();
+    set((state) => ({
+      notes: state.notes.map((n) => (n.id === noteId ? updated : n)),
+    }));
+    get().fetchTags();
   },
 }));
 

@@ -45,6 +45,29 @@ notesRouter.patch("/:id", (req, res) => {
   res.json(note);
 });
 
+notesRouter.post("/:id/tags", (req, res) => {
+  const { tag } = req.body;
+  if (typeof tag !== "string" || !tag.trim()) {
+    res.status(400).json({ error: "tag is required" });
+    return;
+  }
+  const note = domain.addTag(req.params.id, tag.trim());
+  if (!note) {
+    res.status(404).json({ error: "Note not found" });
+    return;
+  }
+  res.json(note);
+});
+
+notesRouter.delete("/:id/tags/:tag", (req, res) => {
+  const note = domain.removeTag(req.params.id, req.params.tag);
+  if (!note) {
+    res.status(404).json({ error: "Note not found" });
+    return;
+  }
+  res.json(note);
+});
+
 notesRouter.delete("/:id", (req, res) => {
   const archived = domain.archiveNote(req.params.id);
   if (!archived) {

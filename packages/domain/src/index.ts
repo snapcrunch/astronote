@@ -3,7 +3,6 @@ import type { Note, CreateNoteInput, UpdateNoteInput } from "@repo/types";
 import * as repository from "@repo/repository";
 
 export function parseTags(text: string): string[] {
-  // Strip code blocks and inline code before parsing tags
   const stripped = text
     .replace(/```[\s\S]*?```/g, "")
     .replace(/`[^`]*`/g, "");
@@ -25,17 +24,18 @@ export function getNote(id: string): Note | null {
   return repository.getNoteById(id);
 }
 
-export function createNote(input: CreateNoteInput): Note {
+export function createNote(input: CreateNoteInput & { tags?: string[] }): Note {
   const now = new Date().toISOString();
+  const tags = (input.tags ?? []).map((t) => t.toLowerCase());
   const note: Note = {
     id: uuidv4(),
     title: input.title,
     content: input.content ?? "",
+    tags,
     createdAt: now,
     updatedAt: now,
   };
   const created = repository.createNote(note);
-  const tags = parseTags(`${created.title} ${created.content}`);
   repository.incrementTags(tags);
   return created;
 }
@@ -44,23 +44,23 @@ export function updateNote(id: string, input: UpdateNoteInput): Note | null {
   const existing = repository.getNoteById(id);
   if (!existing) return null;
 
-  const oldTags = parseTags(`${existing.title} ${existing.content}`);
-
   const updated = repository.updateNote(id, {
     ...input,
     updatedAt: new Date().toISOString(),
   });
-  if (!updated) return null;
-
-  const newTags = parseTags(`${updated.title} ${updated.content}`);
-
-  const added = newTags.filter((t) => !oldTags.includes(t));
-  const removed = oldTags.filter((t) => !newTags.includes(t));
-
-  repository.incrementTags(added);
-  repository.decrementTags(removed);
-
   return updated;
+}
+
+export function addTag(noteId: string, tag: string): Note | null {
+  const normalizedTag = tag.toLowerCase();
+  repository.addNoteTag(noteId, normalizedTag);
+  return repository.getNoteById(noteId);
+}
+
+export function removeTag(noteId: string, tag: string): Note | null {
+  const normalizedTag = tag.toLowerCase();
+  repository.removeNoteTag(noteId, normalizedTag);
+  return repository.getNoteById(noteId);
 }
 
 export function deleteNote(id: string): boolean {
@@ -68,13 +68,5 @@ export function deleteNote(id: string): boolean {
 }
 
 export function archiveNote(id: string): boolean {
-  const existing = repository.getNoteById(id);
-  if (!existing) return false;
-
-  const tags = parseTags(`${existing.title} ${existing.content}`);
-  const archived = repository.archiveNote(id);
-  if (archived) {
-    repository.decrementTags(tags);
-  }
-  return archived;
+  return repository.archiveNote(id);
 }

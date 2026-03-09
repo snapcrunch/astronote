@@ -6,7 +6,7 @@ export function seedDatabase(): void {
   if (getNoteCount() > 0) return;
 
   for (const note of seedNotes) {
-    domain.createNote({ title: note.title, content: note.content });
+    domain.createNote({ title: note.title, content: note.content, tags: note.tags });
   }
 
   console.log(`Seeded database with ${seedNotes.length} notes`);

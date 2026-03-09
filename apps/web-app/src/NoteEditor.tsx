@@ -12,11 +12,12 @@ import remarkGfm from "remark-gfm";
 import { useNoteStore, useSelectedNote } from "./store";
 import MarkdownEditor from "./MarkdownEditor";
 
-function CodeBlock({ children, ...props }: React.ComponentPropsWithoutRef<"pre">) {
+function CodeBlock({ children, ...props }: React.PropsWithChildren<React.ComponentPropsWithoutRef<"pre">>) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    const code = (children as React.ReactElement)?.props?.children ?? "";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const code = (children as any)?.props?.children ?? "";
     navigator.clipboard.writeText(String(code).replace(/\n$/, ""));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

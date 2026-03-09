@@ -39,6 +39,15 @@ export async function initDatabase(path: string): Promise<void> {
     )
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS note_tags (
+      noteId TEXT NOT NULL,
+      tag TEXT NOT NULL,
+      PRIMARY KEY (noteId, tag),
+      FOREIGN KEY (noteId) REFERENCES notes(id)
+    )
+  `);
+
   // Add archived column to existing databases
   const cols = db.exec("PRAGMA table_info(notes)");
   const hasArchived = cols[0]?.values.some((row) => row[1] === "archived");
@@ -47,6 +56,30 @@ export async function initDatabase(path: string): Promise<void> {
   }
 
   save();
+}
+
+function getNoteTags(noteId: string): string[] {
+  const stmt = db.prepare("SELECT tag FROM note_tags WHERE noteId = ? ORDER BY tag ASC");
+  stmt.bind([noteId]);
+  const tags: string[] = [];
+  while (stmt.step()) {
+    const row = stmt.getAsObject() as { tag: string };
+    tags.push(row.tag);
+  }
+  stmt.free();
+  return tags;
+}
+
+function rowToNote(row: Record<string, unknown>): Note {
+  const id = row.id as string;
+  return {
+    id,
+    title: row.title as string,
+    content: row.content as string,
+    tags: getNoteTags(id),
+    createdAt: row.createdAt as string,
+    updatedAt: row.updatedAt as string,
+  };
 }
 
 export function getNotes(query?: string, tags?: string[]): Note[] {
@@ -61,8 +94,8 @@ export function getNotes(query?: string, tags?: string[]): Note[] {
 
   if (tags && tags.length > 0) {
     for (const tag of tags) {
-      sql += " AND (title || ' ' || content) LIKE ?";
-      params.push(`%${tag}%`);
+      sql += " AND id IN (SELECT noteId FROM note_tags WHERE tag = ?)";
+      params.push(tag);
     }
   }
 
@@ -73,7 +106,7 @@ export function getNotes(query?: string, tags?: string[]): Note[] {
 
   const results: Note[] = [];
   while (stmt.step()) {
-    results.push(stmt.getAsObject() as unknown as Note);
+    results.push(rowToNote(stmt.getAsObject()));
   }
   stmt.free();
   return results;
@@ -84,7 +117,7 @@ export function getNoteById(id: string): Note | null {
   stmt.bind([id]);
   let result: Note | null = null;
   if (stmt.step()) {
-    result = stmt.getAsObject() as unknown as Note;
+    result = rowToNote(stmt.getAsObject());
   }
   stmt.free();
   return result;
@@ -95,8 +128,11 @@ export function createNote(note: Note): Note {
     "INSERT INTO notes (id, title, content, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)",
     [note.id, note.title, note.content, note.createdAt, note.updatedAt],
   );
+  for (const tag of note.tags) {
+    db.run("INSERT OR IGNORE INTO note_tags (noteId, tag) VALUES (?, ?)", [note.id, tag]);
+  }
   save();
-  return note;
+  return { ...note, tags: getNoteTags(note.id) };
 }
 
 export function updateNote(
@@ -120,9 +156,32 @@ export function updateNote(
   return { ...existing, title, content, updatedAt: updates.updatedAt };
 }
 
+export function addNoteTag(noteId: string, tag: string): void {
+  db.run("INSERT OR IGNORE INTO note_tags (noteId, tag) VALUES (?, ?)", [noteId, tag]);
+  db.run(
+    "INSERT INTO tags (tag, count) VALUES (?, 1) ON CONFLICT(tag) DO UPDATE SET count = count + 1",
+    [tag],
+  );
+  save();
+}
+
+export function removeNoteTag(noteId: string, tag: string): void {
+  const stmt = db.prepare("SELECT 1 FROM note_tags WHERE noteId = ? AND tag = ?");
+  stmt.bind([noteId, tag]);
+  const exists = stmt.step();
+  stmt.free();
+  if (!exists) return;
+
+  db.run("DELETE FROM note_tags WHERE noteId = ? AND tag = ?", [noteId, tag]);
+  db.run("UPDATE tags SET count = count - 1 WHERE tag = ?", [tag]);
+  db.run("DELETE FROM tags WHERE count <= 0");
+  save();
+}
+
 export function deleteNote(id: string): boolean {
   const existing = getNoteById(id);
   if (!existing) return false;
+  db.run("DELETE FROM note_tags WHERE noteId = ?", [id]);
   db.run("DELETE FROM notes WHERE id = ?", [id]);
   save();
   return true;
@@ -131,6 +190,14 @@ export function deleteNote(id: string): boolean {
 export function archiveNote(id: string): boolean {
   const existing = getNoteById(id);
   if (!existing) return false;
+
+  // Decrement tag counts for this note's tags
+  for (const tag of existing.tags) {
+    db.run("UPDATE tags SET count = count - 1 WHERE tag = ?", [tag]);
+  }
+  db.run("DELETE FROM tags WHERE count <= 0");
+
+  db.run("DELETE FROM note_tags WHERE noteId = ?", [id]);
   db.run("UPDATE notes SET archived = 1, updatedAt = ? WHERE id = ?", [
     new Date().toISOString(),
     id,

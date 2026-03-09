@@ -28,15 +28,6 @@ function formatDate(dateStr: string) {
   });
 }
 
-function extractTags(text: string): string[] {
-  const stripped = text
-    .replace(/```[\s\S]*?```/g, "")
-    .replace(/`[^`]*`/g, "");
-  const matches = stripped.match(/#[a-zA-Z][a-zA-Z0-9]*/g);
-  if (!matches) return [];
-  return [...new Set(matches.map((t) => t.toLowerCase()))].sort();
-}
-
 function useIsScrollable(ref: React.RefObject<HTMLElement | null>) {
   const [scrollable, setScrollable] = useState(false);
   const check = useCallback(() => {
@@ -111,7 +102,7 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
               secondary={
                 <Box component="span" sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
                   <Typography variant="caption" noWrap component="span" sx={{ flexShrink: 1, minWidth: 0 }}>
-                    {extractTags(`${note.title} ${note.content}`).join(", ")}
+                    {note.tags.join(", ")}
                   </Typography>
                   <Typography variant="caption" noWrap component="span" sx={{ flexShrink: 0 }}>
                     {formatDate(note.updatedAt)}
