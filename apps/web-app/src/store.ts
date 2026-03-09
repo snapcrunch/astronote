@@ -10,6 +10,7 @@ interface NoteStore {
   searchQuery: string;
   editOnCreate: boolean;
   saving: boolean;
+  archiving: boolean;
 
   setSearchQuery: (query: string) => void;
   setSelectedNoteId: (id: string | null) => void;
@@ -25,6 +26,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   searchQuery: "",
   editOnCreate: false,
   saving: false,
+  archiving: false,
 
   setSearchQuery: (query) => {
     set({ searchQuery: query });
@@ -74,11 +76,16 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   },
 
   deleteNote: async (id) => {
-    await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
-    set((state) => ({
-      notes: state.notes.filter((n) => n.id !== id),
-      selectedNoteId: state.selectedNoteId === id ? null : state.selectedNoteId,
-    }));
+    set({ archiving: true });
+    try {
+      await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+      set((state) => ({
+        notes: state.notes.filter((n) => n.id !== id),
+        selectedNoteId: state.selectedNoteId === id ? null : state.selectedNoteId,
+      }));
+    } finally {
+      set({ archiving: false });
+    }
   },
 }));
 
@@ -89,6 +96,8 @@ export function useFilteredNotes() {
 
 export function useStatusMessage() {
   const saving = useNoteStore((s) => s.saving);
+  const archiving = useNoteStore((s) => s.archiving);
+  if (archiving) return "Archiving note...";
   if (saving) return "Saving note...";
   return null;
 }
