@@ -38,10 +38,10 @@ function Tags() {
               key={tag}
               label={`${tag} (${count})`}
               size="small"
-              variant={selectedTags.includes(tag) ? "filled" : "outlined"}
-              color={selectedTags.includes(tag) ? "primary" : "default"}
+              variant="filled"
+              color="primary"
               onClick={() => toggleTag(tag)}
-              sx={{ fontSize: "0.85rem", height: 28, cursor: "pointer" }}
+              sx={{ fontSize: "0.85rem", height: 28, cursor: "pointer", borderRadius: 1 }}
             />
           ))}
         </Box>
