@@ -4,6 +4,7 @@ import TextField from "@mui/material/TextField";
 import SectionHeading from "./SectionHeading";
 import Tag from "../components/Tag";
 import { useNoteStore, useSelectedNote } from "../store";
+import { tagInput, tagList } from "./styles";
 
 function TagManager() {
   const note = useSelectedNote();
@@ -36,13 +37,9 @@ function TagManager() {
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
-        sx={{
-          mb: 1,
-          "& .MuiOutlinedInput-root": { fontSize: "0.8rem", bgcolor: "background.paper" },
-          "& .MuiOutlinedInput-input": { py: 0.75 },
-        }}
+        sx={tagInput}
       />
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+      <Box sx={tagList}>
         {tags.map((tag) => (
           <Tag key={tag} label={tag} onRemoved={() => removeTag(noteId, tag)} />
         ))}

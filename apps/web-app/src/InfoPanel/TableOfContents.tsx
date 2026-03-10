@@ -6,6 +6,7 @@ import SectionHeading from "./SectionHeading";
 import { useSelectedNote } from "../store";
 import { slugify } from "../utils";
 import { extractHeadings } from "./util";
+import { tocList, tocLink } from "./styles";
 
 function TableOfContents() {
   const note = useSelectedNote();
@@ -27,7 +28,7 @@ function TableOfContents() {
           No headings found.
         </Typography>
       ) : (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.25 }}>
+        <Box sx={tocList}>
           {headings.map((h, i) => (
             <Link
               key={i}
@@ -35,13 +36,7 @@ function TableOfContents() {
               variant="caption"
               underline="hover"
               onClick={() => handleClick(h.text)}
-              sx={{
-                pl: (h.level - minLevel) * 1.5,
-                lineHeight: 1.6,
-                color: "text.secondary",
-                textAlign: "left",
-                cursor: "pointer",
-              }}
+              sx={tocLink(h.level - minLevel)}
             >
               {h.text}
             </Link>
