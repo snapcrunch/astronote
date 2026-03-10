@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import Box from "@mui/material/Box";
-import Chip from "@mui/material/Chip";
 import Collapse from "@mui/material/Collapse";
 import Typography from "@mui/material/Typography";
+import Tag from "../components/Tag";
 import { useNoteStore } from "../store";
 
 function Tags() {
@@ -34,15 +34,7 @@ function Tags() {
       <Collapse in={open}>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, pt: 0.5, pb: 1 }}>
           {sortedTags.map(({ tag, count }) => (
-            <Chip
-              key={tag}
-              label={`${tag} (${count})`}
-              size="small"
-              variant="filled"
-              color="primary"
-              onClick={() => toggleTag(tag)}
-              sx={{ fontSize: "0.85rem", height: 28, cursor: "pointer", borderRadius: 1 }}
-            />
+            <Tag key={tag} label={tag} count={count} selected={selectedTags.includes(tag)} onClick={() => toggleTag(tag)} />
           ))}
         </Box>
       </Collapse>

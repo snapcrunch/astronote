@@ -1,8 +1,8 @@
 import { useState } from "react";
 import Box from "@mui/material/Box";
-import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
 import SectionHeading from "./SectionHeading";
+import Tag from "../components/Tag";
 import { useNoteStore, useSelectedNote } from "../store";
 
 function TagManager() {
@@ -44,14 +44,7 @@ function TagManager() {
       />
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
         {tags.map((tag) => (
-          <Chip
-            key={tag}
-            label={tag}
-            size="small"
-            onDelete={() => removeTag(noteId, tag)}
-            color="primary"
-            sx={{ fontSize: "0.8rem", height: 24, borderRadius: 1 }}
-          />
+          <Tag key={tag} label={tag} onRemoved={() => removeTag(noteId, tag)} />
         ))}
       </Box>
     </>
