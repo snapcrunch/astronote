@@ -2,7 +2,7 @@ import { useState } from "react";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
+import SectionHeading from "./SectionHeading";
 import { useNoteStore, useSelectedNote } from "../store";
 
 function TagManager() {
@@ -28,9 +28,7 @@ function TagManager() {
 
   return (
     <>
-      <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mt: 2, mb: 1, pt: 0.5, pb: 0.5, mx: -2, px: 2, borderTop: 1, borderBottom: 1, borderColor: "divider" }}>
-        Tags
-      </Typography>
+      <SectionHeading>Tags</SectionHeading>
       <TextField
         size="small"
         fullWidth

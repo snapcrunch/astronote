@@ -6,7 +6,7 @@ import Statistics from "./Statistics";
 import TableOfContents from "./TableOfContents";
 import TagManager from "./TagManager";
 
-const INFO_PANEL_WIDTH = 260;
+const INFO_PANEL_WIDTH = 350;
 
 function InfoPanel() {
   const showInfoPanel = useNoteStore((s) => s.showInfoPanel);

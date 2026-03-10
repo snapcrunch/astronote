@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
+import SectionHeading from "./SectionHeading";
 import { useSelectedNote } from "../store";
 import { slugify } from "../utils";
 import { extractHeadings } from "./util";
@@ -20,9 +21,7 @@ function TableOfContents() {
 
   return (
     <>
-      <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 1, pb: 0.5, mx: -2, px: 2, borderBottom: 1, borderColor: "divider" }}>
-        Table of Contents
-      </Typography>
+      <SectionHeading first>Table of Contents</SectionHeading>
       {headings.length === 0 ? (
         <Typography variant="caption" color="text.secondary">
           No headings found.
