@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useNoteStore, useStatusMessage } from "../store";
+import { useIsMobile } from "../hooks";
 import { useOmnibar, useSearch, useNoteList } from "./hooks";
 import Omnibar from "./Omnibar";
 import NoteList from "./List";
@@ -9,6 +10,7 @@ import Tags from "./Tags";
 const SIDEBAR_WIDTH = 475;
 
 function Sidebar() {
+  const isMobile = useIsMobile();
   const omnibarRef = useOmnibar();
   const { localQuery, handleSearchChange } = useSearch();
   const { notes, selectedNoteId, setSelectedNoteId, listRef, handleOmnibarKeyDown, handleListItemKeyDown } = useNoteList(omnibarRef, localQuery);
@@ -18,13 +20,13 @@ function Sidebar() {
   return (
     <Box
       sx={{
-        width: SIDEBAR_WIDTH,
+        width: isMobile ? "100%" : SIDEBAR_WIDTH,
         height: "100%",
         display: "flex",
         flexDirection: "column",
         bgcolor: "grey.50",
         userSelect: "none",
-        borderRight: 1,
+        borderRight: isMobile ? 0 : 1,
         borderColor: "divider",
       }}
     >

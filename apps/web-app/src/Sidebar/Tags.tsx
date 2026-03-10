@@ -4,13 +4,15 @@ import Collapse from "@mui/material/Collapse";
 import Typography from "@mui/material/Typography";
 import Tag from "../components/Tag";
 import { useNoteStore } from "../store";
+import { useIsMobile } from "../hooks";
 
 function Tags() {
+  const isMobile = useIsMobile();
   const tags = useNoteStore((s) => s.tags);
   const sortedTags = useMemo(() => [...tags].sort((a, b) => a.tag.localeCompare(b.tag)), [tags]);
   const selectedTags = useNoteStore((s) => s.selectedTags);
   const toggleTag = useNoteStore((s) => s.toggleTag);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(!isMobile);
 
   if (tags.length === 0) return null;
 

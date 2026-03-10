@@ -54,6 +54,9 @@ export const tocLink = (indent: number): SxProps<Theme> => ({
   cursor: "pointer",
 });
 
+// InfoPanel (inline / mobile)
+export const infoPanelInlineRoot: SxProps<Theme> = { mt: 2, pt: 2, borderTop: 1, borderColor: "divider" };
+
 // SectionHeading
 export const sectionHeading = (first: boolean): SxProps<Theme> => ({
   fontWeight: 600,

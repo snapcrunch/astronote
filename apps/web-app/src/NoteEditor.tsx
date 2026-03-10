@@ -22,8 +22,11 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import JSZip from "jszip";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { useNoteStore, useSelectedNote } from "./store";
+import { useIsMobile } from "./hooks";
+import InfoPanel from "./InfoPanel";
 import TextField from "@mui/material/TextField";
 import type { ThemeId, DefaultView, AuthMethod } from "@repo/types";
 import { themes as themeEntries } from "./themes";
@@ -106,6 +109,8 @@ function CodeBlock({ children, ...props }: React.PropsWithChildren<React.Compone
 }
 
 function SettingsView() {
+  const isMobile = useIsMobile();
+  const setView = useNoteStore((s) => s.setView);
   const collections = useNoteStore((s) => s.collections);
   const deleteCollection = useNoteStore((s) => s.deleteCollection);
   const setDefaultCollection = useNoteStore((s) => s.setDefaultCollection);
@@ -151,7 +156,7 @@ function SettingsView() {
     >
       <Box
         sx={{
-          px: 3,
+          px: isMobile ? 1.5 : 3,
           display: "flex",
           alignItems: "center",
           gap: 1,
@@ -163,6 +168,11 @@ function SettingsView() {
           boxSizing: "content-box",
         }}
       >
+        {isMobile && (
+          <IconButton size="small" onClick={() => setView("notes")} title="Back">
+            <ArrowBackIcon fontSize="small" />
+          </IconButton>
+        )}
         <Typography variant="body1" sx={{ fontWeight: 600 }}>
           Settings
         </Typography>
@@ -513,9 +523,12 @@ function ResetSection({ onReset }: { onReset: () => Promise<void> }) {
 }
 
 function NoteEditor() {
+  const isMobile = useIsMobile();
   const view = useNoteStore((s) => s.view);
   const showInfoPanel = useNoteStore((s) => s.showInfoPanel);
   const toggleInfoPanel = useNoteStore((s) => s.toggleInfoPanel);
+  const setSelectedNoteId = useNoteStore((s) => s.setSelectedNoteId);
+  const setView = useNoteStore((s) => s.setView);
   const note = useSelectedNote();
   const updateNote = useNoteStore((s) => s.updateNote);
   const [editing, setEditing] = useState(false);
@@ -602,7 +615,7 @@ function NoteEditor() {
     >
       <Box
         sx={{
-          px: 3,
+          px: isMobile ? 1.5 : 3,
           display: "flex",
           alignItems: "center",
           gap: 1,
@@ -614,6 +627,11 @@ function NoteEditor() {
           boxSizing: "content-box",
         }}
       >
+        {isMobile && (
+          <IconButton size="small" onClick={() => setSelectedNoteId(null)} title="Back">
+            <ArrowBackIcon fontSize="small" />
+          </IconButton>
+        )}
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography variant="body1" sx={{ fontWeight: 600 }} noWrap>
             {note.title}
@@ -635,7 +653,7 @@ function NoteEditor() {
           <InfoOutlinedIcon fontSize="small" />
         </IconButton>
       </Box>
-      <Box sx={{ flex: 1, px: 3, pb: 3, overflow: "auto" }}>
+      <Box sx={{ flex: 1, px: isMobile ? 1.5 : 3, pb: 3, overflow: "auto" }}>
         {editing ? (
           <MarkdownEditor
             value={note.content}
@@ -697,6 +715,7 @@ function NoteEditor() {
             <Markdown remarkPlugins={[remarkGfm]} components={{ pre: CodeBlock, ...headingComponents }}>{note.content}</Markdown>
           </Box>
         )}
+        {isMobile && <InfoPanel variant="inline" />}
       </Box>
     </Box>
   );
