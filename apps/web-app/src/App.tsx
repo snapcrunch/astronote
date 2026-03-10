@@ -6,28 +6,14 @@ import Sidebar from "./Sidebar";
 import NoteEditor from "./NoteEditor";
 import InfoPanel from "./InfoPanel";
 import CommandPalette from "./CommandPalette";
-import { useNoteStore, restoreFromUrl } from "./store";
+import { useNoteStore } from "./store";
 import { themes } from "./themes";
 
 function App() {
-  const fetchNotes = useNoteStore((s) => s.fetchNotes);
-  const fetchTags = useNoteStore((s) => s.fetchTags);
-  const fetchCollections = useNoteStore((s) => s.fetchCollections);
-  const fetchSettings = useNoteStore((s) => s.fetchSettings);
+  const init = useNoteStore((s) => s.init);
   const themeId = useNoteStore((s) => s.settings.theme);
 
-  useEffect(() => {
-    fetchNotes();
-    fetchTags();
-    fetchCollections();
-    fetchSettings();
-  }, [fetchNotes, fetchTags, fetchCollections, fetchSettings]);
-
-  useEffect(() => {
-    const onPopState = () => restoreFromUrl();
-    window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
-  }, []);
+  useEffect(() => init(), [init]);
 
   return (
     <ThemeProvider theme={themes[themeId].theme}>

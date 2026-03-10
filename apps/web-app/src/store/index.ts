@@ -1,2 +1,1 @@
-export { useNoteStore, restoreFromUrl } from "./store";
-export { useFilteredNotes, useStatusMessage, useSelectedNote } from "./hooks";
+export { useNoteStore, useFilteredNotes, useStatusMessage, useSelectedNote } from "./store";

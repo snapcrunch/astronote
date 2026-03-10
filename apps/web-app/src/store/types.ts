@@ -23,6 +23,7 @@ export interface NoteStore {
   view: View;
   showInfoPanel: boolean;
 
+  init: () => (() => void);
   fetchSettings: () => Promise<void>;
   updateSettings: (updates: Partial<Settings>) => Promise<void>;
   resetAll: () => Promise<void>;

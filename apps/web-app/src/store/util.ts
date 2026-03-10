@@ -17,6 +17,20 @@ export function buildUrl(view: View, selectedNoteId: string | null, showInfoPane
   return qs ? `${path}?${qs}` : path;
 }
 
+interface SyncUrlParams {
+  view: View;
+  selectedNoteId: string | null;
+  showInfoPanel: boolean;
+  settingDefault: boolean;
+}
+
+export function syncUrl({ view, selectedNoteId, showInfoPanel, settingDefault }: SyncUrlParams) {
+  const url = buildUrl(view, selectedNoteId, showInfoPanel, settingDefault);
+  if (url !== window.location.pathname + window.location.search) {
+    window.history.pushState(null, "", url);
+  }
+}
+
 export function parseUrl(): { view: View; selectedNoteId: string | null; showInfoPanel: boolean | null } {
   const path = window.location.pathname;
   const params = new URLSearchParams(window.location.search);
