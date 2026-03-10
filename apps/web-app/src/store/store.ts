@@ -1,25 +1,9 @@
-import { useMemo } from "react";
 import { create } from "zustand";
 import type { Note, Collection, Settings, DefaultView } from "@repo/types";
+import type { Tag, View, NoteStore } from "./types";
+import { buildUrl, parseUrl } from "./util";
 
 const API_BASE = "/api/notes";
-
-function buildUrl(view: View, selectedNoteId: string | null, showInfoPanel: boolean, settingDefault: boolean): string {
-  let path: string;
-  if (view === "settings") {
-    path = "/settings";
-  } else if (selectedNoteId) {
-    path = `/notes/${selectedNoteId}`;
-  } else {
-    path = "/";
-  }
-  const params = new URLSearchParams();
-  if (showInfoPanel !== settingDefault) {
-    params.set("info", showInfoPanel ? "1" : "0");
-  }
-  const qs = params.toString();
-  return qs ? `${path}?${qs}` : path;
-}
 
 function syncUrl(view: View, selectedNoteId: string | null, showInfoPanel: boolean) {
   const settingDefault = useNoteStore.getState().settings.show_info_panel;
@@ -27,70 +11,6 @@ function syncUrl(view: View, selectedNoteId: string | null, showInfoPanel: boole
   if (url !== window.location.pathname + window.location.search) {
     window.history.pushState(null, "", url);
   }
-}
-
-function parseUrl(): { view: View; selectedNoteId: string | null; showInfoPanel: boolean | null } {
-  const path = window.location.pathname;
-  const params = new URLSearchParams(window.location.search);
-  const showInfoPanel = params.has("info") ? params.get("info") !== "0" : null;
-
-  if (path === "/settings") {
-    return { view: "settings", selectedNoteId: null, showInfoPanel };
-  }
-
-  const noteMatch = path.match(/^\/notes\/(.+)$/);
-  if (noteMatch) {
-    return { view: "notes", selectedNoteId: noteMatch[1]!, showInfoPanel };
-  }
-
-  return { view: "notes", selectedNoteId: null, showInfoPanel };
-}
-
-interface Tag {
-  tag: string;
-  count: number;
-}
-
-type View = "notes" | "settings";
-
-interface NoteStore {
-  notes: Note[];
-  tags: Tag[];
-  collections: Collection[];
-  activeCollectionId: number | null;
-  selectedNoteId: string | null;
-  searchQuery: string;
-  selectedTags: string[];
-  editOnCreate: boolean;
-  saving: boolean;
-  archiving: boolean;
-  settings: Settings;
-  settingsLoaded: boolean;
-  view: View;
-  showInfoPanel: boolean;
-
-  fetchSettings: () => Promise<void>;
-  updateSettings: (updates: Partial<Settings>) => Promise<void>;
-  resetAll: () => Promise<void>;
-  setView: (view: View) => void;
-  toggleInfoPanel: () => void;
-  setSearchQuery: (query: string) => void;
-  setSelectedNoteId: (id: string | null) => void;
-  setActiveCollectionId: (id: number) => void;
-  toggleTag: (tag: string) => void;
-  fetchNotes: () => Promise<void>;
-  fetchTags: () => Promise<void>;
-  fetchCollections: () => Promise<void>;
-  createCollection: (name: string) => Promise<void>;
-  deleteCollection: (id: number) => Promise<void>;
-  setDefaultCollection: (id: number) => Promise<void>;
-  createNote: (title: string, content?: string) => Promise<void>;
-  importNote: (title: string, content: string) => Promise<void>;
-  importing: boolean;
-  updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content">>) => Promise<void>;
-  deleteNote: (id: string) => Promise<void>;
-  addTag: (noteId: string, tag: string) => Promise<void>;
-  removeTag: (noteId: string, tag: string) => Promise<void>;
 }
 
 const initialUrl = parseUrl();
@@ -329,28 +249,4 @@ export function restoreFromUrl() {
   const { view, selectedNoteId, showInfoPanel } = parseUrl();
   const resolved = showInfoPanel ?? useNoteStore.getState().settings.show_info_panel;
   useNoteStore.setState({ view, selectedNoteId, showInfoPanel: resolved });
-}
-
-export function useFilteredNotes() {
-  const notes = useNoteStore((s) => s.notes);
-  return useMemo(() => notes, [notes]);
-}
-
-export function useStatusMessage() {
-  const saving = useNoteStore((s) => s.saving);
-  const archiving = useNoteStore((s) => s.archiving);
-  const importing = useNoteStore((s) => s.importing);
-  if (importing) return "Importing notes...";
-  if (archiving) return "Archiving note...";
-  if (saving) return "Saving note...";
-  return null;
-}
-
-export function useSelectedNote() {
-  const notes = useNoteStore((s) => s.notes);
-  const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
-  return useMemo(
-    () => notes.find((n) => n.id === selectedNoteId) ?? null,
-    [notes, selectedNoteId],
-  );
 }
