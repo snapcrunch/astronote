@@ -12,7 +12,6 @@ import { themes } from "./themes";
 function App() {
   const init = useNoteStore((s) => s.init);
   const themeId = useNoteStore((s) => s.settings.theme);
-
   useEffect(() => init(), [init]);
 
   return (
