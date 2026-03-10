@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNoteStore, useFilteredNotes } from "../store";
+import { useIsMobile } from "../hooks";
 
 export function useOmnibar() {
   const omnibarRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
-    omnibarRef.current?.focus();
+    if (!isMobile) omnibarRef.current?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey && e.key === "k") {
