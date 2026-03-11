@@ -148,7 +148,7 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
               primary={
                 <Box component="span" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                   {note.pinned && (
-                    <PushPinIcon sx={{ fontSize: 12, flexShrink: 0, opacity: 0.6 }} />
+                    <PushPinIcon sx={{ fontSize: 12, flexShrink: 0, color: "error.main" }} />
                   )}
                   <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {note.title}
