@@ -4,6 +4,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import Sidebar from "./Sidebar";
 import NoteEditor from "./NoteEditor";
+import SettingsView from "./SettingsView";
 import InfoPanel from "./InfoPanel";
 import CommandPalette from "./CommandPalette";
 import { useNoteStore } from "./store";
@@ -18,18 +19,21 @@ function App() {
   const isMobile = useIsMobile();
   useEffect(() => init(), [init]);
 
-  const showNoteView = isMobile && (selectedNoteId !== null || view === "settings");
+  const isSettings = view === "settings";
+  const showNoteView = isMobile && (selectedNoteId !== null || isSettings);
+
+  const contentView = isSettings ? <SettingsView /> : <NoteEditor />;
 
   return (
     <ThemeProvider theme={themes[themeId].theme}>
       <CssBaseline />
       <Box sx={{ display: "flex", height: "100%" }}>
         {isMobile ? (
-          showNoteView ? <NoteEditor /> : <Sidebar />
+          showNoteView ? contentView : <Sidebar />
         ) : (
           <>
             <Sidebar />
-            <NoteEditor />
+            {contentView}
             <InfoPanel />
           </>
         )}
