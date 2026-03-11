@@ -9,7 +9,7 @@ import { settingsRouter } from "./routes/settings";
 import { errorHandler } from "./middleware/errorHandler";
 import { basicAuth } from "./middleware/basicAuth";
 
-const PORT = process.env.PORT ?? 3001;
+const PORT = process.env.PORT ?? 3009;
 const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), "astronote.db");
 
 async function main() {

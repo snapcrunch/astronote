@@ -70,7 +70,7 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
           <ListItemButton
             key={note.id}
             selected={note.id === selectedNoteId}
-            onMouseDown={() => onSelectNote(note.id)}
+            onMouseDown={(e) => { if (e.button !== 2) onSelectNote(note.id); }}
             onContextMenu={(e) => handleContextMenu(e, note.id)}
             onKeyDown={(e) => onItemKeyDown(e, index)}
             disableRipple

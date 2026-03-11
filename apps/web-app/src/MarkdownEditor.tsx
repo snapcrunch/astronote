@@ -82,7 +82,7 @@ function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditor
 
   useEffect(() => {
     const view = viewRef.current;
-    if (!view) return;
+    if (!view || view.hasFocus) return;
     const current = view.state.doc.toString();
     if (current !== value) {
       view.dispatch({
