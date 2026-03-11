@@ -4,7 +4,7 @@ import IconButton from "@mui/material/IconButton";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckIcon from "@mui/icons-material/Check";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { oneLight, dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 function CodeBlock({ children, ...props }: React.PropsWithChildren<React.ComponentPropsWithoutRef<"pre">>) {
   const [copied, setCopied] = useState(false);
@@ -14,6 +14,12 @@ function CodeBlock({ children, ...props }: React.PropsWithChildren<React.Compone
   const className: string = codeEl?.props?.className ?? "";
   const language = className.replace("language-", "") || undefined;
   const code = String(codeEl?.props?.children ?? "").replace(/\n$/, "");
+
+  const SHELL_LANGUAGES = new Set(["bash", "sh", "shell", "zsh"]);
+  const isShell = language !== undefined && SHELL_LANGUAGES.has(language);
+  const displayCode = isShell
+    ? code.split("\n").map((line) => (line ? `$ ${line}` : line)).join("\n")
+    : code;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(code);
@@ -25,8 +31,8 @@ function CodeBlock({ children, ...props }: React.PropsWithChildren<React.Compone
     <Box sx={{ position: "relative" }}>
       <SyntaxHighlighter
         {...props}
-        language={language}
-        style={oneLight}
+        language={isShell ? "shell-session" : language}
+        style={isShell ? dracula : oneLight}
         customStyle={{
           margin: 0,
           borderRadius: 4,
@@ -35,7 +41,7 @@ function CodeBlock({ children, ...props }: React.PropsWithChildren<React.Compone
           fontSize: "0.875rem",
         }}
       >
-        {code}
+        {displayCode}
       </SyntaxHighlighter>
       <IconButton
         size="small"
