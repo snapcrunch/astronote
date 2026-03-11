@@ -1,6 +1,6 @@
 import type { StoreApi } from "zustand";
 import type { Note, Settings } from "@repo/types";
-import { WebClient } from "@repo/astronote-client";
+import { WebClient } from "@repo/astronote-client/WebClient";
 import type { NoteStore, Tag, View } from "./types";
 import { syncUrl, parseUrl } from "./util";
 
