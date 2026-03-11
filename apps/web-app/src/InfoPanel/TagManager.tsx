@@ -47,6 +47,22 @@ function TagManager() {
             if (reason !== "reset") setInput(value);
           }}
           onChange={handleChange}
+          slotProps={{
+            popper: {
+              modifiers: [{ name: "offset", options: { offset: [0, 5] } }],
+              sx: { width: "320px !important" },
+            },
+            listbox: {
+              sx: {
+                "& .MuiAutocomplete-option": {
+                  fontSize: "0.8rem",
+                  py: 0.5,
+                  px: 1.5,
+                  minHeight: "unset",
+                },
+              },
+            },
+          }}
           renderInput={(params) => (
             <TextField
               {...params}

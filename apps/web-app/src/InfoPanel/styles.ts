@@ -48,7 +48,7 @@ export const tagInput: SxProps<Theme> = {
   "& .MuiOutlinedInput-input": { py: 0.75, px: 2 },
 };
 
-export const tagList: SxProps<Theme> = { display: "flex", flexWrap: "wrap", gap: 0.5 };
+export const tagList: SxProps<Theme> = { display: "flex", flexWrap: "wrap", gap: 0.375 };
 
 // StatRow
 export const statRow: SxProps<Theme> = { display: "flex", justifyContent: "space-between", py: 0.5 };
