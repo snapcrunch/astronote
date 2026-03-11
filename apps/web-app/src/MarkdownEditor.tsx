@@ -27,6 +27,22 @@ function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditor
       state: EditorState.create({
         doc: value,
         extensions: [
+          keymap.of([
+            {
+              key: "Tab",
+              run: (view) => {
+                view.dispatch(view.state.replaceSelection("    "));
+                return true;
+              },
+            },
+            {
+              key: "Escape",
+              run: () => {
+                onEscapeRef.current?.();
+                return true;
+              },
+            },
+          ]),
           basicSetup,
           markdown({ codeLanguages: languages }),
           cmPlaceholder("Start writing…"),
@@ -55,15 +71,6 @@ function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditor
               outline: "none",
             },
           }),
-          keymap.of([
-            {
-              key: "Escape",
-              run: () => {
-                onEscapeRef.current?.();
-                return true;
-              },
-            },
-          ]),
         ],
       }),
       parent: containerRef.current,

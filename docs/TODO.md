@@ -4,3 +4,6 @@
 - [x] Add an option to the note context menu that allows the user to mark as note as having been "pinned." Pinned notes are always displayed at the top of the list. When a note is pinned (or unpinned), the notes table in the DB will need to be updated. This will require a migration.
 - [x] Add an option to the note context menu that allows the user to rename a note. When selected, a command palette style input field should be displayed. This is where the renaming of the note occurs. Create a keyboard shortcut that triggers this process for the active note: CMD-SHIFT-E
 - [x] When viewing a note in rendered mode, implement syntax highlighting for codeblocks.
+- [x] When in edit mode, when I press the tab key, rather than tabbing within the document - it moves focused to the sidebar.
+- [x] When I tab in a document (during edit mode), it should insert 4 spaces (not a tab character).
+- [x] When viewing a note in render mode, if I press the escape key, the selected note should be de-selected.

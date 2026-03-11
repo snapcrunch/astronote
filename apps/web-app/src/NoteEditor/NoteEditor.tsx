@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
@@ -33,6 +33,15 @@ function NoteEditor() {
     flushPendingUpdate();
     setEditing(false);
   }, [flushPendingUpdate, setEditing]);
+
+  useEffect(() => {
+    if (editing) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedNoteId(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [editing, setSelectedNoteId]);
 
   if (!note) {
     return <Placeholder />;
