@@ -2,6 +2,7 @@ import { useState } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
+import type { SxProps, Theme } from "@mui/material/styles";
 import SectionHeading from "./SectionHeading";
 import Tag from "../components/Tag";
 import { useNoteStore, useSelectedNote } from "../store";
@@ -17,7 +18,10 @@ function TagManager() {
   if (!note) return null;
 
   const { id: noteId, tags } = note;
-  const suggestions = allTags.map((t) => t.tag).filter((t) => !tags.includes(t)).sort();
+  const suggestions = allTags
+    .map((t) => t.tag)
+    .filter((t) => !tags.includes(t))
+    .sort();
 
   const handleChange = (_: unknown, value: string | null) => {
     if (!value?.trim()) return;
@@ -31,7 +35,7 @@ function TagManager() {
   return (
     <>
       <SectionHeading>Tags</SectionHeading>
-      <Box sx={[tagInputWrapper, tags.length === 0 && { mb: -2 }]}>
+      <Box sx={[tagInputWrapper, tags.length === 0 ? { mb: -2 } : {}] as SxProps<Theme>}>
         <Autocomplete
           freeSolo
           disableClearable
@@ -44,14 +48,27 @@ function TagManager() {
           }}
           onChange={handleChange}
           renderInput={(params) => (
-            <TextField {...params} placeholder="Add a tag…" sx={[tagInput, tags.length === 0 && { "& .MuiOutlinedInput-root": { borderBottom: "none" } }]} />
+            <TextField
+              {...params}
+              placeholder="Add a tag…"
+              sx={[
+                tagInput,
+                tags.length === 0
+                  ? { "& .MuiOutlinedInput-root": { borderBottom: "none" } }
+                  : {},
+              ] as SxProps<Theme>}
+            />
           )}
         />
       </Box>
       {tags.length > 0 && (
         <Box sx={tagList}>
           {tags.map((tag) => (
-            <Tag key={tag} label={tag} onRemoved={() => removeTag(noteId, tag)} />
+            <Tag
+              key={tag}
+              label={tag}
+              onRemoved={() => removeTag(noteId, tag)}
+            />
           ))}
         </Box>
       )}

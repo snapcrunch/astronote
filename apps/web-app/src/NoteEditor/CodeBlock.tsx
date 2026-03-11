@@ -18,7 +18,7 @@ function CodeBlock({ children, ...props }: React.PropsWithChildren<React.Compone
   const SHELL_LANGUAGES = new Set(["bash", "sh", "shell", "zsh"]);
   const isShell = language !== undefined && SHELL_LANGUAGES.has(language);
   const displayCode = isShell
-    ? code.split("\n").map((line) => (line ? `$ ${line}` : line)).join("\n")
+    ? code.split("\n").map((line) => (line && !/^\s/.test(line) ? `$ ${line}` : line)).join("\n")
     : code;
 
   const handleCopy = () => {
