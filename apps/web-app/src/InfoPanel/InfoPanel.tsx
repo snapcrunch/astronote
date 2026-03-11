@@ -13,9 +13,10 @@ interface InfoPanelProps {
 
 function InfoPanel({ variant = "side" }: InfoPanelProps) {
   const showInfoPanel = useNoteStore((s) => s.showInfoPanel);
+  const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
 
   if (variant === "side") {
-    if (!showInfoPanel) return null;
+    if (!showInfoPanel || !selectedNoteId) return null;
 
     return (
       <Box sx={infoPanelRoot}>

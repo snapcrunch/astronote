@@ -29,6 +29,7 @@ export const CollectionSchema = z.object({
   id: z.number(),
   name: z.string(),
   isDefault: z.boolean(),
+  noteCount: z.number(),
 });
 
 export type Collection = z.infer<typeof CollectionSchema>;

@@ -214,6 +214,7 @@ function SettingsView() {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Notes</th>
               <th>Default</th>
               <th style={{ width: 1 }} />
             </tr>
@@ -223,6 +224,9 @@ function SettingsView() {
               <tr key={c.id}>
                 <td>
                   <Typography variant="body2">{c.name}</Typography>
+                </td>
+                <td>
+                  <Typography variant="body2">{c.noteCount}</Typography>
                 </td>
                 <td>
                   <IconButton

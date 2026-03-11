@@ -1,4 +1,6 @@
 import Box from "@mui/material/Box";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
 import { useNoteStore, useStatusMessage } from "../store";
 import { useIsMobile } from "../hooks";
@@ -14,6 +16,9 @@ function Sidebar() {
   const omnibarRef = useOmnibar();
   const { localQuery, handleSearchChange } = useSearch();
   const { notes, selectedNoteId, setSelectedNoteId, listRef, handleOmnibarKeyDown, handleListItemKeyDown } = useNoteList(omnibarRef, localQuery);
+  const collections = useNoteStore((s) => s.collections);
+  const activeCollectionId = useNoteStore((s) => s.activeCollectionId);
+  const setActiveCollectionId = useNoteStore((s) => s.setActiveCollectionId);
   const deleteNote = useNoteStore((s) => s.deleteNote);
   const statusMessage = useStatusMessage();
 
@@ -36,6 +41,27 @@ function Sidebar() {
         onSearchChange={handleSearchChange}
         onKeyDown={handleOmnibarKeyDown}
       />
+      {collections.length > 1 && (
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Select
+            value={activeCollectionId ?? ""}
+            onChange={(e) => setActiveCollectionId(e.target.value as number)}
+            size="small"
+            fullWidth
+            sx={{
+              fontSize: "0.8rem",
+              "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+              bgcolor: "background.paper",
+            }}
+          >
+            {collections.map((c) => (
+              <MenuItem key={c.id} value={c.id} sx={{ fontSize: "0.8rem" }}>
+                Collection: {c.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </Box>
+      )}
       <NoteList
         notes={notes}
         selectedNoteId={selectedNoteId}

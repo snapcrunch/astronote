@@ -184,17 +184,21 @@ function rowToCollection(row: Record<string, unknown>): Collection {
     id: row.id as number,
     name: row.name as string,
     isDefault: (row.isDefault as number) === 1,
+    noteCount: (row.noteCount as number) ?? 0,
   };
 }
 
 export async function getCollections(): Promise<Collection[]> {
-  const rows = await db("collections").orderBy("name", "asc");
+  const rows = await db("collections")
+    .select("collections.*")
+    .select(db.raw("(SELECT COUNT(*) FROM notes WHERE notes.collectionId = collections.id AND notes.archived = 0) as noteCount"))
+    .orderBy("collections.name", "asc");
   return rows.map(rowToCollection);
 }
 
 export async function createCollection(name: string): Promise<Collection> {
   const [id] = await db("collections").insert({ name });
-  return { id, name, isDefault: false };
+  return { id: id!, name, isDefault: false, noteCount: 0 };
 }
 
 export async function deleteCollection(id: number): Promise<boolean> {
@@ -236,5 +240,5 @@ export async function resetAll(): Promise<Collection> {
     .where("key", "settings")
     .update({ value: JSON.stringify(DEFAULT_SETTINGS) });
   const [id] = await db("collections").insert({ name: "Default", isDefault: 1 });
-  return { id, name: "Default", isDefault: true };
+  return { id: id!, name: "Default", isDefault: true, noteCount: 0 };
 }
