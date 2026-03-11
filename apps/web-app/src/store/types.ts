@@ -1,9 +1,7 @@
 import type { Note, Collection, Settings } from "@repo/types";
+import type { Tag } from "@repo/astronote-client";
 
-export interface Tag {
-  tag: string;
-  count: number;
-}
+export type { Tag };
 
 export type View = "notes" | "settings";
 

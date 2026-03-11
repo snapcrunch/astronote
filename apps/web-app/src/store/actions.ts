@@ -1,12 +1,13 @@
 import type { StoreApi } from "zustand";
-import type { Note, Collection, Settings } from "@repo/types";
+import type { Note, Settings } from "@repo/types";
+import { WebClient } from "@repo/astronote-client";
 import type { NoteStore, Tag, View } from "./types";
 import { syncUrl, parseUrl } from "./util";
 
 type Set = StoreApi<NoteStore>["setState"];
 type Get = StoreApi<NoteStore>["getState"];
 
-const API_BASE = "/api/notes";
+const client = new WebClient();
 
 interface CreateActionsParams {
   set: Set;
@@ -32,27 +33,23 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       window.addEventListener("popstate", restoreFromUrl);
       return () => window.removeEventListener("popstate", restoreFromUrl);
     },
+
     fetchSettings: async () => {
-      const res = await fetch("/api/settings");
-      const settings: Settings = await res.json();
+      const settings = await client.fetchSettings();
       set({ settings, settingsLoaded: true });
       // Apply the setting only if the URL didn't explicitly specify
       if (initialShowInfoPanel === null) {
         set({ showInfoPanel: settings.show_info_panel });
       }
     },
+
     updateSettings: async (updates: Partial<Settings>) => {
-      const res = await fetch("/api/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
-      });
-      const settings: Settings = await res.json();
+      const settings = await client.updateSettings(updates);
       set({ settings });
     },
+
     resetAll: async () => {
-      const res = await fetch("/api/settings/reset", { method: "POST" });
-      const defaultCollection: Collection = await res.json();
+      const defaultCollection = await client.resetAll();
       set({
         notes: [],
         tags: [],
@@ -66,30 +63,36 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       syncUrl({ view: "notes", selectedNoteId: null, showInfoPanel: get().showInfoPanel, settingDefault: sd() });
       await get().fetchSettings();
     },
+
     toggleInfoPanel: () => {
       const next = !get().showInfoPanel;
       set({ showInfoPanel: next });
       syncUrl({ view: get().view, selectedNoteId: get().selectedNoteId, showInfoPanel: next, settingDefault: sd() });
     },
+
     setView: (view: View) => {
       const noteId = view === "settings" ? null : get().selectedNoteId;
       set({ view, selectedNoteId: noteId });
       syncUrl({ view, selectedNoteId: noteId, showInfoPanel: get().showInfoPanel, settingDefault: sd() });
     },
+
     setSearchQuery: (query: string) => {
       set({ searchQuery: query });
       get().fetchNotes();
     },
+
     setSelectedNoteId: (id: string | null) => {
       const view = id ? "notes" : get().view;
       set({ selectedNoteId: id, view });
       syncUrl({ view, selectedNoteId: id, showInfoPanel: get().showInfoPanel, settingDefault: sd() });
     },
+
     setActiveCollectionId: (id: number) => {
       set({ activeCollectionId: id, selectedNoteId: null });
       syncUrl({ view: "notes", selectedNoteId: null, showInfoPanel: get().showInfoPanel, settingDefault: sd() });
       get().fetchNotes();
     },
+
     toggleTag: (tag: string) => {
       const current = get().selectedTags;
       const next = current.includes(tag)
@@ -100,14 +103,12 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
     },
 
     fetchTags: async () => {
-      const res = await fetch("/api/tags");
-      const tags: Tag[] = await res.json();
+      const tags: Tag[] = await client.fetchTags();
       set({ tags });
     },
 
     fetchCollections: async () => {
-      const res = await fetch("/api/collections");
-      const collections: Collection[] = await res.json();
+      const collections = await client.fetchCollections();
       const { activeCollectionId } = get();
       if (activeCollectionId == null && collections.length > 0) {
         const defaultCol = collections.find((c) => c.isDefault) ?? collections[0]!;
@@ -119,35 +120,27 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
     },
 
     createCollection: async (name: string) => {
-      await fetch("/api/collections", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
-      });
+      await client.createCollection(name);
       await get().fetchCollections();
     },
 
     deleteCollection: async (id: number) => {
-      await fetch(`/api/collections/${id}`, { method: "DELETE" });
+      await client.deleteCollection(id);
       await get().fetchCollections();
     },
 
     setDefaultCollection: async (id: number) => {
-      const res = await fetch(`/api/collections/${id}/default`, { method: "POST" });
-      const collections: Collection[] = await res.json();
+      const collections = await client.setDefaultCollection(id);
       set({ collections });
     },
 
     fetchNotes: async () => {
       const { searchQuery, selectedTags, activeCollectionId } = get();
-      const params = new URLSearchParams();
-      if (searchQuery) params.set("q", searchQuery);
-      if (selectedTags.length > 0) params.set("tags", selectedTags.join(","));
-      if (activeCollectionId != null) params.set("collectionId", String(activeCollectionId));
-      const qs = params.toString();
-      const url = qs ? `${API_BASE}?${qs}` : API_BASE;
-      const res = await fetch(url);
-      const notes: Note[] = await res.json();
+      const notes = await client.fetchNotes({
+        q: searchQuery || undefined,
+        tags: selectedTags.length > 0 ? selectedTags : undefined,
+        collectionId: activeCollectionId ?? undefined,
+      });
       set({ notes });
     },
 
@@ -155,12 +148,7 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       set({ saving: true });
       try {
         const { activeCollectionId } = get();
-        const res = await fetch(API_BASE, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, content, collectionId: activeCollectionId }),
-        });
-        const note: Note = await res.json();
+        const note = await client.createNote({ title, content, collectionId: activeCollectionId });
         set({ searchQuery: "", selectedNoteId: note.id, editOnCreate: true, view: "notes" });
         syncUrl({ view: "notes", selectedNoteId: note.id, showInfoPanel: get().showInfoPanel, settingDefault: sd() });
         await get().fetchNotes();
@@ -172,22 +160,13 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
 
     importNote: async (title: string, content: string) => {
       const { activeCollectionId } = get();
-      await fetch(API_BASE, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, content, collectionId: activeCollectionId }),
-      });
+      await client.createNote({ title, content, collectionId: activeCollectionId });
     },
 
     updateNote: async (id: string, updates: Partial<Pick<Note, "title" | "content" | "pinned">>) => {
       set({ saving: true });
       try {
-        const res = await fetch(`${API_BASE}/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updates),
-        });
-        const updated: Note = await res.json();
+        const updated = await client.updateNote(id, updates);
         set((state) => ({
           notes: state.notes.map((n) => (n.id === id ? updated : n)),
         }));
@@ -203,7 +182,7 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
     deleteNote: async (id: string) => {
       set({ archiving: true });
       try {
-        await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+        await client.deleteNote(id);
         set((state) => {
           if (state.selectedNoteId !== id) {
             return { notes: state.notes.filter((n) => n.id !== id) };
@@ -224,12 +203,7 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
     },
 
     addTag: async (noteId: string, tag: string) => {
-      const res = await fetch(`${API_BASE}/${noteId}/tags`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tag }),
-      });
-      const updated: Note = await res.json();
+      const updated = await client.addTag(noteId, tag);
       set((state) => ({
         notes: state.notes.map((n) => (n.id === noteId ? updated : n)),
       }));
@@ -237,10 +211,7 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
     },
 
     removeTag: async (noteId: string, tag: string) => {
-      const res = await fetch(`${API_BASE}/${noteId}/tags/${encodeURIComponent(tag)}`, {
-        method: "DELETE",
-      });
-      const updated: Note = await res.json();
+      const updated = await client.removeTag(noteId, tag);
       set((state) => ({
         notes: state.notes.map((n) => (n.id === noteId ? updated : n)),
       }));
