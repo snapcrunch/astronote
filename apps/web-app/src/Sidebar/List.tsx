@@ -10,6 +10,7 @@ import MenuItem from "@mui/material/MenuItem";
 import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import type { Note } from "@repo/types";
 import { useNoteStore } from "../store";
@@ -22,6 +23,7 @@ interface NoteListProps {
   onSelectNote: (id: string) => void;
   onDeleteNote: (id: string) => void;
   onItemKeyDown: (e: React.KeyboardEvent, index: number) => void;
+  onRenameNote?: (noteId: string, currentTitle: string) => void;
 }
 
 function formatDate(dateStr: string) {
@@ -50,7 +52,7 @@ function useIsScrollable(ref: React.RefObject<HTMLElement | null>) {
   return scrollable;
 }
 
-function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, onDeleteNote, onItemKeyDown }: NoteListProps) {
+function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, onDeleteNote, onItemKeyDown, onRenameNote }: NoteListProps) {
   const isScrollable = useIsScrollable(listRef);
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; noteId: string } | null>(null);
   const [tagsMenuOpen, setTagsMenuOpen] = useState(false);
@@ -84,6 +86,14 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
     } else {
       addTag(contextMenuNote.id, tag);
     }
+  };
+
+  const handleRenameClick = () => {
+    if (!contextMenu) return;
+    const note = notes.find((n) => n.id === contextMenu.noteId);
+    if (!note) return;
+    onRenameNote?.(contextMenu.noteId, note.title);
+    handleClose();
   };
 
   const menuItemSx = { py: 0.25, px: 1, minHeight: 0 };
@@ -182,6 +192,12 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
           </ListItemIcon>
           <Typography variant="body2" sx={{ ...menuTextSx, flex: 1 }}>Tags</Typography>
           <ChevronRightIcon sx={{ fontSize: 12, color: "text.secondary" }} />
+        </MenuItem>
+        <MenuItem onClick={handleRenameClick} dense sx={menuItemSx}>
+          <ListItemIcon sx={menuIconSx}>
+            <DriveFileRenameOutlineIcon sx={{ fontSize: 14 }} />
+          </ListItemIcon>
+          <Typography variant="body2" sx={menuTextSx}>Rename</Typography>
         </MenuItem>
         <MenuItem onClick={handleDelete} dense sx={menuItemSx}>
           <ListItemIcon sx={menuIconSx}>
