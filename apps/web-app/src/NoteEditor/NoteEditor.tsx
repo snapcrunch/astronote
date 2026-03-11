@@ -57,6 +57,11 @@ function NoteEditor() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter" && !editingRef.current) {
+        e.preventDefault();
+        setEditing(true);
+        return;
+      }
       if (e.key !== "Escape") return;
       if (editingRef.current) {
         flushAndExitEdit();
@@ -66,7 +71,7 @@ function NoteEditor() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [setSelectedNoteId, flushAndExitEdit]);
+  }, [setSelectedNoteId, flushAndExitEdit, setEditing]);
 
   // Clear optimistic checkbox state when switching notes or entering edit mode
   useEffect(() => { setCheckboxContent(null); }, [note?.id, editing]);
