@@ -5,7 +5,7 @@ import TextField from "@mui/material/TextField";
 import SectionHeading from "./SectionHeading";
 import Tag from "../components/Tag";
 import { useNoteStore, useSelectedNote } from "../store";
-import { tagInput, tagList } from "./styles";
+import { tagInput, tagInputWrapper, tagList } from "./styles";
 
 function TagManager() {
   const note = useSelectedNote();
@@ -31,21 +31,23 @@ function TagManager() {
   return (
     <>
       <SectionHeading>Tags</SectionHeading>
-      <Autocomplete
-        freeSolo
-        disableClearable
-        size="small"
-        fullWidth
-        options={suggestions}
-        inputValue={input}
-        onInputChange={(_, value, reason) => {
-          if (reason !== "reset") setInput(value);
-        }}
-        onChange={handleChange}
-        renderInput={(params) => (
-          <TextField {...params} placeholder="Add a tag…" sx={tagInput} />
-        )}
-      />
+      <Box sx={tagInputWrapper}>
+        <Autocomplete
+          freeSolo
+          disableClearable
+          size="small"
+          fullWidth
+          options={suggestions}
+          inputValue={input}
+          onInputChange={(_, value, reason) => {
+            if (reason !== "reset") setInput(value);
+          }}
+          onChange={handleChange}
+          renderInput={(params) => (
+            <TextField {...params} placeholder="Add a tag…" sx={tagInput} />
+          )}
+        />
+      </Box>
       <Box sx={tagList}>
         {tags.map((tag) => (
           <Tag key={tag} label={tag} onRemoved={() => removeTag(noteId, tag)} />

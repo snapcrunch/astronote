@@ -30,10 +30,22 @@ export const infoPanelHeaderTitle: SxProps<Theme> = { fontWeight: 600 };
 export const infoPanelContent: SxProps<Theme> = { px: 2, py: 1.5, overflow: "auto" };
 
 // TagManager
-export const tagInput: SxProps<Theme> = {
+export const tagInputWrapper: SxProps<Theme> = {
+  mx: -2,
+  mt: -1,
   mb: 1,
-  "& .MuiOutlinedInput-root": { fontSize: "0.8rem", bgcolor: "background.paper" },
-  "& .MuiOutlinedInput-input": { py: 0.75 },
+};
+
+export const tagInput: SxProps<Theme> = {
+  "& .MuiOutlinedInput-root": {
+    fontSize: "0.8rem",
+    bgcolor: "background.paper",
+    borderRadius: 0,
+    borderBottom: 1,
+    borderColor: "divider",
+  },
+  "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+  "& .MuiOutlinedInput-input": { py: 0.75, px: 2 },
 };
 
 export const tagList: SxProps<Theme> = { display: "flex", flexWrap: "wrap", gap: 0.5 };
