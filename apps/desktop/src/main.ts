@@ -18,9 +18,13 @@ async function createWindow() {
 
   if (process.env["VITE_DEV_SERVER_URL"]) {
     await mainWindow.loadURL(process.env["VITE_DEV_SERVER_URL"]);
+  } else if (app.isPackaged) {
+    await mainWindow.loadFile(
+      path.join(process.resourcesPath, "renderer", "index.html"),
+    );
   } else {
     await mainWindow.loadFile(
-      path.join(import.meta.dirname, "..", "renderer", "index.html"),
+      path.join(import.meta.dirname, "..", "..", "web-app", "dist", "index.html"),
     );
   }
 }

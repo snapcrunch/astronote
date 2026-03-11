@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "tsx src/dev.ts",
     "build": "vite build --config vite.main.config.ts && vite build --config vite.preload.config.ts",
+    "rebuild": "electron-rebuild -o better-sqlite3",
+    "start": "electron dist/main.js",
     "check-types": "tsc --noEmit",
     "package": "electron-builder"
   },
@@ -16,6 +18,7 @@
     "@repo/types": "*"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.0.1",
     "@repo/typescript-config": "*",
     "electron": "^35.1.2",
     "electron-builder": "^26.0.12",

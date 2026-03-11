@@ -12,11 +12,7 @@ export default defineConfig({
     rollupOptions: {
       external: [
         "electron",
-        "node:path",
-        "node:fs",
-        "node:url",
-        "node:child_process",
-        /^@repo\//,
+        /^node:/,
         "better-sqlite3",
         "knex",
       ],
