@@ -57,13 +57,13 @@ function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditor
           EditorView.theme({
             "&": {
               height: "100%",
-              fontSize: "1rem",
+              fontSize: "14px",
             },
             ".cm-scroller": {
               overflow: "auto",
             },
             ".cm-content": {
-              fontFamily: "'Roboto Mono', monospace",
+              fontFamily: "'JetBrains Mono', monospace",
               lineHeight: "1.8",
             },
             ".cm-gutters": {
@@ -71,6 +71,9 @@ function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditor
             },
             "&.cm-focused": {
               outline: "none",
+            },
+            ".cm-activeLine": {
+              backgroundColor: "transparent",
             },
           }),
         ],
