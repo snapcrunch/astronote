@@ -41,6 +41,8 @@ function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditor
                 onEscapeRef.current?.();
                 return true;
               },
+              preventDefault: true,
+              stopPropagation: true,
             },
           ]),
           basicSetup,

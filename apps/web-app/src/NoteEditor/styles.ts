@@ -44,6 +44,10 @@ export const contentArea = (isMobile: boolean): SxProps<Theme> => ({
 });
 
 export const markdownContent: SxProps<Theme> = {
+  "& h1:first-child, & h2:first-child, & h3:first-child, & h4:first-child, & h5:first-child, & h6:first-child": {
+    mt: 0,
+    pt: 0,
+  },
   "& table": {
     borderCollapse: "collapse",
     width: "100%",
