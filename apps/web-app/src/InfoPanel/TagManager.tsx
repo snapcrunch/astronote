@@ -17,7 +17,7 @@ function TagManager() {
   if (!note) return null;
 
   const { id: noteId, tags } = note;
-  const suggestions = allTags.map((t) => t.tag).filter((t) => !tags.includes(t));
+  const suggestions = allTags.map((t) => t.tag).filter((t) => !tags.includes(t)).sort();
 
   const handleChange = (_: unknown, value: string | null) => {
     if (!value?.trim()) return;

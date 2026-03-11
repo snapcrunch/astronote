@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import MuiList from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -7,8 +7,13 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import CheckIcon from "@mui/icons-material/Check";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DeleteIcon from "@mui/icons-material/Delete";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import type { Note } from "@repo/types";
+import { useNoteStore } from "../store";
+
 interface NoteListProps {
   notes: Note[];
   selectedNoteId: string | null;
@@ -48,20 +53,42 @@ function useIsScrollable(ref: React.RefObject<HTMLElement | null>) {
 function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, onDeleteNote, onItemKeyDown }: NoteListProps) {
   const isScrollable = useIsScrollable(listRef);
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; noteId: string } | null>(null);
+  const [tagsMenuOpen, setTagsMenuOpen] = useState(false);
+  const tagsMenuAnchorRef = useRef<HTMLLIElement>(null);
+  const allTags = useNoteStore((s) => s.tags);
+  const addTag = useNoteStore((s) => s.addTag);
+  const removeTag = useNoteStore((s) => s.removeTag);
+
+  const contextMenuNote = contextMenu ? notes.find((n) => n.id === contextMenu.noteId) : null;
 
   const handleContextMenu = (e: React.MouseEvent, noteId: string) => {
     e.preventDefault();
     setContextMenu({ mouseX: e.clientX, mouseY: e.clientY, noteId });
+    setTagsMenuOpen(false);
   };
 
-  const handleClose = () => setContextMenu(null);
+  const handleClose = () => {
+    setContextMenu(null);
+    setTagsMenuOpen(false);
+  };
 
   const handleDelete = () => {
-    if (contextMenu) {
-      onDeleteNote(contextMenu.noteId);
-    }
+    if (contextMenu) onDeleteNote(contextMenu.noteId);
     handleClose();
   };
+
+  const handleToggleTag = (tag: string) => {
+    if (!contextMenuNote) return;
+    if (contextMenuNote.tags.includes(tag)) {
+      removeTag(contextMenuNote.id, tag);
+    } else {
+      addTag(contextMenuNote.id, tag);
+    }
+  };
+
+  const menuItemSx = { py: 0.25, px: 1, minHeight: 0 };
+  const menuIconSx = { minWidth: 22 };
+  const menuTextSx = { fontSize: "0.8rem" };
 
   return (
     <>
@@ -147,18 +174,48 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
         anchorPosition={
           contextMenu ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined
         }
-        slotProps={{
-          paper: {
-            sx: { minWidth: 100, py: 0.25 },
-          },
-        }}
+        slotProps={{ paper: { sx: { minWidth: 100, py: 0.25 } } }}
       >
-        <MenuItem onClick={handleDelete} dense sx={{ py: 0.25, px: 1, minHeight: 0 }}>
-          <ListItemIcon sx={{ minWidth: 22 }}>
+        <MenuItem ref={tagsMenuAnchorRef} onClick={() => setTagsMenuOpen(true)} dense sx={menuItemSx}>
+          <ListItemIcon sx={menuIconSx}>
+            <LocalOfferIcon sx={{ fontSize: 14 }} />
+          </ListItemIcon>
+          <Typography variant="body2" sx={{ ...menuTextSx, flex: 1 }}>Tags</Typography>
+          <ChevronRightIcon sx={{ fontSize: 12, color: "text.secondary" }} />
+        </MenuItem>
+        <MenuItem onClick={handleDelete} dense sx={menuItemSx}>
+          <ListItemIcon sx={menuIconSx}>
             <DeleteIcon sx={{ fontSize: 14 }} />
           </ListItemIcon>
-          <Typography variant="body2" sx={{ fontSize: "0.8rem" }}>Delete</Typography>
+          <Typography variant="body2" sx={menuTextSx}>Delete</Typography>
         </MenuItem>
+      </Menu>
+      <Menu
+        open={tagsMenuOpen}
+        onClose={() => setTagsMenuOpen(false)}
+        anchorEl={tagsMenuAnchorRef.current}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        style={{ pointerEvents: "none" }}
+        MenuListProps={{ style: { pointerEvents: "auto" } }}
+        autoFocus={false}
+        slotProps={{ paper: { sx: { minWidth: 120, py: 0.25 } } }}
+      >
+        {allTags.length === 0 ? (
+          <MenuItem disabled dense sx={menuItemSx}>
+            <Typography variant="body2" sx={{ ...menuTextSx, color: "text.secondary" }}>No tags</Typography>
+          </MenuItem>
+        ) : allTags.map(({ tag }) => {
+          const isApplied = contextMenuNote?.tags.includes(tag) ?? false;
+          return (
+            <MenuItem key={tag} onClick={() => handleToggleTag(tag)} dense sx={menuItemSx}>
+              <ListItemIcon sx={menuIconSx}>
+                {isApplied && <CheckIcon sx={{ fontSize: 14 }} />}
+              </ListItemIcon>
+              <Typography variant="body2" sx={menuTextSx}>{tag}</Typography>
+            </MenuItem>
+          );
+        })}
       </Menu>
     </>
   );
