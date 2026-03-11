@@ -1,3 +1,4 @@
+import { useCallback, useState } from "react";
 import Box from "@mui/material/Box";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
@@ -8,12 +9,24 @@ import { useOmnibar, useSearch, useNoteList } from "./hooks";
 import Omnibar from "./Omnibar";
 import NoteList from "./List";
 import Tags from "./Tags";
+import RenameDialog from "./RenameDialog";
 
 const SIDEBAR_WIDTH = 475;
 
 function Sidebar() {
   const isMobile = useIsMobile();
-  const omnibarRef = useOmnibar();
+  const [renameDialog, setRenameDialog] = useState<{ noteId: string; title: string } | null>(null);
+  const updateNote = useNoteStore((s) => s.updateNote);
+
+  const handleRenameSelectedNote = useCallback(() => {
+    const { selectedNoteId, notes } = useNoteStore.getState();
+    if (!selectedNoteId) return;
+    const note = notes.find((n) => n.id === selectedNoteId);
+    if (!note) return;
+    setRenameDialog({ noteId: note.id, title: note.title });
+  }, []);
+
+  const omnibarRef = useOmnibar(handleRenameSelectedNote);
   const { localQuery, handleSearchChange } = useSearch();
   const { notes, selectedNoteId, setSelectedNoteId, listRef, handleOmnibarKeyDown, handleListItemKeyDown } = useNoteList(omnibarRef, localQuery);
   const collections = useNoteStore((s) => s.collections);
@@ -70,6 +83,7 @@ function Sidebar() {
         onSelectNote={(id) => setSelectedNoteId(selectedNoteId === id ? null : id)}
         onDeleteNote={deleteNote}
         onItemKeyDown={handleListItemKeyDown}
+        onRenameNote={(noteId, title) => setRenameDialog({ noteId, title })}
       />
       <Tags />
       <Box sx={{ borderTop: 1, borderColor: "divider", px: 2, py: 0.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -82,6 +96,15 @@ function Sidebar() {
           </Typography>
         )}
       </Box>
+      <RenameDialog
+        open={renameDialog !== null}
+        currentTitle={renameDialog?.title ?? ""}
+        onConfirm={(newTitle) => {
+          if (renameDialog) updateNote(renameDialog.noteId, { title: newTitle });
+          setRenameDialog(null);
+        }}
+        onClose={() => setRenameDialog(null)}
+      />
     </Box>
   );
 }

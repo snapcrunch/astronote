@@ -2,9 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNoteStore, useFilteredNotes } from "../store";
 import { useIsMobile } from "../hooks";
 
-export function useOmnibar() {
+export function useOmnibar(onRenameSelectedNote?: () => void) {
   const omnibarRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
+  const onRenameSelectedNoteRef = useRef(onRenameSelectedNote);
+  onRenameSelectedNoteRef.current = onRenameSelectedNote;
 
   useEffect(() => {
     if (!isMobile) omnibarRef.current?.focus();
@@ -23,6 +25,11 @@ export function useOmnibar() {
         e.preventDefault();
         const { selectedNoteId, deleteNote } = useNoteStore.getState();
         if (selectedNoteId) deleteNote(selectedNoteId);
+      }
+      if (e.metaKey && e.shiftKey && (e.key === "e" || e.key === "E")) {
+        e.preventDefault();
+        const { selectedNoteId } = useNoteStore.getState();
+        if (selectedNoteId) onRenameSelectedNoteRef.current?.();
       }
       if ((e.key === "ArrowDown" || e.key === "ArrowUp") && (!document.activeElement || document.activeElement === document.body)) {
         e.preventDefault();
