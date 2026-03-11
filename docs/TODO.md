@@ -7,3 +7,4 @@
 - [x] When in edit mode, when I press the tab key, rather than tabbing within the document - it moves focused to the sidebar.
 - [x] When I tab in a document (during edit mode), it should insert 4 spaces (not a tab character).
 - [x] When viewing a note in render mode, if I press the escape key, the selected note should be de-selected.
+- [ ] Remove the excess padding around the "Add a tag" input field in the right-hand sidebar. It should be flush with the container (similar to the omnibar).

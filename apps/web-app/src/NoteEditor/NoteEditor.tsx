@@ -8,6 +8,8 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { visit } from "unist-util-visit";
+import type { Root, Element } from "hast";
 import { useNoteStore, useSelectedNote } from "../store";
 import { useIsMobile } from "../hooks";
 import InfoPanel from "../InfoPanel";
@@ -18,6 +20,21 @@ import { useDebouncedNoteUpdate, useEditingState } from "./hooks";
 import Placeholder from "./Placeholder";
 import * as styles from "./styles";
 
+// Rehype plugin: stamps each task-list checkbox with a stable data-checkbox-index
+// attribute during processing, before React ever touches it.
+function rehypeNumberCheckboxes() {
+  return (tree: Root) => {
+    let index = 0;
+    visit(tree, "element", (node: Element) => {
+      if (node.tagName === "input" && node.properties?.type === "checkbox") {
+        node.properties["data-checkbox-index"] = index++;
+      }
+    });
+  };
+}
+
+const rehypePlugins = [rehypeNumberCheckboxes];
+
 function NoteEditor() {
   const isMobile = useIsMobile();
   const showInfoPanel = useNoteStore((s) => s.showInfoPanel);
@@ -26,6 +43,7 @@ function NoteEditor() {
   const note = useSelectedNote();
   const updateNote = useNoteStore((s) => s.updateNote);
   const [mobileInfoOpen, setMobileInfoOpen] = useState(false);
+  const [checkboxContent, setCheckboxContent] = useState<string | null>(null);
   const { editing, setEditing } = useEditingState(note?.id);
   const { debouncedUpdateNote, flushPendingUpdate } = useDebouncedNoteUpdate(updateNote);
 
@@ -43,9 +61,40 @@ function NoteEditor() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [editing, setSelectedNoteId]);
 
+  // Clear optimistic checkbox state when switching notes or entering edit mode
+  useEffect(() => { setCheckboxContent(null); }, [note?.id, editing]);
+
   if (!note) {
     return <Placeholder />;
   }
+
+  const displayContent = checkboxContent ?? note.content;
+
+  const handleCheckboxToggle = (index: number) => {
+    let count = 0;
+    const newContent = displayContent.replace(/\[([ x])\]/g, (match, state) => {
+      if (count++ === index) return `[${state === " " ? "x" : " "}]`;
+      return match;
+    });
+    setCheckboxContent(newContent);
+    updateNote(note.id, { content: newContent });
+  };
+
+  const markdownComponents = {
+    pre: CodeBlock,
+    ...headingComponents,
+    input({ checked, type, "data-checkbox-index": dataIndex, ...props }: React.ComponentPropsWithoutRef<"input"> & { "data-checkbox-index"?: number }) {
+      if (type !== "checkbox") return <input type={type} checked={checked} {...props} />;
+      return (
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={() => handleCheckboxToggle(Number(dataIndex))}
+          style={{ cursor: "pointer" }}
+        />
+      );
+    },
+  };
 
   return (
     <Box sx={styles.root}>
@@ -91,7 +140,7 @@ function NoteEditor() {
             />
           ) : (
             <Box sx={styles.markdownContent}>
-              <Markdown remarkPlugins={[remarkGfm]} components={{ pre: CodeBlock, ...headingComponents }}>{note.content}</Markdown>
+              <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={rehypePlugins} components={markdownComponents}>{displayContent}</Markdown>
             </Box>
           )}
         </Box>
