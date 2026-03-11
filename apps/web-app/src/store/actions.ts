@@ -1,13 +1,13 @@
 import type { StoreApi } from "zustand";
 import type { Note, Settings } from "@repo/types";
-import { WebClient } from "@repo/astronote-client/WebClient";
 import type { NoteStore, Tag, View } from "./types";
 import { syncUrl, parseUrl } from "./util";
+import { getClient } from "./client";
 
 type Set = StoreApi<NoteStore>["setState"];
 type Get = StoreApi<NoteStore>["getState"];
 
-const client = new WebClient();
+const client = getClient();
 
 interface CreateActionsParams {
   set: Set;

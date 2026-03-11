@@ -1,6 +1,6 @@
 # Monorepo Summary
 
-This repository contains a monorepo managed by [Turborepo](https://turborepo.dev/docs). It implements a web-based note-taking application called "Astronote" that is strongly influenced by a MacOS application called [The Archive](https://zettelkasten.de/the-archive/).
+This repository contains a monorepo managed by [Turborepo](https://turborepo.dev/docs). It implements a note-taking application called "Astronote."
 
 ## The Frontend Application
 
@@ -31,7 +31,3 @@ The remaining area of the screen (to the right of the sidebar) is the "content v
 - Views the content of a selected note.
 - Creates new notes
 - Edits existing notes
-
-### Mobile Support
-
-Currently, we are only interested in desktop support. We are not interested in implementing mobile device support.

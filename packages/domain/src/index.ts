@@ -34,6 +34,7 @@ export async function createNote(input: CreateNoteInput & { tags?: string[]; col
     tags,
     createdAt: now,
     updatedAt: now,
+    pinned: false,
   };
   const created = await repository.createNote(note, input.collectionId);
   await repository.incrementTags(tags);

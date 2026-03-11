@@ -1,5 +1,5 @@
 import type { Note, Collection, Settings } from "@repo/types";
-import type { Tag } from "@repo/astronote-client/WebClient";
+import type { Tag } from "@repo/astronote-client/AstronoteClient";
 
 export type { Tag };
 

@@ -6,9 +6,19 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import "@fontsource/roboto-mono/400.css";
 import App from "./App";
+import { setClient } from "./store/client";
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+async function boot() {
+  if ("electronAPI" in window) {
+    const { DesktopClient } = await import("@repo/astronote-client/DesktopClient");
+    setClient(new DesktopClient());
+  }
+
+  createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+}
+
+boot();

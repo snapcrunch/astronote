@@ -2,7 +2,7 @@ import knexLib from "knex";
 import type { Knex } from "knex";
 import type { Note, Collection, Settings } from "@repo/types";
 import { DEFAULT_SETTINGS } from "@repo/types";
-import { createKnexConfig } from "./knexfile";
+import { createKnexConfig } from "./knexfile.js";
 
 let db: Knex;
 

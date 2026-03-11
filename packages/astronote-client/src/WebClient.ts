@@ -1,24 +1,10 @@
 import axios, { type AxiosInstance } from "axios";
 import type { Note, Collection, Settings } from "@repo/types";
+import type { AstronoteClient, Tag, FetchNotesParams, CreateNoteParams } from "./AstronoteClient.js";
 
-export interface Tag {
-  tag: string;
-  count: number;
-}
+export type { Tag, FetchNotesParams, CreateNoteParams } from "./AstronoteClient.js";
 
-export interface FetchNotesParams {
-  q?: string;
-  tags?: string[];
-  collectionId?: number;
-}
-
-export interface CreateNoteParams {
-  title: string;
-  content?: string;
-  collectionId?: number | null;
-}
-
-export class WebClient {
+export class WebClient implements AstronoteClient {
   private http: AxiosInstance;
 
   constructor(baseURL = "") {

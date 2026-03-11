@@ -1,0 +1,26 @@
+{
+  "name": "@repo/desktop",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "tsx src/dev.ts",
+    "build": "vite build --config vite.main.config.ts && vite build --config vite.preload.config.ts",
+    "check-types": "tsc --noEmit",
+    "package": "electron-builder"
+  },
+  "dependencies": {
+    "@repo/domain": "*",
+    "@repo/repository": "*",
+    "@repo/types": "*"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "*",
+    "electron": "^35.1.2",
+    "electron-builder": "^26.0.12",
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.2",
+    "vite": "^6.3.5"
+  }
+}

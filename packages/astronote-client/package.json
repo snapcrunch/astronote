@@ -4,9 +4,17 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./AstronoteClient": {
+      "types": "./src/AstronoteClient.ts",
+      "default": "./src/AstronoteClient.ts"
+    },
     "./WebClient": {
       "types": "./src/WebClient.ts",
       "default": "./src/WebClient.ts"
+    },
+    "./DesktopClient": {
+      "types": "./src/DesktopClient.ts",
+      "default": "./src/DesktopClient.ts"
     }
   },
   "scripts": {
