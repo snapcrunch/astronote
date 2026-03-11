@@ -76,7 +76,7 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
             sx={{
               mx: 0,
               borderRadius: 0,
-              py: 0.5,
+              py: 0.25,
               px: 2,
               borderBottom: (isScrollable && index === notes.length - 1) ? 0 : 1,
               borderColor: "divider",
@@ -101,17 +101,19 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
               primary={note.title}
               secondary={
                 <Box component="span" sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
-                  <Typography variant="caption" noWrap component="span" sx={{ flexShrink: 1, minWidth: 0 }}>
-                    {note.tags.join(", ")}
-                  </Typography>
                   <Typography variant="caption" noWrap component="span" sx={{ flexShrink: 0 }}>
                     {formatDate(note.updatedAt)}
+                  </Typography>
+                  <Typography variant="caption" noWrap component="span" sx={{ flexShrink: 1, minWidth: 0 }}>
+                    {note.tags.join(", ")}
                   </Typography>
                 </Box>
               }
               primaryTypographyProps={{
+                variant: "body2",
                 noWrap: true,
                 fontWeight: 500,
+                sx: { lineHeight: 1.2 },
               }}
               secondaryTypographyProps={{
                 component: "div",
