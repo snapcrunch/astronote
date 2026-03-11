@@ -30,10 +30,12 @@ interface NoteListProps {
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
-  return date.toLocaleDateString(undefined, {
+  return date.toLocaleString(undefined, {
     month: "short",
     day: "numeric",
     year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   });
 }
 

@@ -28,7 +28,14 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
 
 export function useFilteredNotes() {
   const notes = useNoteStore((s) => s.notes);
-  return useMemo(() => notes, [notes]);
+  return useMemo(
+    () =>
+      [...notes].sort((a, b) => {
+        if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      }),
+    [notes],
+  );
 }
 
 export function useStatusMessage() {
