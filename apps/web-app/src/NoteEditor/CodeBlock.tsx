@@ -3,35 +3,40 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckIcon from "@mui/icons-material/Check";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 function CodeBlock({ children, ...props }: React.PropsWithChildren<React.ComponentPropsWithoutRef<"pre">>) {
   const [copied, setCopied] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const codeEl = children as any;
+  const className: string = codeEl?.props?.className ?? "";
+  const language = className.replace("language-", "") || undefined;
+  const code = String(codeEl?.props?.children ?? "").replace(/\n$/, "");
+
   const handleCopy = () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const code = (children as any)?.props?.children ?? "";
-    navigator.clipboard.writeText(String(code).replace(/\n$/, ""));
+    navigator.clipboard.writeText(code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <Box sx={{ position: "relative" }}>
-      <Box
-        component="pre"
+      <SyntaxHighlighter
         {...props}
-        sx={{
-          bgcolor: "grey.100",
-          p: 2,
-          borderRadius: 1,
-          overflow: "auto",
+        language={language}
+        style={oneLight}
+        customStyle={{
+          margin: 0,
+          borderRadius: 4,
+          border: "1px solid",
+          borderColor: "rgba(0,0,0,0.12)",
           fontSize: "0.875rem",
-          border: 1,
-          borderColor: "divider",
         }}
       >
-        {children}
-      </Box>
+        {code}
+      </SyntaxHighlighter>
       <IconButton
         size="small"
         onClick={handleCopy}

@@ -38,6 +38,7 @@ export const titleWrapper: SxProps<Theme> = {
 export const contentArea = (isMobile: boolean): SxProps<Theme> => ({
   flex: 1,
   px: isMobile ? 1.5 : 3,
+  pt: 3,
   pb: 3,
   overflow: "auto",
 });

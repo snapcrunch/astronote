@@ -250,7 +250,7 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
           <MenuItem disabled dense sx={menuItemSx}>
             <Typography variant="body2" sx={{ ...menuTextSx, color: "text.secondary" }}>No tags</Typography>
           </MenuItem>
-        ) : allTags.map(({ tag }) => {
+        ) : [...allTags].sort((a, b) => a.tag.localeCompare(b.tag)).map(({ tag }) => {
           const isApplied = contextMenuNote?.tags.includes(tag) ?? false;
           return (
             <MenuItem key={tag} onClick={() => handleToggleTag(tag)} dense sx={menuItemSx}>
