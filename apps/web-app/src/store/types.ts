@@ -42,7 +42,7 @@ export interface NoteStore {
   createNote: (title: string, content?: string) => Promise<void>;
   importNote: (title: string, content: string) => Promise<void>;
   importing: boolean;
-  updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content">>) => Promise<void>;
+  updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content" | "pinned">>) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
   addTag: (noteId: string, tag: string) => Promise<void>;
   removeTag: (noteId: string, tag: string) => Promise<void>;

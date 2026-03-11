@@ -43,6 +43,7 @@ async function rowToNote(row: Record<string, unknown>): Promise<Note> {
     tags: await getNoteTagsAsync(id),
     createdAt: row.createdAt as string,
     updatedAt: row.updatedAt as string,
+    pinned: Boolean(row.pinned),
   };
 }
 
@@ -66,7 +67,7 @@ export async function getNotes(query?: string, tags?: string[], collectionId?: n
     }
   }
 
-  const rows = await q.orderBy("updatedAt", "desc");
+  const rows = await q.orderBy([{ column: "pinned", order: "desc" }, { column: "updatedAt", order: "desc" }]);
   return Promise.all(rows.map(rowToNote));
 }
 
@@ -93,21 +94,23 @@ export async function createNote(note: Note, collectionId?: number): Promise<Not
 
 export async function updateNote(
   id: string,
-  updates: { title?: string; content?: string; updatedAt: string },
+  updates: { title?: string; content?: string; pinned?: boolean; updatedAt: string },
 ): Promise<Note | null> {
   const existing = await getNoteById(id);
   if (!existing) return null;
 
   const title = updates.title ?? existing.title;
   const content = updates.content ?? existing.content;
+  const pinned = updates.pinned !== undefined ? updates.pinned : existing.pinned;
 
   await db("notes").where("id", id).update({
     title,
     content,
+    pinned,
     updatedAt: updates.updatedAt,
   });
 
-  return { ...existing, title, content, updatedAt: updates.updatedAt };
+  return { ...existing, title, content, pinned, updatedAt: updates.updatedAt };
 }
 
 export async function addNoteTag(noteId: string, tag: string): Promise<void> {

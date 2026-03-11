@@ -7,6 +7,7 @@ export const NoteSchema = z.object({
   tags: z.array(z.string()),
   createdAt: z.string(),
   updatedAt: z.string(),
+  pinned: z.boolean(),
 });
 
 export type Note = z.infer<typeof NoteSchema>;
@@ -21,6 +22,7 @@ export type CreateNoteInput = z.infer<typeof CreateNoteInputSchema>;
 export const UpdateNoteInputSchema = z.object({
   title: z.string().min(1).optional(),
   content: z.string().optional(),
+  pinned: z.boolean().optional(),
 });
 
 export type UpdateNoteInput = z.infer<typeof UpdateNoteInputSchema>;

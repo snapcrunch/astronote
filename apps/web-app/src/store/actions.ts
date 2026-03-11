@@ -179,7 +179,7 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       });
     },
 
-    updateNote: async (id: string, updates: Partial<Pick<Note, "title" | "content">>) => {
+    updateNote: async (id: string, updates: Partial<Pick<Note, "title" | "content" | "pinned">>) => {
       set({ saving: true });
       try {
         const res = await fetch(`${API_BASE}/${id}`, {
@@ -191,6 +191,9 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
         set((state) => ({
           notes: state.notes.map((n) => (n.id === id ? updated : n)),
         }));
+        if (updates.pinned !== undefined) {
+          await get().fetchNotes();
+        }
         get().fetchTags();
       } finally {
         set({ saving: false });

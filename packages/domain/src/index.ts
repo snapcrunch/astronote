@@ -45,7 +45,9 @@ export async function updateNote(id: string, input: UpdateNoteInput): Promise<No
   if (!existing) return null;
 
   const updated = await repository.updateNote(id, {
-    ...input,
+    title: input.title,
+    content: input.content,
+    pinned: input.pinned,
     updatedAt: new Date().toISOString(),
   });
   return updated;

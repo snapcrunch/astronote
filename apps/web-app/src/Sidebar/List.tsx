@@ -11,6 +11,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import PushPinIcon from "@mui/icons-material/PushPin";
+import PushPinOutlinedIcon from "@mui/icons-material/PushPinOutlined";
 import type { Note } from "@repo/types";
 import { useNoteStore } from "../store";
 
@@ -58,6 +60,7 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
   const allTags = useNoteStore((s) => s.tags);
   const addTag = useNoteStore((s) => s.addTag);
   const removeTag = useNoteStore((s) => s.removeTag);
+  const updateNote = useNoteStore((s) => s.updateNote);
 
   const contextMenuNote = contextMenu ? notes.find((n) => n.id === contextMenu.noteId) : null;
 
@@ -84,6 +87,12 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
     } else {
       addTag(contextMenuNote.id, tag);
     }
+  };
+
+  const handleTogglePin = () => {
+    if (!contextMenuNote) return;
+    updateNote(contextMenuNote.id, { pinned: !contextMenuNote.pinned });
+    handleClose();
   };
 
   const menuItemSx = { py: 0.25, px: 1, minHeight: 0 };
@@ -126,7 +135,16 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
             }}
           >
             <ListItemText
-              primary={note.title}
+              primary={
+                <Box component="span" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  {note.pinned && (
+                    <PushPinIcon sx={{ fontSize: 12, flexShrink: 0, opacity: 0.6 }} />
+                  )}
+                  <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {note.title}
+                  </Box>
+                </Box>
+              }
               secondary={
                 <Box component="span" sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
                   <Typography variant="caption" noWrap component="span" sx={{ flexShrink: 0 }}>
@@ -139,7 +157,7 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
               }
               primaryTypographyProps={{
                 variant: "body2",
-                noWrap: true,
+                component: "div",
                 fontWeight: 500,
                 sx: { lineHeight: 1.2 },
               }}
@@ -176,6 +194,17 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
         }
         slotProps={{ paper: { sx: { minWidth: 100, py: 0.25 } } }}
       >
+        <MenuItem onClick={handleTogglePin} dense sx={menuItemSx}>
+          <ListItemIcon sx={menuIconSx}>
+            {contextMenuNote?.pinned
+              ? <PushPinIcon sx={{ fontSize: 14 }} />
+              : <PushPinOutlinedIcon sx={{ fontSize: 14 }} />
+            }
+          </ListItemIcon>
+          <Typography variant="body2" sx={menuTextSx}>
+            {contextMenuNote?.pinned ? "Unpin" : "Pin"}
+          </Typography>
+        </MenuItem>
         <MenuItem ref={tagsMenuAnchorRef} onClick={() => setTagsMenuOpen(true)} dense sx={menuItemSx}>
           <ListItemIcon sx={menuIconSx}>
             <LocalOfferIcon sx={{ fontSize: 14 }} />
