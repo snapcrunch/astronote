@@ -31,7 +31,7 @@ function TagManager() {
   return (
     <>
       <SectionHeading>Tags</SectionHeading>
-      <Box sx={tagInputWrapper}>
+      <Box sx={[tagInputWrapper, tags.length === 0 && { mb: -2 }]}>
         <Autocomplete
           freeSolo
           disableClearable
@@ -44,15 +44,17 @@ function TagManager() {
           }}
           onChange={handleChange}
           renderInput={(params) => (
-            <TextField {...params} placeholder="Add a tag…" sx={tagInput} />
+            <TextField {...params} placeholder="Add a tag…" sx={[tagInput, tags.length === 0 && { "& .MuiOutlinedInput-root": { borderBottom: "none" } }]} />
           )}
         />
       </Box>
-      <Box sx={tagList}>
-        {tags.map((tag) => (
-          <Tag key={tag} label={tag} onRemoved={() => removeTag(noteId, tag)} />
-        ))}
-      </Box>
+      {tags.length > 0 && (
+        <Box sx={tagList}>
+          {tags.map((tag) => (
+            <Tag key={tag} label={tag} onRemoved={() => removeTag(noteId, tag)} />
+          ))}
+        </Box>
+      )}
     </>
   );
 }
