@@ -32,6 +32,7 @@ import type { ThemeId, DefaultView, AuthMethod } from "@repo/types";
 import { themes as themeEntries } from "./themes";
 import MarkdownEditor from "./MarkdownEditor";
 import { slugify } from "./utils";
+import Logo from "./components/icons/Logo";
 
 function extractText(children: React.ReactNode): string {
   if (typeof children === "string") return children;
@@ -598,7 +599,8 @@ function NoteEditor() {
           height: "100%",
         }}
       >
-        <Typography variant="h6" color="text.secondary">
+        <Logo width={256} height={256} />
+        <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>
           Select a note or create a new one.
         </Typography>
         <Typography variant="body2" color="text.secondary">
