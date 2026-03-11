@@ -10,11 +10,16 @@ export function useOmnibar() {
     if (!isMobile) omnibarRef.current?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey && e.key === "k") {
+      if (e.metaKey && e.shiftKey && e.key === "k") {
         e.preventDefault();
         omnibarRef.current?.focus();
       }
-      if (e.metaKey && e.key === "d") {
+      if (e.metaKey && e.shiftKey && (e.key === "s" || e.key === "S")) {
+        e.preventDefault();
+        const { view, setView } = useNoteStore.getState();
+        if (view !== "settings") setView("settings");
+      }
+      if (e.metaKey && e.shiftKey && e.key === "d") {
         e.preventDefault();
         const { selectedNoteId, deleteNote } = useNoteStore.getState();
         if (selectedNoteId) deleteNote(selectedNoteId);

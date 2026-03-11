@@ -21,7 +21,7 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
       {
         id: "focus-search",
         label: "Focus Search",
-        shortcut: "⌘K",
+        shortcut: "⌘⇧K",
         action: run(() => {
           const el = document.querySelector<HTMLInputElement>('input[placeholder*="Search"]');
           el?.focus();
@@ -30,7 +30,7 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
       {
         id: "delete-note",
         label: "Delete Selected Note",
-        shortcut: "⌘D",
+        shortcut: "⌘⇧D",
         disabled: !selectedNoteId,
         action: run(() => {
           const { selectedNoteId, deleteNote } = useNoteStore.getState();
@@ -64,6 +64,7 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
       {
         id: "settings",
         label: "Settings",
+        shortcut: "⌘⇧S",
         action: run(() => {
           useNoteStore.getState().setView("settings");
         }),

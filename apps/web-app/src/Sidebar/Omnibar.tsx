@@ -44,7 +44,7 @@ function Omnibar({ omnibarRef, localQuery, onSearchChange, onKeyDown }: OmnibarP
                     whiteSpace: "nowrap",
                   }}
                 >
-                  ⌘K
+                  ⌘⇧K
                 </Typography>
               </InputAdornment>
             ),
