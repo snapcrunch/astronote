@@ -1,8 +1,6 @@
 import { useState } from "react";
 import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import CheckIcon from "@mui/icons-material/Check";
+import Button from "@mui/material/Button";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight, dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -28,7 +26,7 @@ function CodeBlock({ children, ...props }: React.PropsWithChildren<React.Compone
   };
 
   return (
-    <Box sx={{ position: "relative" }}>
+    <Box sx={{ position: "relative", "&:hover .copy-btn": { opacity: 1 } }}>
       <SyntaxHighlighter
         {...props}
         language={isShell ? "shell-session" : language}
@@ -43,10 +41,10 @@ function CodeBlock({ children, ...props }: React.PropsWithChildren<React.Compone
       >
         {displayCode}
       </SyntaxHighlighter>
-      <IconButton
+      <Button
+        className="copy-btn"
         size="small"
         onClick={handleCopy}
-        title="Copy to clipboard"
         sx={{
           position: "absolute",
           top: 8,
@@ -54,14 +52,18 @@ function CodeBlock({ children, ...props }: React.PropsWithChildren<React.Compone
           bgcolor: "background.paper",
           border: 1,
           borderColor: "divider",
-          opacity: 0.7,
+          opacity: 0,
           "&:hover": { opacity: 1, bgcolor: "background.paper" },
-          width: 28,
-          height: 28,
+          minWidth: "unset",
+          px: 1,
+          py: 0.25,
+          fontSize: "0.75rem",
+          lineHeight: 1.5,
+          textTransform: "none",
         }}
       >
-        {copied ? <CheckIcon sx={{ fontSize: 16 }} /> : <ContentCopyIcon sx={{ fontSize: 16 }} />}
-      </IconButton>
+        {copied ? "copied" : "copy"}
+      </Button>
     </Box>
   );
 }

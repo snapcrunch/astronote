@@ -15,6 +15,7 @@ export function useOmnibar(onRenameSelectedNote?: () => void) {
       if (e.metaKey && e.shiftKey && e.key === "k") {
         e.preventDefault();
         omnibarRef.current?.focus();
+        omnibarRef.current?.select();
       }
       if (e.metaKey && e.shiftKey && (e.key === "s" || e.key === "S")) {
         e.preventDefault();

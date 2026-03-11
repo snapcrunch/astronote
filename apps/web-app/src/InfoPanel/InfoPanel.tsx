@@ -22,7 +22,7 @@ function InfoPanel({ variant = "side" }: InfoPanelProps) {
       <Box sx={infoPanelRoot}>
         <Box sx={infoPanelHeader}>
           <Typography variant="body2" sx={infoPanelHeaderTitle}>
-            Info
+            Note Metadata
           </Typography>
         </Box>
         <Box sx={infoPanelContent}>
