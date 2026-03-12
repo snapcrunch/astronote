@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import moment from "moment";
 import Box from "@mui/material/Box";
 import MuiList from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -29,14 +30,7 @@ interface NoteListProps {
 }
 
 function formatDate(dateStr: string) {
-  const date = new Date(dateStr);
-  return date.toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  return moment(dateStr).fromNow();
 }
 
 function useIsScrollable(ref: React.RefObject<HTMLElement | null>) {

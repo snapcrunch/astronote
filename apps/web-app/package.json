@@ -25,6 +25,7 @@
     "@repo/types": "*",
     "codemirror": "^6.0.2",
     "jszip": "^3.10.1",
+    "moment": "^2.30.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-markdown": "^10.1.0",

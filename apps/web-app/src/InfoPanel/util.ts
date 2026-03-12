@@ -14,7 +14,8 @@ export function countStats(text: string) {
 
   const words = trimmed.split(/\s+/).length;
   const sentences = trimmed.split(/[.!?]+\s*/g).filter(Boolean).length;
-  const paragraphs = trimmed.split(/\n\s*\n/).filter((p) => p.trim()).length;
+  const withoutCodeBlocks = trimmed.replace(/```[\s\S]*?```/g, "").trim();
+  const paragraphs = withoutCodeBlocks ? withoutCodeBlocks.split(/\n\s*\n/).filter((p) => p.trim()).length : 0;
   const characters = trimmed.length;
 
   return { words, sentences, paragraphs, characters };
