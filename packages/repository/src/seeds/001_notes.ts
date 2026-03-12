@@ -10,6 +10,13 @@ const collections = [
 const seedNotes: { collection_id: number; title: string; content: string; tags: string[]; pinned?: boolean }[] = [
   {
     collection_id: 1,
+    pinned: true,
+    title: "Getting Started with Astronote",
+    content: "## Keyboard Shortcuts\n\n- ⌘⇧K - Focus the Omnibar\n- ⌘⇧P - Open the Command Palette\n- ⌘⇧C - Open the Collection Palette\n- ⌘⇧S - Open the Settings Page\n- ⌘⇧D - Delete the Selected Note",
+    tags: ["astronote", "reference"],
+  },
+  {
+    collection_id: 1,
     title: "Getting Started with Zettelkasten",
     content: "# Getting Started with Zettelkasten\n\nThe **Zettelkasten** method is a personal knowledge management system developed by German sociologist *Niklas Luhmann*.\n\n## Core Principles\n\n1. **Atomicity** — Each note should contain one idea\n2. **Connectivity** — Notes should link to other notes\n3. **Use your own words** — Restate ideas rather than copying\n\n## Why It Works\n\nBy forcing yourself to express ideas in your own words and connect them to existing knowledge, you create a *web of understanding* that grows over time.\n\n> \"I don't think everything on my own. It happens mainly within the Zettelkasten.\" — Niklas Luhmann\n\nSee also: [Zettelkasten.de](https://zettelkasten.de/introduction/)",
     tags: ["learning", "notetaking", "productivity"],
@@ -846,6 +853,7 @@ export async function seed(knex: Knex): Promise<void> {
       title: note.title,
       content: note.content,
       collectionId: note.collection_id,
+      pinned: note.pinned ? 1 : 0,
       createdAt,
       updatedAt,
     });
