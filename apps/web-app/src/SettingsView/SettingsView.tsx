@@ -36,6 +36,7 @@ interface Frontmatter {
   title?: string;
   tags?: string[];
   collection?: string;
+  pinned?: boolean;
 }
 
 function parseFrontmatter(content: string): { frontmatter: Frontmatter; body: string } {
@@ -57,6 +58,8 @@ function parseFrontmatter(content: string): { frontmatter: Frontmatter; body: st
       frontmatter.tags = value.split(",").map((t) => t.trim()).filter(Boolean);
     } else if (key === "collection" && value) {
       frontmatter.collection = value;
+    } else if (key === "pinned") {
+      frontmatter.pinned = value.toLowerCase() === "true";
     }
   }
 
@@ -109,7 +112,7 @@ function ImportSection() {
           if (frontmatter.collection) {
             collectionId = await resolveCollectionId(frontmatter.collection);
           }
-          await importNote(title, body, { tags, collectionId });
+          await importNote(title, body, { tags, collectionId, pinned: frontmatter.pinned });
           setProgress({ current: i + 1, total: validFiles.length });
         }
         await fetchNotes();

@@ -32,6 +32,7 @@ export async function createNote(input: CreateNoteInput & { tags?: string[]; col
     title: input.title,
     content: input.content ?? "",
     tags,
+    pinned: input.pinned ?? false,
     createdAt: now,
     updatedAt: now,
   };

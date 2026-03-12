@@ -7,6 +7,7 @@ export const emptyStateContainer: SxProps<Theme> = {
   alignItems: "center",
   justifyContent: "center",
   height: "100%",
+  userSelect: "none",
 };
 
 export const root: SxProps<Theme> = {

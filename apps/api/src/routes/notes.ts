@@ -20,6 +20,7 @@ notesRouter.get("/export", async (_req, res) => {
       `title: ${note.title}`,
       `tags: ${note.tags.join(", ")}`,
       ...(collectionName ? [`collection: ${collectionName}`] : []),
+      `pinned: ${note.pinned ? "true" : "false"}`,
       "---",
     ].join("\n");
     const body = `${frontmatter}\n\n${note.content}`;
@@ -57,7 +58,8 @@ notesRouter.post("/", async (req, res) => {
   }
   const collectionId = typeof req.body.collectionId === "number" ? req.body.collectionId : undefined;
   const tags = Array.isArray(req.body.tags) ? req.body.tags.filter((t: unknown) => typeof t === "string") : undefined;
-  const note = await domain.createNote({ ...result.data, tags, collectionId });
+  const pinned = typeof req.body.pinned === "boolean" ? req.body.pinned : undefined;
+  const note = await domain.createNote({ ...result.data, tags, collectionId, pinned });
   res.status(201).json(note);
 });
 

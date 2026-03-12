@@ -15,6 +15,7 @@ export type Note = z.infer<typeof NoteSchema>;
 export const CreateNoteInputSchema = z.object({
   title: z.string().min(1),
   content: z.string().optional(),
+  pinned: z.boolean().optional(),
 });
 
 export type CreateNoteInput = z.infer<typeof CreateNoteInputSchema>;

@@ -82,6 +82,7 @@ export async function createNote(note: Note, collectionId?: number): Promise<Not
     id: note.id,
     title: note.title,
     content: note.content,
+    pinned: note.pinned ? 1 : 0,
     collectionId: collectionId ?? null,
     createdAt: note.createdAt,
     updatedAt: note.updatedAt,

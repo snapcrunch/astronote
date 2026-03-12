@@ -17,6 +17,7 @@ export interface CreateNoteParams {
   content?: string;
   tags?: string[];
   collectionId?: number | null;
+  pinned?: boolean;
 }
 
 export class WebClient {
