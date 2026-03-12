@@ -2,6 +2,8 @@
 
 Yet another note taking application[^1].
 
+![Astronote](./screenshot.jpg)
+
 ## Quick Start
 
 ```
