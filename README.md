@@ -5,9 +5,10 @@ Yet another note taking application[^1].
 ## Quick Start
 
 ```
-make
-docker run -p 8080:3009 tkambler/astronote
+docker run -p 8080:3009 tkambler/astronote:latest
 ```
+
+If you want to build the Docker image yourself, just run: `make`
 
 ## Running in Development Mode
 
