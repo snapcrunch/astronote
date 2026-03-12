@@ -34,7 +34,7 @@ function Tags() {
         </Typography>
       </Box>
       <Collapse in={open}>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, pt: 0.5, pb: 1 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, pt: 0.5, pb: 1, maxHeight: 400, overflow: "auto", mx: -1.5, px: 1.5 }}>
           {sortedTags.map(({ tag, count }) => (
             <Tag key={tag} label={tag} count={count} selected={selectedTags.includes(tag)} onClick={() => toggleTag(tag)} />
           ))}
