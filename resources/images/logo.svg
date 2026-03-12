@@ -1,0 +1,24 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="planetGrad" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C5CFF" />
+      <stop offset="1" stop-color="#4CC9F0" />
+    </linearGradient>
+    <clipPath id="planetClip">
+      <circle cx="256" cy="256" r="256" />
+    </clipPath>
+  </defs>
+  <circle cx="256" cy="256" r="256" fill="url(#planetGrad)" />
+  <g clip-path="url(#planetClip)" opacity="0.22" fill="#FFFFFF">
+    <ellipse cx="200" cy="164" rx="184" ry="52" transform="rotate(-15 200 164)" />
+    <ellipse cx="316" cy="244" rx="220" ry="60" transform="rotate(-15 316 244)" />
+    <ellipse cx="212" cy="352" rx="168" ry="48" transform="rotate(-15 212 352)" />
+  </g>
+  <g transform="translate(220 80) rotate(10)">
+    <rect x="0" y="0" width="244" height="244" rx="32" fill="#FFF2A8" />
+    <path d="M184 0H212C229.674 0 244 14.3269 244 32V60L184 0Z" fill="#FFE36E" />
+    <rect x="44" y="72" width="124" height="16" rx="8" fill="#D8C55A" opacity="0.9" />
+    <rect x="44" y="116" width="156" height="16" rx="8" fill="#D8C55A" opacity="0.9" />
+    <rect x="44" y="160" width="108" height="16" rx="8" fill="#D8C55A" opacity="0.9" />
+  </g>
+</svg>

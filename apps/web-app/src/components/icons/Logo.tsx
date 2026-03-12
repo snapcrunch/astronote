@@ -15,125 +15,77 @@ const SVGComponent = ({ width = 512, height = 512, ...props }: LogoProps) => (
     <defs>
       <linearGradient
         id="planetGrad"
-        x1={120}
-        y1={120}
-        x2={380}
-        y2={392}
+        x1={0}
+        y1={0}
+        x2={512}
+        y2={512}
         gradientUnits="userSpaceOnUse"
       >
         <stop offset={0} stopColor="#7C5CFF" />
         <stop offset={1} stopColor="#4CC9F0" />
       </linearGradient>
-      <linearGradient
-        id="ringGrad"
-        x1={90}
-        y1={280}
-        x2={422}
-        y2={230}
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop offset={0} stopColor="#9B87FF" />
-        <stop offset={1} stopColor="#C9F2FF" />
-      </linearGradient>
-      <filter
-        id="shadow"
-        x={0}
-        y={0}
-        width={512}
-        height={512}
-        filterUnits="userSpaceOnUse"
-      >
-        <feDropShadow dx={0} dy={12} stdDeviation={16} floodOpacity={0.18} />
-      </filter>
       <clipPath id="planetClip">
-        <circle cx={256} cy={256} r={128} />
+        <circle cx={256} cy={256} r={256} />
       </clipPath>
     </defs>
-    <ellipse
-      cx={256}
-      cy={272}
-      rx={178}
-      ry={52}
-      transform="rotate(-12 256 272)"
-      fill="none"
-      stroke="url(#ringGrad)"
-      strokeWidth={24}
-      strokeLinecap="round"
-      opacity={0.9}
-    />
-    <g filter="url(#shadow)">
-      <circle cx={256} cy={256} r={128} fill="url(#planetGrad)" />
-      <g clipPath="url(#planetClip)" opacity={0.22} fill="#FFFFFF">
-        <ellipse
-          cx={228}
-          cy={210}
-          rx={92}
-          ry={26}
-          transform="rotate(-15 228 210)"
-        />
-        <ellipse
-          cx={286}
-          cy={250}
-          rx={110}
-          ry={30}
-          transform="rotate(-15 286 250)"
-        />
-        <ellipse
-          cx={234}
-          cy={304}
-          rx={84}
-          ry={24}
-          transform="rotate(-15 234 304)"
-        />
-      </g>
-      <g transform="translate(238 168) rotate(10)">
-        <rect x={0} y={0} width={122} height={122} rx={16} fill="#FFF2A8" />
-        <path
-          d="M92 0H106C114.837 0 122 7.16344 122 16V30L92 0Z"
-          fill="#FFE36E"
-        />
-        <rect
-          x={22}
-          y={36}
-          width={62}
-          height={8}
-          rx={4}
-          fill="#D8C55A"
-          opacity={0.9}
-        />
-        <rect
-          x={22}
-          y={58}
-          width={78}
-          height={8}
-          rx={4}
-          fill="#D8C55A"
-          opacity={0.9}
-        />
-        <rect
-          x={22}
-          y={80}
-          width={54}
-          height={8}
-          rx={4}
-          fill="#D8C55A"
-          opacity={0.9}
-        />
-      </g>
-      <g fill="#FFFFFF" opacity={0.9}>
-        <circle cx={160} cy={164} r={5} />
-        <circle cx={356} cy={146} r={4} />
-        <circle cx={372} cy={334} r={5} />
-      </g>
+    <circle cx={256} cy={256} r={256} fill="url(#planetGrad)" />
+    <g clipPath="url(#planetClip)" opacity={0.22} fill="#FFFFFF">
+      <ellipse
+        cx={200}
+        cy={164}
+        rx={184}
+        ry={52}
+        transform="rotate(-15 200 164)"
+      />
+      <ellipse
+        cx={316}
+        cy={244}
+        rx={220}
+        ry={60}
+        transform="rotate(-15 316 244)"
+      />
+      <ellipse
+        cx={212}
+        cy={352}
+        rx={168}
+        ry={48}
+        transform="rotate(-15 212 352)"
+      />
     </g>
-    <path
-      d="M92 292C122 334 190 360 266 360C335 360 396 339 428 305"
-      fill="none"
-      stroke="url(#ringGrad)"
-      strokeWidth={24}
-      strokeLinecap="round"
-      opacity={0.95}
-    />
+    <g transform="translate(220 80) rotate(10)">
+      <rect x={0} y={0} width={244} height={244} rx={32} fill="#FFF2A8" />
+      <path
+        d="M184 0H212C229.674 0 244 14.3269 244 32V60L184 0Z"
+        fill="#FFE36E"
+      />
+      <rect
+        x={44}
+        y={72}
+        width={124}
+        height={16}
+        rx={8}
+        fill="#D8C55A"
+        opacity={0.9}
+      />
+      <rect
+        x={44}
+        y={116}
+        width={156}
+        height={16}
+        rx={8}
+        fill="#D8C55A"
+        opacity={0.9}
+      />
+      <rect
+        x={44}
+        y={160}
+        width={108}
+        height={16}
+        rx={8}
+        fill="#D8C55A"
+        opacity={0.9}
+      />
+    </g>
   </svg>
 );
 export default SVGComponent;
