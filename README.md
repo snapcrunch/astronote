@@ -31,8 +31,8 @@ This project is structured as a [monorepo](https://monorepo.tools/) managed with
 
 ### Libraries
 
-- [packages/astronote-client](packages/astronote-client) - Exports an API for use by the web app or the desktop app. The web variant routes requests to the REST API. The desktop variant routes requests directly to a local package (`packages/domain`).
-- [packjages/domain](packages/domain) - Business logic lives here.
+- [packages/astronote-client](packages/astronote-client) - REST API client.
+- [packages/domain](packages/domain) - Business logic lives here.
 - [packages/repository](packages/repository) - Database code lives here.
 - [packages/types](packages/types) - Exports shared [Zod](https://zod.dev/) validation functions and inferred TypeScript types.
 - [packages/eslint-config](packages/eslint-config) - Shared [ESLint](https://eslint.org/) config.
