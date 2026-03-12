@@ -158,9 +158,9 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       }
     },
 
-    importNote: async (title: string, content: string) => {
-      const { activeCollectionId } = get();
-      await client.createNote({ title, content, collectionId: activeCollectionId });
+    importNote: async (title: string, content: string, opts?: { tags?: string[]; collectionId?: number }) => {
+      const collectionId = opts?.collectionId ?? get().activeCollectionId;
+      await client.createNote({ title, content, tags: opts?.tags, collectionId });
     },
 
     updateNote: async (id: string, updates: Partial<Pick<Note, "title" | "content" | "pinned">>) => {

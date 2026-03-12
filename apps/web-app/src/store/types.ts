@@ -38,7 +38,7 @@ export interface NoteStore {
   deleteCollection: (id: number) => Promise<void>;
   setDefaultCollection: (id: number) => Promise<void>;
   createNote: (title: string, content?: string) => Promise<void>;
-  importNote: (title: string, content: string) => Promise<void>;
+  importNote: (title: string, content: string, opts?: { tags?: string[]; collectionId?: number }) => Promise<void>;
   importing: boolean;
   updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content" | "pinned">>) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;

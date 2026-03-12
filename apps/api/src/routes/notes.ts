@@ -56,7 +56,8 @@ notesRouter.post("/", async (req, res) => {
     return;
   }
   const collectionId = typeof req.body.collectionId === "number" ? req.body.collectionId : undefined;
-  const note = await domain.createNote({ ...result.data, collectionId });
+  const tags = Array.isArray(req.body.tags) ? req.body.tags.filter((t: unknown) => typeof t === "string") : undefined;
+  const note = await domain.createNote({ ...result.data, tags, collectionId });
   res.status(201).json(note);
 });
 

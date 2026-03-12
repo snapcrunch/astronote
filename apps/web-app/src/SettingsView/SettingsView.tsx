@@ -32,14 +32,60 @@ function titleFromFilename(name: string): string {
   return basename.replace(/\.[^.]+$/, "");
 }
 
+interface Frontmatter {
+  title?: string;
+  tags?: string[];
+  collection?: string;
+}
+
+function parseFrontmatter(content: string): { frontmatter: Frontmatter; body: string } {
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
+  if (!match) return { frontmatter: {}, body: content };
+
+  const raw = match[1]!;
+  const body = match[2]!;
+  const frontmatter: Frontmatter = {};
+
+  for (const line of raw.split(/\r?\n/)) {
+    const sep = line.indexOf(":");
+    if (sep === -1) continue;
+    const key = line.slice(0, sep).trim().toLowerCase();
+    const value = line.slice(sep + 1).trim();
+    if (key === "title" && value) {
+      frontmatter.title = value;
+    } else if (key === "tags" && value) {
+      frontmatter.tags = value.split(",").map((t) => t.trim()).filter(Boolean);
+    } else if (key === "collection" && value) {
+      frontmatter.collection = value;
+    }
+  }
+
+  return { frontmatter, body };
+}
+
 function ImportSection() {
   const importNote = useNoteStore((s) => s.importNote);
   const fetchNotes = useNoteStore((s) => s.fetchNotes);
   const fetchTags = useNoteStore((s) => s.fetchTags);
+  const fetchCollections = useNoteStore((s) => s.fetchCollections);
+  const createCollection = useNoteStore((s) => s.createCollection);
   const [dragOver, setDragOver] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const resolveCollectionId = useCallback(
+    async (name: string): Promise<number> => {
+      const collections = useNoteStore.getState().collections;
+      const existing = collections.find((c) => c.name.toLowerCase() === name.toLowerCase());
+      if (existing) return existing.id;
+      await createCollection(name);
+      const updated = useNoteStore.getState().collections;
+      const created = updated.find((c) => c.name.toLowerCase() === name.toLowerCase());
+      return created!.id;
+    },
+    [createCollection],
+  );
 
   const importMarkdownFiles = useCallback(
     async (files: { name: string; content: string }[]) => {
@@ -56,17 +102,25 @@ function ImportSection() {
       try {
         for (let i = 0; i < validFiles.length; i++) {
           const file = validFiles[i]!;
-          await importNote(titleFromFilename(file.name), file.content);
+          const { frontmatter, body } = parseFrontmatter(file.content);
+          const title = frontmatter.title || titleFromFilename(file.name);
+          const tags = frontmatter.tags;
+          let collectionId: number | undefined;
+          if (frontmatter.collection) {
+            collectionId = await resolveCollectionId(frontmatter.collection);
+          }
+          await importNote(title, body, { tags, collectionId });
           setProgress({ current: i + 1, total: validFiles.length });
         }
         await fetchNotes();
         fetchTags();
+        fetchCollections();
       } finally {
         useNoteStore.setState({ importing: false });
         setProgress(null);
       }
     },
-    [importNote, fetchNotes, fetchTags],
+    [importNote, fetchNotes, fetchTags, fetchCollections, resolveCollectionId],
   );
 
   const processFiles = useCallback(

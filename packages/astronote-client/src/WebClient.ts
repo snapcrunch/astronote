@@ -15,6 +15,7 @@ export interface FetchNotesParams {
 export interface CreateNoteParams {
   title: string;
   content?: string;
+  tags?: string[];
   collectionId?: number | null;
 }
 
