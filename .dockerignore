@@ -4,5 +4,9 @@ dist
 .DS_Store
 .git
 .emdash
+.claude
 .playwright-cli
 *.db
+apps/desktop
+apps/cli
+resources

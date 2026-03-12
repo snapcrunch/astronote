@@ -1,4 +1,5 @@
-FROM node:24-slim
+# Stage 1: Build
+FROM node:24-slim AS builder
 
 WORKDIR /app
 
@@ -18,6 +19,35 @@ RUN yarn install --immutable
 
 COPY . .
 
+RUN yarn build
+
+# Stage 2: Production
+FROM node:24-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends tini && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy node_modules from builder (avoids a second yarn install)
+COPY --from=builder /app/node_modules node_modules
+
+# Copy runtime source (API runs TypeScript via tsx)
+COPY apps/api/package.json apps/api/
+COPY apps/api/src apps/api/src
+COPY apps/api/tsconfig.json apps/api/
+
+# Copy workspace packages needed at runtime
+COPY packages/types/package.json packages/types/
+COPY packages/types/src packages/types/src
+COPY packages/domain/package.json packages/domain/
+COPY packages/domain/src packages/domain/src
+COPY packages/repository/package.json packages/repository/
+COPY packages/repository/src packages/repository/src
+
+# Copy pre-built web-app from builder
+COPY --from=builder /app/apps/web-app/dist apps/web-app/dist
+
 EXPOSE 3009
 
-CMD ["yarn", "start"]
+ENTRYPOINT ["tini", "--"]
+CMD ["node_modules/.bin/tsx", "apps/api/src/index.ts"]
