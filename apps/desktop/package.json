@@ -8,6 +8,7 @@
     "dev": "tsx src/dev.ts",
     "build": "vite build --config vite.main.config.ts && vite build --config vite.preload.config.ts",
     "rebuild": "electron-rebuild -o better-sqlite3",
+    "postinstall": "yarn rebuild",
     "start": "electron dist/main.js",
     "check-types": "tsc --noEmit",
     "package": "electron-builder"
@@ -15,7 +16,8 @@
   "dependencies": {
     "@repo/domain": "*",
     "@repo/repository": "*",
-    "@repo/types": "*"
+    "@repo/types": "*",
+    "better-sqlite3": "^12.6.2"
   },
   "devDependencies": {
     "@electron/rebuild": "^4.0.1",

@@ -4,3 +4,4 @@ node_modules/
 .turbo/
 .playwright-cli/
 .yarn/install-state.gz
+dist/

@@ -1,8 +1,10 @@
 import { spawn } from "node:child_process";
 import { build } from "vite";
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
+const require = createRequire(import.meta.url);
 const root = path.dirname(fileURLToPath(import.meta.url));
 const desktopRoot = path.resolve(root, "..");
 
@@ -18,7 +20,7 @@ async function start() {
   });
 
   // Launch Electron pointing at the Vite dev server
-  const electronPath = path.join(desktopRoot, "node_modules", ".bin", "electron");
+  const electronPath = require("electron") as unknown as string;
   const child = spawn(electronPath, [path.join(desktopRoot, "dist", "main.js")], {
     stdio: "inherit",
     env: {

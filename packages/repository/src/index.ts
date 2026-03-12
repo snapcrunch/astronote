@@ -1,21 +1,25 @@
-import knexLib from "knex";
+import path from "node:path";
 import type { Knex } from "knex";
 import type { Note, Collection, Settings } from "@repo/types";
 import { DEFAULT_SETTINGS } from "@repo/types";
-import { createKnexConfig } from "./knexfile.js";
 
 let db: Knex;
 
-export async function initDatabase(path: string): Promise<void> {
-  db = knexLib(createKnexConfig(path));
-  await db.migrate.latest();
+export const migrationsDirectory = path.join(import.meta.dirname, "migrations");
+export const seedsDirectory = path.join(import.meta.dirname, "seeds");
+
+export async function init(knex: Knex): Promise<void> {
+  db = knex;
+  await db.migrate.latest({
+    directory: migrationsDirectory,
+  });
 }
 
 export async function seedDatabase(): Promise<void> {
   const noteCount = await db("notes").count("* as count").first();
   const collectionCount = await db("collections").count("* as count").first();
   if (Number(noteCount?.count ?? 0) > 0 || Number(collectionCount?.count ?? 0) > 0) return;
-  await db.seed.run();
+  await db.seed.run({ directory: seedsDirectory });
 }
 
 function getNoteTags(noteId: string): string[] {

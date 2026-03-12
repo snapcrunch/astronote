@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "node:path";
-import { initDatabase, seedDatabase } from "@repo/repository";
+import knex from "knex";
+import { init, seedDatabase } from "@repo/repository";
 import * as domain from "@repo/domain";
 
 let mainWindow: BrowserWindow | null = null;
@@ -66,7 +67,12 @@ function registerIpcHandlers() {
 
 app.whenReady().then(async () => {
   const dbPath = path.join(app.getPath("userData"), "astronote.db");
-  await initDatabase(dbPath);
+  const db = knex({
+    client: "better-sqlite3",
+    connection: { filename: dbPath },
+    useNullAsDefault: true,
+  });
+  await init(db);
   await seedDatabase();
 
   registerIpcHandlers();

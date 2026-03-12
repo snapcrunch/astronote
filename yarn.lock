@@ -1954,8 +1954,10 @@ __metadata:
     "@repo/typescript-config": "*"
     "@types/cors": ^2.8.17
     "@types/express": ^5.0.0
+    better-sqlite3: ^12.6.2
     cors: ^2.8.5
     express: ^5.1.0
+    knex: ^3.1.0
     tsx: ^4.19.4
     typescript: ^5.9.2
   languageName: unknown
@@ -1981,6 +1983,7 @@ __metadata:
     "@repo/repository": "*"
     "@repo/types": "*"
     "@repo/typescript-config": "*"
+    better-sqlite3: ^12.6.2
     electron: ^35.1.2
     electron-builder: ^26.0.12
     tsx: ^4.19.4
@@ -2026,12 +2029,12 @@ __metadata:
   dependencies:
     "@repo/types": "*"
     "@repo/typescript-config": "*"
-    "@types/better-sqlite3": ^7.6.13
     "@types/uuid": ^11.0.0
-    better-sqlite3: ^12.6.2
     knex: ^3.1.0
     typescript: ^5.9.2
     uuid: ^13.0.0
+  peerDependencies:
+    knex: ^3.1.0
   languageName: unknown
   linkType: soft
 
@@ -2334,15 +2337,6 @@ __metadata:
   dependencies:
     "@babel/types": ^7.28.2
   checksum: e3124e6575b2f70de338eab8a9c704d315a86c46a8e395b6ec78a0157ab7b5fd877289556a57dcf28e4ff3543714e359cc1182d4afc4bcb4f3575a0bbafa0dad
-  languageName: node
-  linkType: hard
-
-"@types/better-sqlite3@npm:^7.6.13":
-  version: 7.6.13
-  resolution: "@types/better-sqlite3@npm:7.6.13"
-  dependencies:
-    "@types/node": "*"
-  checksum: 0b5bcca8d5441e0b234b2a120f6b6c8b8136fbe2a777a287ba72cf3c3c260abf5108e8b5cc3daae3fedd7f9f2f5a0abbb4cb72e45a4b82ebd6e1dd98fada3f7c
   languageName: node
   linkType: hard
 

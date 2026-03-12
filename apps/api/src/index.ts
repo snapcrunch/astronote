@@ -1,7 +1,8 @@
 import path from "node:path";
 import express from "express";
 import cors from "cors";
-import { initDatabase, seedDatabase } from "@repo/repository";
+import knex from "knex";
+import { init, seedDatabase } from "@repo/repository";
 import { notesRouter } from "./routes/notes";
 import { tagsRouter } from "./routes/tags";
 import { collectionsRouter } from "./routes/collections";
@@ -13,7 +14,12 @@ const PORT = process.env.PORT ?? 3009;
 const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), "astronote.db");
 
 async function main() {
-  await initDatabase(DB_PATH);
+  const db = knex({
+    client: "better-sqlite3",
+    connection: { filename: DB_PATH },
+    useNullAsDefault: true,
+  });
+  await init(db);
   await seedDatabase();
 
   const app = express();
