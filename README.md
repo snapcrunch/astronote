@@ -28,7 +28,6 @@ This project is structured as a [monorepo](https://monorepo.tools/) managed with
 
 - [apps/web-app](apps/web-app) - React-based UI.
 - [apps/api](apps/api) - REST API. This layer is intentionally minimal. It validates requests and forwards them to the `domain` package (see below).
-- [apps/desktop](apps/desktop) - A standalone, [Electron](https://www.electronjs.org/)-based variant that runs on the desktop (no REST API is required).
 
 ### Libraries
 
