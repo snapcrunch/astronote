@@ -29,6 +29,7 @@ export const toolbar = (isMobile: boolean): SxProps<Theme> => ({
   height: 40,
   minHeight: 40,
   boxSizing: "content-box",
+  userSelect: "none",
 });
 
 export const titleWrapper: SxProps<Theme> = {
