@@ -5,7 +5,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
 import { useNoteStore, useStatusMessage } from "../store";
 import { useIsMobile } from "../hooks";
-import { useOmnibar, useSearch, useNoteList } from "./hooks";
+import { useOmnibar, useNoteList } from "./hooks";
 import Omnibar from "./Omnibar";
 import NoteList from "./List";
 import Tags from "./Tags";
@@ -26,9 +26,8 @@ function Sidebar() {
     setRenameDialog({ noteId: note.id, title: note.title });
   }, []);
 
-  const omnibarRef = useOmnibar(handleRenameSelectedNote);
-  const { localQuery, handleSearchChange } = useSearch();
-  const { notes, selectedNoteId, setSelectedNoteId, listRef, handleOmnibarKeyDown, handleListItemKeyDown } = useNoteList(omnibarRef, localQuery);
+  useOmnibar(handleRenameSelectedNote);
+  const { notes, selectedNoteId, setSelectedNoteId, listRef, handleListItemKeyDown } = useNoteList();
   const collections = useNoteStore((s) => s.collections);
   const activeCollectionId = useNoteStore((s) => s.activeCollectionId);
   const setActiveCollectionId = useNoteStore((s) => s.setActiveCollectionId);
@@ -48,12 +47,7 @@ function Sidebar() {
         borderColor: "divider",
       }}
     >
-      <Omnibar
-        omnibarRef={omnibarRef}
-        localQuery={localQuery}
-        onSearchChange={handleSearchChange}
-        onKeyDown={handleOmnibarKeyDown}
-      />
+      {isMobile && <Omnibar />}
       {collections.length > 1 && (
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Select
@@ -78,7 +72,6 @@ function Sidebar() {
       <NoteList
         notes={notes}
         selectedNoteId={selectedNoteId}
-        localQuery={localQuery}
         listRef={listRef}
         onSelectNote={(id) => setSelectedNoteId(selectedNoteId === id ? null : id)}
         onDeleteNote={deleteNote}

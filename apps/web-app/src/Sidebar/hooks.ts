@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNoteStore, useFilteredNotes } from "../store";
 import { useIsMobile } from "../hooks";
+import { omnibarRef, omnibarKeyDownHandler } from "./refs";
 
 export function useOmnibar(onRenameSelectedNote?: () => void) {
-  const omnibarRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   const onRenameSelectedNoteRef = useRef(onRenameSelectedNote);
   onRenameSelectedNoteRef.current = onRenameSelectedNote;
@@ -81,10 +81,7 @@ export function useSearch() {
   return { localQuery, handleSearchChange };
 }
 
-export function useNoteList(
-  omnibarRef: React.RefObject<HTMLInputElement | null>,
-  localQuery: string,
-) {
+export function useNoteList() {
   const notes = useFilteredNotes();
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
   const setSelectedNoteId = useNoteStore((s) => s.setSelectedNoteId);
@@ -108,19 +105,27 @@ export function useNoteList(
         focusNoteAtIndex(0);
         return;
       }
-      if (e.key === "Enter" && localQuery.trim()) {
+      if (e.key === "Enter") {
+        const query = (e.target as HTMLInputElement).value.trim();
+        if (!query) return;
         const exactMatch = notes.find(
-          (n) => n.title.toLowerCase() === localQuery.trim().toLowerCase(),
+          (n) => n.title.toLowerCase() === query.toLowerCase(),
         );
         if (exactMatch) {
           setSelectedNoteId(exactMatch.id);
         } else {
-          createNote(localQuery.trim());
+          createNote(query);
         }
       }
     },
-    [localQuery, notes, setSelectedNoteId, createNote, focusNoteAtIndex],
+    [notes, setSelectedNoteId, createNote, focusNoteAtIndex],
   );
+
+  // Keep the shared handler in sync so Omnibar can delegate to it
+  useEffect(() => {
+    omnibarKeyDownHandler.current = handleOmnibarKeyDown;
+    return () => { omnibarKeyDownHandler.current = null; };
+  }, [handleOmnibarKeyDown]);
 
   const handleListItemKeyDown = useCallback(
     (e: React.KeyboardEvent, index: number) => {
@@ -136,8 +141,8 @@ export function useNoteList(
         }
       }
     },
-    [focusNoteAtIndex, omnibarRef],
+    [focusNoteAtIndex],
   );
 
-  return { notes, selectedNoteId, setSelectedNoteId, listRef, handleOmnibarKeyDown, handleListItemKeyDown };
+  return { notes, selectedNoteId, setSelectedNoteId, listRef, handleListItemKeyDown };
 }

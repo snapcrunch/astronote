@@ -21,7 +21,6 @@ import { useNoteStore } from "../store";
 interface NoteListProps {
   notes: Note[];
   selectedNoteId: string | null;
-  localQuery: string;
   listRef: React.RefObject<HTMLUListElement | null>;
   onSelectNote: (id: string) => void;
   onDeleteNote: (id: string) => void;
@@ -50,8 +49,9 @@ function useIsScrollable(ref: React.RefObject<HTMLElement | null>) {
   return scrollable;
 }
 
-function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, onDeleteNote, onItemKeyDown, onRenameNote }: NoteListProps) {
+function NoteList({ notes, selectedNoteId, listRef, onSelectNote, onDeleteNote, onItemKeyDown, onRenameNote }: NoteListProps) {
   const isScrollable = useIsScrollable(listRef);
+  const searchQuery = useNoteStore((s) => s.searchQuery);
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; noteId: string } | null>(null);
   const [tagsMenuOpen, setTagsMenuOpen] = useState(false);
   const tagsMenuAnchorRef = useRef<HTMLLIElement>(null);
@@ -173,17 +173,17 @@ function NoteList({ notes, selectedNoteId, localQuery, listRef, onSelectNote, on
             />
           </ListItemButton>
         ))}
-        {notes.length === 0 && localQuery && (
+        {notes.length === 0 && searchQuery && (
           <Box sx={{ p: 2, textAlign: "center" }}>
             <Typography variant="body2" color="text.secondary">
               No notes found.
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              Press Enter to create "{localQuery}"
+              Press Enter to create "{searchQuery}"
             </Typography>
           </Box>
         )}
-        {notes.length === 0 && !localQuery && (
+        {notes.length === 0 && !searchQuery && (
           <Box sx={{ p: 2, textAlign: "center" }}>
             <Typography variant="body2" color="text.secondary">
               No notes yet. Type in the search bar and press Enter to create one.

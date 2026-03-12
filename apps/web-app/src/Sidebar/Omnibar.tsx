@@ -3,14 +3,12 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
-interface OmnibarProps {
-  omnibarRef: React.RefObject<HTMLInputElement | null>;
-  localQuery: string;
-  onSearchChange: (value: string) => void;
-  onKeyDown: React.KeyboardEventHandler<HTMLInputElement>;
-}
+import { omnibarRef, omnibarKeyDownHandler } from "./refs";
+import { useSearch } from "./hooks";
 
-function Omnibar({ omnibarRef, localQuery, onSearchChange, onKeyDown }: OmnibarProps) {
+function Omnibar() {
+  const { localQuery, handleSearchChange } = useSearch();
+
   return (
     <Box sx={{ borderBottom: 1, borderColor: "divider", height: 40, minHeight: 40, boxSizing: "content-box", display: "flex", alignItems: "center" }}>
       <TextField
@@ -19,8 +17,8 @@ function Omnibar({ omnibarRef, localQuery, onSearchChange, onKeyDown }: OmnibarP
         size="small"
         placeholder="Search or create a note…"
         value={localQuery}
-        onChange={(e) => onSearchChange(e.target.value)}
-        onKeyDown={onKeyDown}
+        onChange={(e) => handleSearchChange(e.target.value)}
+        onKeyDown={(e) => omnibarKeyDownHandler.current?.(e as React.KeyboardEvent<HTMLInputElement>)}
         slotProps={{
           input: {
             startAdornment: (

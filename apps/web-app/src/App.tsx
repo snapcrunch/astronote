@@ -7,6 +7,7 @@ import NoteEditor from "./NoteEditor";
 import SettingsView from "./SettingsView";
 import InfoPanel from "./InfoPanel";
 import CommandPalette from "./CommandPalette";
+import Omnibar from "./Sidebar/Omnibar";
 import { useNoteStore } from "./store";
 import { useIsMobile } from "./hooks";
 import { themes } from "./themes";
@@ -27,14 +28,17 @@ function App() {
   return (
     <ThemeProvider theme={themes[themeId].theme}>
       <CssBaseline />
-      <Box sx={{ display: "flex", height: "100%" }}>
+      <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
         {isMobile ? (
           showNoteView ? contentView : <Sidebar />
         ) : (
           <>
-            <Sidebar />
-            {contentView}
-            <InfoPanel />
+            <Omnibar />
+            <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
+              <Sidebar />
+              {contentView}
+              <InfoPanel />
+            </Box>
           </>
         )}
         <CommandPalette />
