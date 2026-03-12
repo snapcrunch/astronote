@@ -3,3 +3,4 @@ node_modules/
 .emdash/
 .turbo/
 .playwright-cli/
+dist

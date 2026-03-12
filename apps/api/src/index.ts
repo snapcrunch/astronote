@@ -28,6 +28,13 @@ async function main() {
   app.use("/api/settings", settingsRouter);
   app.use(errorHandler);
 
+  // Serve built frontend static files
+  const staticDir = path.resolve(import.meta.dirname, "../../web-app/dist");
+  app.use(express.static(staticDir));
+  app.get("/{*splat}", (_req, res) => {
+    res.sendFile(path.join(staticDir, "index.html"));
+  });
+
   app.listen(PORT, () => {
     console.log(`API server running on http://localhost:${PORT}`);
   });
