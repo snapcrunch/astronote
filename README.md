@@ -15,7 +15,7 @@ If you want to build the Docker image yourself, just run: `make`
 ## Running in Development Mode
 
 ```sh
-# Iinstall dependencies, launch the API / frontend in dev mode.
+# Install dependencies, launch the API / frontend in dev mode.
 yarn
 yarn dev
 ```
