@@ -180,6 +180,21 @@ export async function getNoteCount(): Promise<number> {
   return Number(result?.count ?? 0);
 }
 
+export async function getNotesForExport(): Promise<{ note: Note; collectionName: string | null }[]> {
+  const rows = await db("notes")
+    .leftJoin("collections", "notes.collectionId", "collections.id")
+    .where("notes.archived", 0)
+    .select("notes.*", "collections.name as collectionName")
+    .orderBy("notes.updatedAt", "desc");
+
+  const results: { note: Note; collectionName: string | null }[] = [];
+  for (const row of rows) {
+    const note = await rowToNote(row);
+    results.push({ note, collectionName: (row.collectionName as string) ?? null });
+  }
+  return results;
+}
+
 // Collections
 
 function rowToCollection(row: Record<string, unknown>): Collection {

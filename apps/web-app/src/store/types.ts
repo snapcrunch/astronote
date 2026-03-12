@@ -44,4 +44,5 @@ export interface NoteStore {
   deleteNote: (id: string) => Promise<void>;
   addTag: (noteId: string, tag: string) => Promise<void>;
   removeTag: (noteId: string, tag: string) => Promise<void>;
+  exportNotes: () => Promise<void>;
 }

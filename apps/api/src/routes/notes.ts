@@ -1,8 +1,34 @@
 import { Router } from "express";
+import archiver from "archiver";
 import { CreateNoteInputSchema, UpdateNoteInputSchema } from "@repo/types";
 import * as domain from "@repo/domain";
 
 export const notesRouter = Router();
+
+notesRouter.get("/export", async (_req, res) => {
+  const entries = await domain.exportNotes();
+
+  res.setHeader("Content-Type", "application/zip");
+  res.setHeader("Content-Disposition", "attachment; filename=notes.zip");
+
+  const archive = archiver("zip", { zlib: { level: 9 } });
+  archive.pipe(res);
+
+  for (const { note, collectionName } of entries) {
+    const frontmatter = [
+      "---",
+      `title: ${note.title}`,
+      `tags: ${note.tags.join(", ")}`,
+      ...(collectionName ? [`collection: ${collectionName}`] : []),
+      "---",
+    ].join("\n");
+    const body = `${frontmatter}\n\n${note.content}`;
+    const safeName = note.title.replace(/[/\\:*?"<>|]/g, "_");
+    archive.append(body, { name: `${safeName}.md` });
+  }
+
+  await archive.finalize();
+});
 
 notesRouter.get("/", async (req, res) => {
   const query = typeof req.query.q === "string" ? req.query.q : undefined;

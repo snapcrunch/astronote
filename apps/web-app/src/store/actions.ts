@@ -217,5 +217,9 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       }));
       get().fetchTags();
     },
+
+    exportNotes: async () => {
+      await client.exportNotes();
+    },
   };
 }

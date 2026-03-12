@@ -105,4 +105,15 @@ export class WebClient {
     const { data } = await this.http.delete<Note>(`/api/notes/${noteId}/tags/${encodeURIComponent(tag)}`);
     return data;
   }
+
+  async exportNotes(): Promise<void> {
+    const { data } = await this.http.get("/api/notes/export", { responseType: "blob" });
+    const blob = new Blob([data], { type: "application/zip" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "notes.zip";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 }

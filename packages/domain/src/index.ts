@@ -73,6 +73,10 @@ export async function archiveNote(id: string): Promise<boolean> {
   return repository.archiveNote(id);
 }
 
+export async function exportNotes() {
+  return repository.getNotesForExport();
+}
+
 // Collections
 
 export async function listCollections(): Promise<Collection[]> {

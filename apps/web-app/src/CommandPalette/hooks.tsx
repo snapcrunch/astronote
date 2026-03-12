@@ -62,6 +62,13 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
         }),
       },
       {
+        id: "export-notes",
+        label: "Export Notes",
+        action: run(() => {
+          useNoteStore.getState().exportNotes();
+        }),
+      },
+      {
         id: "settings",
         label: "Settings",
         shortcut: "⌘⇧S",
