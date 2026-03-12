@@ -10,7 +10,7 @@ function Omnibar() {
   const { localQuery, handleSearchChange } = useSearch();
 
   return (
-    <Box sx={{ borderBottom: 1, borderColor: "divider", height: 40, minHeight: 40, boxSizing: "content-box", display: "flex", alignItems: "center" }}>
+    <Box sx={{ borderBottom: 1, borderColor: "divider", height: 48, minHeight: 48, boxSizing: "content-box", display: "flex", alignItems: "center" }}>
       <TextField
         inputRef={omnibarRef}
         fullWidth

@@ -49,20 +49,20 @@ function Sidebar() {
     >
       {isMobile && <Omnibar />}
       {collections.length > 1 && (
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Box sx={{ borderBottom: 1, borderColor: "divider", height: 40, minHeight: 40, boxSizing: "content-box", display: "flex", alignItems: "center" }}>
           <Select
             value={activeCollectionId ?? ""}
             onChange={(e) => setActiveCollectionId(e.target.value as number)}
             size="small"
             fullWidth
             sx={{
-              fontSize: "0.8rem",
+              fontSize: "0.85rem",
               "& .MuiOutlinedInput-notchedOutline": { border: "none" },
               bgcolor: "background.paper",
             }}
           >
             {collections.map((c) => (
-              <MenuItem key={c.id} value={c.id} sx={{ fontSize: "0.8rem" }}>
+              <MenuItem key={c.id} value={c.id} sx={{ fontSize: "0.85rem" }}>
                 Collection: {c.name}
               </MenuItem>
             ))}
