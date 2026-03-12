@@ -55,6 +55,26 @@ function Sidebar() {
             onChange={(e) => setActiveCollectionId(e.target.value as number)}
             size="small"
             fullWidth
+            endAdornment={
+              <Typography
+                variant="caption"
+                sx={{
+                  bgcolor: "grey.200",
+                  color: "text.secondary",
+                  px: 0.75,
+                  py: 0.25,
+                  borderRadius: 0.5,
+                  fontSize: "0.7rem",
+                  fontWeight: 600,
+                  lineHeight: 1,
+                  whiteSpace: "nowrap",
+                  mr: 2.5,
+                  pointerEvents: "none",
+                }}
+              >
+                ⌘⇧C
+              </Typography>
+            }
             sx={{
               fontSize: "0.85rem",
               "& .MuiOutlinedInput-notchedOutline": { border: "none" },

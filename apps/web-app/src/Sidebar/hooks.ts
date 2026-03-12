@@ -12,12 +12,7 @@ export function useOmnibar(onRenameSelectedNote?: () => void) {
     if (!isMobile) omnibarRef.current?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey && e.shiftKey && e.key === "k") {
-        e.preventDefault();
-        omnibarRef.current?.focus();
-        omnibarRef.current?.select();
-      }
-      if (e.metaKey && e.shiftKey && (e.key === "s" || e.key === "S")) {
+if (e.metaKey && e.shiftKey && (e.key === "s" || e.key === "S")) {
         e.preventDefault();
         const { view, setView } = useNoteStore.getState();
         if (view !== "settings") setView("settings");
@@ -27,7 +22,7 @@ export function useOmnibar(onRenameSelectedNote?: () => void) {
         const { selectedNoteId, deleteNote } = useNoteStore.getState();
         if (selectedNoteId) deleteNote(selectedNoteId);
       }
-      if (e.metaKey && e.shiftKey && (e.key === "e" || e.key === "E")) {
+if (e.metaKey && e.shiftKey && (e.key === "e" || e.key === "E")) {
         e.preventDefault();
         const { selectedNoteId } = useNoteStore.getState();
         if (selectedNoteId) onRenameSelectedNoteRef.current?.();
