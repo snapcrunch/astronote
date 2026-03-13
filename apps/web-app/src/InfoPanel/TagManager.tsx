@@ -40,7 +40,7 @@ function TagManager() {
     <SectionHeading
       content={
         <>
-          <Box sx={[tagInputWrapper, tags.length === 0 ? { mb: -2 } : {}] as SxProps<Theme>}>
+          <Box sx={tagInputWrapper}>
             <Autocomplete
               freeSolo
               disableClearable

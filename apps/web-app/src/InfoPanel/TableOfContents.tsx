@@ -25,7 +25,7 @@ function TableOfContents() {
       first
       content={
         headings.length === 0 ? (
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", pb: 1.5 }}>
             No headings found.
           </Typography>
         ) : (

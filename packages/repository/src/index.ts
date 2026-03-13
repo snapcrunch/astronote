@@ -40,7 +40,7 @@ async function rowToNote(row: Record<string, unknown>): Promise<Note> {
     id,
     title: row.title as string,
     content: row.content as string,
-    tags: await getNoteTagsAsync(id),
+    tags: await getNoteTagsAsync(id), // @TODO Performance issues here.
     createdAt: row.createdAt as string,
     updatedAt: row.updatedAt as string,
     pinned: Boolean(row.pinned),

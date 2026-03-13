@@ -1,11 +1,11 @@
 import { Router } from "express";
-import * as domain from "@repo/domain";
+import domain from "@repo/domain";
 import { SettingsSchema } from "@repo/types";
 
 export const settingsRouter = Router();
 
 settingsRouter.get("/", async (_req, res) => {
-  const settings = await domain.getSettings();
+  const settings = await domain.settings.get();
   res.json(settings);
 });
 
@@ -15,11 +15,11 @@ settingsRouter.patch("/", async (req, res) => {
     res.status(400).json({ error: result.error.flatten() });
     return;
   }
-  const settings = await domain.updateSettings(result.data);
+  const settings = await domain.settings.update(result.data);
   res.json(settings);
 });
 
 settingsRouter.post("/reset", async (_req, res) => {
-  const defaultCollection = await domain.resetAll();
+  const defaultCollection = await domain.settings.resetAll();
   res.json(defaultCollection);
 });

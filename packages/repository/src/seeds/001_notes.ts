@@ -830,6 +830,7 @@ const allNotes = [
     title: g.title,
     content: generateContent(g.title, g.tags),
     tags: g.tags,
+    pinned: false,
   })),
 ];
 
