@@ -1,12 +1,13 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useNoteStore } from "../store";
 import Dates from "./Dates";
 import Statistics from "./Statistics";
 import TableOfContents from "./TableOfContents";
 import TagManager from "./TagManager";
 import RelatedNotes from "./RelatedNotes";
-import { infoPanelRoot, infoPanelHeader, infoPanelHeaderTitle, infoPanelContent, infoPanelInlineContent } from "./styles";
+import { infoPanelRoot, infoPanelHeader, infoPanelHeaderTitle, infoPanelContentInner } from "./styles";
 
 interface InfoPanelProps {
   variant?: "side" | "inline";
@@ -26,24 +27,28 @@ function InfoPanel({ variant = "side" }: InfoPanelProps) {
             Note Metadata
           </Typography>
         </Box>
-        <Box sx={infoPanelContent}>
-          <TableOfContents />
-          <TagManager />
-          <Statistics />
-          <Dates />
-          <RelatedNotes />
-        </Box>
+        <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" } }}>
+          <Box sx={infoPanelContentInner}>
+            <TableOfContents />
+            <TagManager />
+            <Statistics />
+            <Dates />
+            <RelatedNotes />
+          </Box>
+        </OverlayScrollbarsComponent>
       </Box>
     );
   }
 
   return (
-    <Box sx={infoPanelInlineContent}>
-      <TableOfContents />
-      <TagManager />
-      <Statistics />
-      <Dates />
-    </Box>
+    <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" } }}>
+      <Box sx={infoPanelContentInner}>
+        <TableOfContents />
+        <TagManager />
+        <Statistics />
+        <Dates />
+      </Box>
+    </OverlayScrollbarsComponent>
   );
 }
 

@@ -15,6 +15,7 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import PushPinIcon from "@mui/icons-material/PushPin";
 import PushPinOutlinedIcon from "@mui/icons-material/PushPinOutlined";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import type { Note } from "@repo/types";
 import { useNoteStore } from "../store";
 
@@ -107,7 +108,8 @@ function NoteList({ notes, selectedNoteId, listRef, onSelectNote, onDeleteNote, 
 
   return (
     <>
-      <MuiList ref={listRef} sx={{ flex: 1, overflow: "auto", pt: 0 }} disablePadding>
+      <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" } }}>
+      <MuiList ref={listRef} sx={{ pt: 0 }} disablePadding>
         {notes.map((note, index) => (
           <ListItemButton
             key={note.id}
@@ -191,6 +193,7 @@ function NoteList({ notes, selectedNoteId, listRef, onSelectNote, onDeleteNote, 
           </Box>
         )}
       </MuiList>
+      </OverlayScrollbarsComponent>
       <Menu
         open={contextMenu !== null}
         onClose={handleClose}

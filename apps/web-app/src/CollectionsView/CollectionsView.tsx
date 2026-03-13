@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useNoteStore } from "../store";
 import { useIsMobile } from "../hooks";
 import CollectionsSection from "../SettingsView/CollectionsSection";
@@ -43,9 +44,11 @@ function CollectionsView() {
           Collections
         </Typography>
       </Box>
-      <Box sx={{ flex: 1, overflow: "auto", bgcolor: "#ECECED" }}>
-        <CollectionsSection />
-      </Box>
+      <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" } }}>
+        <Box sx={{ bgcolor: "#ECECED", minHeight: "100%" }}>
+          <CollectionsSection />
+        </Box>
+      </OverlayScrollbarsComponent>
     </Box>
   );
 }

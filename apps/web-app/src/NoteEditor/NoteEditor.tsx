@@ -11,6 +11,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { visit } from "unist-util-visit";
 import type { Root, Element } from "hast";
 import { useNoteStore, useSelectedNote } from "../store";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useIsMobile } from "../hooks";
 import InfoPanel from "../InfoPanel";
 import MarkdownEditor from "../MarkdownEditor";
@@ -57,6 +58,7 @@ function NoteEditor() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.closest('[role="dialog"]')) return;
       if (e.key === "Enter" && !editingRef.current) {
         e.preventDefault();
         setEditing(true);
@@ -142,20 +144,22 @@ function NoteEditor() {
       {isMobile && mobileInfoOpen ? (
         <InfoPanel variant="inline" />
       ) : (
-        <Box sx={styles.contentArea(isMobile)}>
-          {editing ? (
-            <MarkdownEditor
-              value={note.content}
-              onChange={(content) => { if (content !== note.content) debouncedUpdateNote(note.id, { content }); }}
-              onEscape={flushAndExitEdit}
-              autoFocus
-            />
-          ) : (
-            <Box sx={styles.markdownContent}>
-              <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={rehypePlugins} components={markdownComponents}>{displayContent}</Markdown>
-            </Box>
-          )}
-        </Box>
+        <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" } }}>
+          <Box sx={styles.contentAreaInner(isMobile)}>
+            {editing ? (
+              <MarkdownEditor
+                value={note.content}
+                onChange={(content) => { if (content !== note.content) debouncedUpdateNote(note.id, { content }); }}
+                onEscape={flushAndExitEdit}
+                autoFocus
+              />
+            ) : (
+              <Box sx={styles.markdownContent}>
+                <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={rehypePlugins} components={markdownComponents}>{displayContent}</Markdown>
+              </Box>
+            )}
+          </Box>
+        </OverlayScrollbarsComponent>
       )}
       {isMobile && (
         <Box

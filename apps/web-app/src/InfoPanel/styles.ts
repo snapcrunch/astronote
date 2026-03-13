@@ -29,6 +29,8 @@ export const infoPanelHeaderTitle: SxProps<Theme> = { fontWeight: 600 };
 
 export const infoPanelContent: SxProps<Theme> = { px: 2, py: 1.5, overflow: "auto" };
 
+export const infoPanelContentInner: SxProps<Theme> = { px: 2, py: 1.5 };
+
 // TagManager
 export const tagInputWrapper: SxProps<Theme> = {
   mx: -2,

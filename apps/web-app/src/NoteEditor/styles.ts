@@ -45,6 +45,12 @@ export const contentArea = (isMobile: boolean): SxProps<Theme> => ({
   overflow: "auto",
 });
 
+export const contentAreaInner = (isMobile: boolean): SxProps<Theme> => ({
+  px: isMobile ? 1.5 : 3,
+  pt: 3,
+  pb: 3,
+});
+
 export const markdownContent: SxProps<Theme> = {
   "& > *:first-child": {
     mt: 0,

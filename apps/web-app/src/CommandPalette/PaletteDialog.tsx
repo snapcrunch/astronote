@@ -6,6 +6,7 @@ import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 
 export interface PaletteItem {
   id: string | number;
@@ -115,7 +116,8 @@ export default function PaletteDialog({
           fontSize: "0.95rem",
         }}
       />
-      <List ref={listRef} sx={{ maxHeight: 300, overflow: "auto", py: 0.5 }}>
+      <OverlayScrollbarsComponent style={{ maxHeight: 300 }} options={{ scrollbars: { autoHide: "move" } }}>
+      <List ref={listRef} sx={{ py: 0.5 }}>
         {filtered.map((item, index) => (
           <ListItemButton
             key={item.id}
@@ -143,6 +145,7 @@ export default function PaletteDialog({
           </Box>
         )}
       </List>
+      </OverlayScrollbarsComponent>
     </Dialog>
   );
 }

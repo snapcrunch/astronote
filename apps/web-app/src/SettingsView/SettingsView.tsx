@@ -5,6 +5,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useNoteStore } from "../store";
 import { useIsMobile } from "../hooks";
 import type { ThemeId, DefaultView } from "@repo/types";
@@ -52,7 +53,8 @@ function SettingsView() {
           Settings
         </Typography>
       </Box>
-      <Box sx={{ flex: 1, overflow: "auto", bgcolor: "#ECECED" }}>
+      <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" } }}>
+      <Box sx={{ bgcolor: "#ECECED", minHeight: "100%" }}>
         <Paper sx={{ pt: 0, px: 2, pb: 0, borderRadius: 0, bgcolor: "#fff", boxShadow: "none", borderBottom: 1, borderColor: "divider" }}>
           <Box
             component="table"
@@ -120,6 +122,7 @@ function SettingsView() {
           </Box>
         </Paper>
       </Box>
+      </OverlayScrollbarsComponent>
     </Box>
   );
 }

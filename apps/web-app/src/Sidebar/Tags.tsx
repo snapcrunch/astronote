@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Collapse from "@mui/material/Collapse";
 import Typography from "@mui/material/Typography";
 import Tag from "../components/Tag";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useNoteStore } from "../store";
 import { useIsMobile } from "../hooks";
 
@@ -34,11 +35,13 @@ function Tags() {
         </Typography>
       </Box>
       <Collapse in={open}>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, pt: 0.5, pb: 1, maxHeight: 400, overflow: "auto", mx: -1.5, px: 1.5 }}>
-          {sortedTags.map(({ tag, count }) => (
-            <Tag key={tag} label={tag} count={count} selected={selectedTags.includes(tag)} onClick={() => toggleTag(tag)} />
-          ))}
-        </Box>
+        <OverlayScrollbarsComponent style={{ maxHeight: 400 }} options={{ scrollbars: { autoHide: "move" }, overflow: { x: "hidden" } }}>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, pt: 0.5, pb: 1, mx: -1.5, px: 1.5 }}>
+            {sortedTags.map(({ tag, count }) => (
+              <Tag key={tag} label={tag} count={count} selected={selectedTags.includes(tag)} onClick={() => toggleTag(tag)} />
+            ))}
+          </Box>
+        </OverlayScrollbarsComponent>
       </Collapse>
     </Box>
   );
