@@ -5,6 +5,7 @@ import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
+import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useNoteStore, useSelectedNote } from "../store";
 import SectionHeading from "./SectionHeading";
 
@@ -24,9 +25,12 @@ function RelatedNotes() {
   if (!note || relatedNotes.length === 0) return null;
 
   return (
-    <>
-      <SectionHeading>Related Notes</SectionHeading>
-      <List dense disablePadding sx={{ mt: -1, mx: -2 }}>
+    <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
+      <Box sx={{ px: 2, "& > *": { mb: 0 } }}>
+        <SectionHeading>Related Notes</SectionHeading>
+      </Box>
+      <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" }, overflow: { x: "hidden" } }}>
+      <List dense disablePadding>
         {relatedNotes.map((n, index) => (
           <ListItemButton
             key={n.id}
@@ -66,7 +70,8 @@ function RelatedNotes() {
           </ListItemButton>
         ))}
       </List>
-    </>
+      </OverlayScrollbarsComponent>
+    </Box>
   );
 }
 

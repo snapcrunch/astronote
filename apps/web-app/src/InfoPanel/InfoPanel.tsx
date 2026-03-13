@@ -27,15 +27,13 @@ function InfoPanel({ variant = "side" }: InfoPanelProps) {
             Note Metadata
           </Typography>
         </Box>
-        <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" } }}>
-          <Box sx={infoPanelContentInner}>
-            <TableOfContents />
-            <TagManager />
-            <Statistics />
-            <Dates />
-            <RelatedNotes />
-          </Box>
-        </OverlayScrollbarsComponent>
+        <Box sx={infoPanelContentInner}>
+          <TableOfContents />
+          <TagManager />
+          <Statistics />
+          <Dates />
+        </Box>
+        <RelatedNotes />
       </Box>
     );
   }
