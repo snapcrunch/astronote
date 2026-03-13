@@ -8,3 +8,4 @@
 - [x] When I tab in a document (during edit mode), it should insert 4 spaces (not a tab character).
 - [x] When viewing a note in render mode, if I press the escape key, the selected note should be de-selected.
 - [x] Remove the excess padding around the "Add a tag" input field in the right-hand sidebar. It should be flush with the container (similar to the omnibar).
+- [ ] When the user searches for a collection (via the CMD-C collections command palette) - if there is no matching collection, and they press enter - that should result in the creation of a new collection.
