@@ -3,7 +3,7 @@ import type { Tag } from "@repo/astronote-client/WebClient";
 
 export type { Tag };
 
-export type View = "notes" | "settings";
+export type View = "notes" | "settings" | "collections";
 
 export interface NoteStore {
   notes: Note[];

@@ -71,7 +71,7 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
     },
 
     setView: (view: View) => {
-      const noteId = view === "settings" ? null : get().selectedNoteId;
+      const noteId = view === "notes" ? get().selectedNoteId : null;
       set({ view, selectedNoteId: noteId });
       syncUrl({ view, selectedNoteId: noteId, showInfoPanel: get().showInfoPanel, settingDefault: sd() });
     },

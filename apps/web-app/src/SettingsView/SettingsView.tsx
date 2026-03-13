@@ -11,7 +11,6 @@ import { useNoteStore } from "../store";
 import { useIsMobile } from "../hooks";
 import type { ThemeId, DefaultView } from "@repo/types";
 import { themes as themeEntries } from "../themes";
-import CollectionsSection from "./CollectionsSection";
 
 function SettingsView() {
   const isMobile = useIsMobile();
@@ -82,7 +81,6 @@ function SettingsView() {
         </Button>
       </Box>
       <Box sx={{ flex: 1, px: 3, py: 3, overflow: "auto", bgcolor: "#ECECED" }}>
-        <CollectionsSection />
         <Paper variant="outlined" sx={{ p: 2, mt: 3, bgcolor: "#fff" }}>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>
             Preferences

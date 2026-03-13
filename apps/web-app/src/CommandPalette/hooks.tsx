@@ -77,6 +77,13 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
         }),
       },
       {
+        id: "manage-collections",
+        label: "Manage Collections",
+        action: run(() => {
+          useNoteStore.getState().setView("collections");
+        }),
+      },
+      {
         id: "settings",
         label: "Settings",
         shortcut: "⌘⇧S",

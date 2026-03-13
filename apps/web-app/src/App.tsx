@@ -5,6 +5,7 @@ import Box from "@mui/material/Box";
 import Sidebar from "./Sidebar";
 import NoteEditor from "./NoteEditor";
 import SettingsView from "./SettingsView";
+import CollectionsView from "./CollectionsView";
 import InfoPanel from "./InfoPanel";
 import CommandPalette from "./CommandPalette";
 import Omnibar from "./Sidebar/Omnibar";
@@ -20,10 +21,12 @@ function App() {
   const isMobile = useIsMobile();
   useEffect(() => init(), [init]);
 
-  const isSettings = view === "settings";
-  const showNoteView = isMobile && (selectedNoteId !== null || isSettings);
+  const isNotes = view === "notes";
+  const showNoteView = isMobile && (selectedNoteId !== null || !isNotes);
 
-  const contentView = isSettings ? <SettingsView /> : <NoteEditor />;
+  const contentView = view === "settings" ? <SettingsView />
+    : view === "collections" ? <CollectionsView />
+    : <NoteEditor />;
 
   return (
     <ThemeProvider theme={themes[themeId].theme}>
