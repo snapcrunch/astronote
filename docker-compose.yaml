@@ -1,0 +1,5 @@
+services:
+  astronote:
+    image: tkambler/astronote:latest
+    ports:
+      - "3009:3009"

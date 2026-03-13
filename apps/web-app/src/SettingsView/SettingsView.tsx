@@ -19,8 +19,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { useNoteStore } from "../store";
 import { useIsMobile } from "../hooks";
-import TextField from "@mui/material/TextField";
-import type { ThemeId, DefaultView, AuthMethod } from "@repo/types";
+import type { ThemeId, DefaultView } from "@repo/types";
 import { themes as themeEntries } from "../themes";
 
 function isMarkdownFile(name: string): boolean {
@@ -289,10 +288,7 @@ function SettingsView() {
   const [draft, setDraft] = useState(settings);
   const dirty = draft.default_view !== settings.default_view
     || draft.show_info_panel !== settings.show_info_panel
-    || draft.theme !== settings.theme
-    || draft.auth_method !== settings.auth_method
-    || draft.auth_username !== settings.auth_username
-    || draft.auth_password !== settings.auth_password;
+    || draft.theme !== settings.theme;
 
   useEffect(() => {
     setDraft(settings);
@@ -303,9 +299,6 @@ function SettingsView() {
       default_view: draft.default_view,
       show_info_panel: draft.show_info_panel,
       theme: draft.theme,
-      auth_method: draft.auth_method,
-      auth_username: draft.auth_username,
-      auth_password: draft.auth_password,
     });
   };
 
@@ -462,35 +455,6 @@ function SettingsView() {
               <MenuItem key={id} value={id}>{label}</MenuItem>
             ))}
         </Select>
-        <Typography variant="subtitle2" sx={{ mt: 3, mb: 1 }}>
-          Authentication
-        </Typography>
-        <Select
-          value={draft.auth_method}
-          onChange={(e) => setDraft({ ...draft, auth_method: e.target.value as AuthMethod })}
-          size="small"
-          sx={{ minWidth: 200 }}
-        >
-          <MenuItem value="none">None</MenuItem>
-          <MenuItem value="basic">HTTP Basic Auth</MenuItem>
-        </Select>
-        {draft.auth_method === "basic" && (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mt: 1.5, maxWidth: 300 }}>
-            <TextField
-              label="Username"
-              size="small"
-              value={draft.auth_username}
-              onChange={(e) => setDraft({ ...draft, auth_username: e.target.value })}
-            />
-            <TextField
-              label="Password"
-              size="small"
-              type="password"
-              value={draft.auth_password}
-              onChange={(e) => setDraft({ ...draft, auth_password: e.target.value })}
-            />
-          </Box>
-        )}
         <ImportSection />
         <ResetSection onReset={resetAll} />
       </Box>

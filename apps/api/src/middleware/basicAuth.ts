@@ -1,10 +1,56 @@
 import type { Request, Response, NextFunction } from "express";
-import { getSettings } from "@repo/repository";
+import bcrypt from "bcryptjs";
 
-export async function basicAuth(req: Request, res: Response, next: NextFunction) {
-  const settings = await getSettings();
+interface BasicAuthConfig {
+  username: string;
+  passwordHash: string;
+}
 
-  if (settings.auth_method !== "basic") {
+function getAuthConfig(): BasicAuthConfig | null {
+  const method = process.env.ASTRONOTE_AUTH_METHOD;
+  if (method !== "BASIC_AUTH") return null;
+
+  const credentials = process.env.ASTRONOTE_AUTH_CREDENTIALS;
+  if (!credentials) {
+    throw new Error(
+      "ASTRONOTE_AUTH_METHOD is set to BASIC_AUTH but ASTRONOTE_AUTH_CREDENTIALS is not configured. " +
+      "Set ASTRONOTE_AUTH_CREDENTIALS to a colon-delimited string of username:password_hash " +
+      "(where password_hash is a bcrypt hash generated with htpasswd -nbB).",
+    );
+  }
+
+  const colonIndex = credentials.indexOf(":");
+  if (colonIndex === -1) {
+    throw new Error(
+      "ASTRONOTE_AUTH_CREDENTIALS must be a colon-delimited string of username:password_hash.",
+    );
+  }
+
+  const username = credentials.slice(0, colonIndex);
+  const passwordHash = credentials.slice(colonIndex + 1);
+
+  if (!username || !passwordHash) {
+    throw new Error(
+      "ASTRONOTE_AUTH_CREDENTIALS must contain a non-empty username and password hash.",
+    );
+  }
+
+  return { username, passwordHash };
+}
+
+let authConfig: BasicAuthConfig | null | undefined;
+
+function resolveAuthConfig(): BasicAuthConfig | null {
+  if (authConfig === undefined) {
+    authConfig = getAuthConfig();
+  }
+  return authConfig;
+}
+
+export function basicAuth(req: Request, res: Response, next: NextFunction) {
+  const config = resolveAuthConfig();
+
+  if (!config) {
     next();
     return;
   }
@@ -20,7 +66,7 @@ export async function basicAuth(req: Request, res: Response, next: NextFunction)
   const [username, ...rest] = decoded.split(":");
   const password = rest.join(":");
 
-  if (username === settings.auth_username && password === settings.auth_password) {
+  if (username === config.username && bcrypt.compareSync(password, config.passwordHash)) {
     next();
   } else {
     res.setHeader("WWW-Authenticate", 'Basic realm="Astronote"');

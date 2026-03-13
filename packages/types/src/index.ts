@@ -53,17 +53,10 @@ export const ThemeIdSchema = z.enum([
 
 export type ThemeId = z.infer<typeof ThemeIdSchema>;
 
-export const AuthMethodSchema = z.enum(["none", "basic"]);
-
-export type AuthMethod = z.infer<typeof AuthMethodSchema>;
-
 export const SettingsSchema = z.object({
   default_view: DefaultViewSchema,
   show_info_panel: z.boolean(),
   theme: ThemeIdSchema,
-  auth_method: AuthMethodSchema,
-  auth_username: z.string(),
-  auth_password: z.string(),
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;
@@ -72,7 +65,4 @@ export const DEFAULT_SETTINGS: Settings = {
   default_view: "renderer",
   show_info_panel: true,
   theme: "default",
-  auth_method: "none",
-  auth_username: "",
-  auth_password: "",
 };
