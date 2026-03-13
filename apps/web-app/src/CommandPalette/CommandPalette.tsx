@@ -1,13 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
 import { useNoteStore } from "../store";
+import { ImportDropZone } from "../SettingsView/ImportSection";
 import { useCommands } from "./hooks";
 import PaletteDialog from "./PaletteDialog";
 
 export default function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [collectionPickerOpen, setCollectionPickerOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
+  const resetAll = useNoteStore((s) => s.resetAll);
   const collections = useNoteStore((s) => s.collections);
   const activeCollectionId = useNoteStore((s) => s.activeCollectionId);
 
@@ -19,7 +29,20 @@ export default function CommandPalette() {
     setCollectionPickerOpen(true);
   }, []);
 
-  const commands = useCommands(handleClose, handleOpenCollectionPicker);
+  const handleOpenImport = useCallback(() => {
+    setImportOpen(true);
+  }, []);
+
+  const handleOpenReset = useCallback(() => {
+    setResetOpen(true);
+  }, []);
+
+  const handleConfirmReset = useCallback(async () => {
+    setResetOpen(false);
+    await resetAll();
+  }, [resetAll]);
+
+  const commands = useCommands(handleClose, handleOpenCollectionPicker, handleOpenImport, handleOpenReset);
 
   const commandItems = useMemo(
     () => commands.map((c) => ({ id: c.id, label: c.label, disabled: c.disabled, shortcut: c.shortcut, action: c.action })),
@@ -133,6 +156,26 @@ export default function CommandPalette() {
           </>
         )}
       />
+      <Dialog open={importOpen} onClose={() => setImportOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Import Notes</DialogTitle>
+        <DialogContent>
+          <ImportDropZone />
+        </DialogContent>
+      </Dialog>
+      <Dialog open={resetOpen} onClose={() => setResetOpen(false)}>
+        <DialogTitle>Reset All Data</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This will permanently delete all notes, collections, and tags, and
+            revert all settings to their default values. This action cannot be
+            undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setResetOpen(false)}>Cancel</Button>
+          <Button onClick={handleConfirmReset} color="error">Reset</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

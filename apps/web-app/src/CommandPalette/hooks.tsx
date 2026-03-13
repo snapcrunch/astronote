@@ -9,7 +9,7 @@ export interface Command {
   action: () => void;
 }
 
-export function useCommands(onClose: () => void, onOpenCollectionPicker: () => void): Command[] {
+export function useCommands(onClose: () => void, onOpenCollectionPicker: () => void, onOpenImport: () => void, onOpenReset: () => void): Command[] {
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
   return useMemo(() => {
     const run = (fn: () => void) => () => {
@@ -62,6 +62,14 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
         }),
       },
       {
+        id: "import-notes",
+        label: "Import Notes",
+        action: () => {
+          onClose();
+          onOpenImport();
+        },
+      },
+      {
         id: "export-notes",
         label: "Export Notes",
         action: run(() => {
@@ -76,6 +84,14 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
           useNoteStore.getState().setView("settings");
         }),
       },
+      {
+        id: "reset-all",
+        label: "Reset All Data",
+        action: () => {
+          onClose();
+          onOpenReset();
+        },
+      },
     ];
-  }, [onClose, onOpenCollectionPicker, selectedNoteId]);
+  }, [onClose, onOpenCollectionPicker, onOpenImport, onOpenReset, selectedNoteId]);
 }

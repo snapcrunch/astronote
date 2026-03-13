@@ -12,8 +12,6 @@ import { useIsMobile } from "../hooks";
 import type { ThemeId, DefaultView } from "@repo/types";
 import { themes as themeEntries } from "../themes";
 import CollectionsSection from "./CollectionsSection";
-import ImportSection from "./ImportSection";
-import ResetSection from "./ResetSection";
 
 function SettingsView() {
   const isMobile = useIsMobile();
@@ -21,7 +19,6 @@ function SettingsView() {
   const settings = useNoteStore((s) => s.settings);
   const settingsLoaded = useNoteStore((s) => s.settingsLoaded);
   const updateSettings = useNoteStore((s) => s.updateSettings);
-  const resetAll = useNoteStore((s) => s.resetAll);
 
   const [draft, setDraft] = useState(settings);
   const dirty = draft.default_view !== settings.default_view
@@ -155,8 +152,6 @@ function SettingsView() {
             </tbody>
           </Box>
         </Paper>
-        <ImportSection />
-        <ResetSection onReset={resetAll} />
       </Box>
     </Box>
   );
