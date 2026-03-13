@@ -1,4 +1,4 @@
-.PHONY: docker-build docker-push
+.PHONY: docker-build docker-push run
 
 docker-build:
 	docker build -t tkambler/astronote .

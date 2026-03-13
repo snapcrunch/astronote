@@ -36,6 +36,12 @@ export default function CommandPalette() {
   const [claudePromptOpen, setClaudePromptOpen] = useState(false);
   const [claudePromptValue, setClaudePromptValue] = useState("");
   const claudePromptInputRef = useRef<HTMLInputElement>(null);
+  const [claudeResponseOpen, setClaudeResponseOpen] = useState(false);
+  const [claudeResponseText, setClaudeResponseText] = useState("");
+  const [claudeResponseStatus, setClaudeResponseStatus] = useState<"streaming" | "done" | "error">("done");
+  const [claudeResponseError, setClaudeResponseError] = useState("");
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const responseContentRef = useRef<HTMLDivElement>(null);
   const resetAll = useNoteStore((s) => s.resetAll);
   const fetchClaudeAuthStatus = useNoteStore((s) => s.fetchClaudeAuthStatus);
   const collections = useNoteStore((s) => s.collections);
@@ -110,9 +116,43 @@ export default function CommandPalette() {
     const prompt = claudePromptValue.trim();
     if (!prompt) return;
     setClaudePromptOpen(false);
-    // TODO: submit prompt to Claude via REST API
-    console.log("Claude prompt:", prompt);
+    setClaudeResponseOpen(true);
+    setClaudeResponseText("");
+    setClaudeResponseStatus("streaming");
+    setClaudeResponseError("");
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    client.streamClaudePrompt(
+      prompt,
+      (text) => setClaudeResponseText((prev) => prev + text),
+      () => setClaudeResponseStatus("done"),
+      (message) => {
+        setClaudeResponseStatus("error");
+        setClaudeResponseError(message);
+      },
+      controller.signal,
+    );
   }, [claudePromptValue]);
+
+  const handleClaudeResponseClose = useCallback(() => {
+    if (claudeResponseStatus === "streaming") {
+      abortControllerRef.current?.abort();
+    }
+    setClaudeResponseOpen(false);
+    setClaudeResponseText("");
+    setClaudeResponseStatus("done");
+    setClaudeResponseError("");
+    abortControllerRef.current = null;
+  }, [claudeResponseStatus]);
+
+  // Auto-scroll response dialog during streaming
+  useEffect(() => {
+    if (claudeResponseStatus === "streaming" && responseContentRef.current) {
+      responseContentRef.current.scrollTop = responseContentRef.current.scrollHeight;
+    }
+  }, [claudeResponseText, claudeResponseStatus]);
 
   const commands = useCommands(handleClose, handleOpenCollectionPicker, handleOpenImport, handleOpenReset, handleOpenClaudeAuth, handleOpenClaudePrompt);
 
@@ -346,6 +386,41 @@ export default function CommandPalette() {
             fontSize: "0.95rem",
           }}
         />
+      </Dialog>
+      <Dialog
+        open={claudeResponseOpen}
+        onClose={handleClaudeResponseClose}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Claude Response</DialogTitle>
+        <DialogContent
+          ref={responseContentRef}
+          sx={{ whiteSpace: "pre-wrap", maxHeight: "60vh", overflowY: "auto" }}
+        >
+          {claudeResponseText}
+          {claudeResponseStatus === "streaming" && (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+              <CircularProgress size={20} />
+            </Box>
+          )}
+          {claudeResponseStatus === "error" && (
+            <Alert severity="error" sx={{ mt: 2 }}>{claudeResponseError}</Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          {claudeResponseStatus === "streaming" && (
+            <Button
+              onClick={() => {
+                abortControllerRef.current?.abort();
+                setClaudeResponseStatus("done");
+              }}
+            >
+              Stop
+            </Button>
+          )}
+          <Button onClick={handleClaudeResponseClose}>Close</Button>
+        </DialogActions>
       </Dialog>
     </>
   );

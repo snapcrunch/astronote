@@ -30,6 +30,9 @@ RUN npm install -g @anthropic-ai/claude-code
 
 WORKDIR /app
 
+VOLUME [ "/dev/.claude" ]
+VOLUME [ "/dev/data" ]
+
 # Copy node_modules from builder (avoids a second yarn install)
 COPY --from=builder /app/node_modules node_modules
 

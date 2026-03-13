@@ -1,102 +1,67 @@
 import { Router } from "express";
-import { spawn, execFile } from "node:child_process";
+import { execFile } from "node:child_process";
+import { randomBytes, createHash } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 
 export const claudeAuthRouter = Router();
 
-/**
- * Holds the running `claude auth login` process so we can feed it the
- * OAuth code that the user obtains from the browser.
- */
-let loginProcess: ReturnType<typeof spawn> | null = null;
+const CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e";
+const SCOPES = "org:create_api_key user:profile user:inference user:sessions:claude_code user:mcp_servers user:file_upload";
+const REDIRECT_URI = "https://console.anthropic.com/oauth/code/callback";
+const AUTHORIZE_URL = "https://claude.ai/oauth/authorize";
+const TOKEN_URL = "https://console.anthropic.com/v1/oauth/token";
 
-function killLoginProcess() {
-  if (loginProcess) {
-    loginProcess.kill();
-    loginProcess = null;
-  }
+/** In-memory state for the current OAuth flow. */
+let pendingAuth: {
+  codeVerifier: string;
+  state: string;
+} | null = null;
+
+/** Base64url encode (no padding). */
+function base64url(buf: Buffer): string {
+  return buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+/** Generate a PKCE code verifier and its S256 challenge. */
+function generatePkce() {
+  const verifier = base64url(randomBytes(32));
+  const challenge = base64url(createHash("sha256").update(verifier).digest());
+  return { verifier, challenge };
+}
+
+/** Resolve the credentials file path (~/.claude/.credentials.json). */
+function credentialsPath(): string {
+  const home = process.env.HOME ?? "/root";
+  return path.join(home, ".claude", ".credentials.json");
 }
 
 /**
  * POST /api/claude/auth/login
  *
- * Starts the Claude Code CLI OAuth flow. Returns the OAuth URL that the
- * caller should open in their browser to obtain an auth code.
- *
- * The CLI normally tries to open a browser itself — we suppress that by
- * setting BROWSER to "echo", which causes the URL to be printed to stdout
- * instead. We capture it and return it in the response.
- *
- * The spawned process is kept alive — it is waiting for the auth code on
- * stdin. Use POST /callback to submit the code.
+ * Starts a first-party OAuth flow. Generates PKCE parameters and returns
+ * the authorization URL for the user to open in their browser.
  */
 claudeAuthRouter.post("/login", async (_req, res) => {
-  killLoginProcess();
-
   try {
-    const child = spawn("claude", ["auth", "login"], {
-      env: {
-        ...process.env,
-        // Prevent the CLI from opening a real browser — "echo" causes the
-        // URL to be printed to stdout so we can capture it.
-        BROWSER: "echo",
-      },
-      stdio: ["pipe", "pipe", "pipe"],
+    const { verifier, challenge } = generatePkce();
+    const state = base64url(randomBytes(32));
+
+    pendingAuth = { codeVerifier: verifier, state };
+
+    const params = new URLSearchParams({
+      client_id: CLIENT_ID,
+      response_type: "code",
+      redirect_uri: REDIRECT_URI,
+      scope: SCOPES,
+      code_challenge: challenge,
+      code_challenge_method: "S256",
+      state,
     });
 
-    loginProcess = child;
-
-    // Clean up reference if the process exits on its own.
-    child.on("close", () => {
-      if (loginProcess === child) {
-        loginProcess = null;
-      }
-    });
-
-    let stdout = "";
-    let stderr = "";
-
-    const urlPromise = new Promise<string>((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error("Timed out waiting for OAuth URL from CLI"));
-      }, 15_000);
-
-      const tryExtractUrl = (combined: string) => {
-        const match = combined.match(/https:\/\/\S+/);
-        if (match) {
-          clearTimeout(timeout);
-          resolve(match[0]);
-        }
-      };
-
-      child.stdout?.on("data", (data: Buffer) => {
-        stdout += data.toString();
-        tryExtractUrl(stdout + stderr);
-      });
-
-      child.stderr?.on("data", (data: Buffer) => {
-        stderr += data.toString();
-        tryExtractUrl(stdout + stderr);
-      });
-
-      child.on("error", (err) => {
-        clearTimeout(timeout);
-        reject(err);
-      });
-
-      child.on("close", (code) => {
-        clearTimeout(timeout);
-        reject(
-          new Error(
-            `claude auth login exited with code ${code} before producing a URL. stdout: ${stdout} stderr: ${stderr}`,
-          ),
-        );
-      });
-    });
-
-    const url = await urlPromise;
+    const url = `${AUTHORIZE_URL}?${params.toString()}`;
     res.json({ url });
   } catch (err: any) {
-    killLoginProcess();
     res.status(500).json({ error: err.message ?? "Failed to start OAuth flow" });
   }
 });
@@ -104,11 +69,10 @@ claudeAuthRouter.post("/login", async (_req, res) => {
 /**
  * POST /api/claude/auth/callback
  *
- * Submits the OAuth code to the waiting `claude auth login` process.
- * Body: { "code": "<the code from the browser>" }
+ * Exchanges the authorization code for OAuth tokens and stores them
+ * in ~/.claude/.credentials.json so the Claude CLI can use them.
  *
- * The code is written to the CLI process's stdin. We then wait for
- * the process to exit and report success or failure.
+ * Body: { "code": "<the code from the browser>" }
  */
 claudeAuthRouter.post("/callback", async (req, res) => {
   const { code } = req.body ?? {};
@@ -118,63 +82,83 @@ claudeAuthRouter.post("/callback", async (req, res) => {
     return;
   }
 
-  if (!loginProcess) {
+  if (!pendingAuth) {
     res.status(409).json({
       error: "No login flow in progress. Call POST /api/claude/auth/login first.",
     });
     return;
   }
 
+  const { codeVerifier, state: pendingState } = pendingAuth;
+  pendingAuth = null;
+
+  // The callback page may show the code as "code#state" — strip the
+  // fragment (state) suffix so we send only the actual authorization code.
+  const authCode = code.split("#")[0]!;
+
   try {
-    const child = loginProcess;
+    const tokenRes = await fetch(TOKEN_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        grant_type: "authorization_code",
+        client_id: CLIENT_ID,
+        code: authCode,
+        state: pendingState,
+        redirect_uri: REDIRECT_URI,
+        code_verifier: codeVerifier,
+      }),
+    });
 
-    const exitPromise = new Promise<{ success: boolean; output: string }>(
-      (resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error("Timed out waiting for CLI to accept the code"));
-        }, 30_000);
+    const rawText = await tokenRes.text();
 
-        let stdout = "";
-        let stderr = "";
-
-        child.stdout?.on("data", (data: Buffer) => {
-          stdout += data.toString();
-        });
-
-        child.stderr?.on("data", (data: Buffer) => {
-          stderr += data.toString();
-        });
-
-        child.on("close", (exitCode) => {
-          clearTimeout(timeout);
-          resolve({
-            success: exitCode === 0,
-            output: (stdout + stderr).trim(),
-          });
-        });
-
-        child.on("error", (err) => {
-          clearTimeout(timeout);
-          reject(err);
-        });
-      },
-    );
-
-    // Write the code to stdin followed by a newline so the CLI accepts it.
-    child.stdin?.write(code + "\n");
-    child.stdin?.end();
-
-    const result = await exitPromise;
-    loginProcess = null;
-
-    if (result.success) {
-      res.json({ success: true, output: result.output });
-    } else {
-      res.status(400).json({ success: false, output: result.output });
+    let body: Record<string, unknown>;
+    try {
+      body = JSON.parse(rawText);
+    } catch {
+      res.status(502).json({
+        success: false,
+        output: `Token endpoint returned non-JSON (HTTP ${tokenRes.status}): ${rawText.slice(0, 200)}`,
+      });
+      return;
     }
+
+    if (!tokenRes.ok) {
+      res.status(400).json({
+        success: false,
+        output: (body as any).error?.message ?? (body as any).error_description ?? (body as any).error ?? "Token exchange failed",
+      });
+      return;
+    }
+
+    const accessToken = body.access_token as string;
+    const refreshToken = body.refresh_token as string;
+    const expiresIn = body.expires_in as number;
+
+    // Store credentials where the Claude CLI expects them.
+    const credPath = credentialsPath();
+    const credDir = path.dirname(credPath);
+
+    let existing: Record<string, unknown> = {};
+    try {
+      existing = JSON.parse(fs.readFileSync(credPath, "utf-8"));
+    } catch {
+      // File doesn't exist yet — start fresh.
+    }
+
+    existing.claudeAiOauth = {
+      accessToken,
+      refreshToken,
+      expiresAt: Date.now() + expiresIn * 1000,
+      scopes: (body.scope as string ?? SCOPES).split(" "),
+    };
+
+    fs.mkdirSync(credDir, { recursive: true, mode: 0o700 });
+    fs.writeFileSync(credPath, JSON.stringify(existing, null, 2), { mode: 0o600 });
+
+    res.json({ success: true, output: "Authenticated successfully" });
   } catch (err: any) {
-    killLoginProcess();
-    res.status(500).json({ error: err.message ?? "Failed to submit code" });
+    res.status(500).json({ error: err.message ?? "Failed to exchange code for tokens" });
   }
 });
 
@@ -210,25 +194,27 @@ claudeAuthRouter.get("/status", async (_req, res) => {
 /**
  * POST /api/claude/auth/logout
  *
- * Logs out of the Claude Code CLI.
+ * Logs out by removing stored credentials.
  */
 claudeAuthRouter.post("/logout", async (_req, res) => {
   try {
-    await new Promise<void>((resolve, reject) => {
+    // Try CLI logout first (it may clear additional state).
+    await new Promise<void>((resolve) => {
       execFile("claude", ["auth", "logout"], (err) => {
-        if (err && (err as any).code === "ENOENT") {
-          reject(new Error("claude CLI not found"));
-          return;
-        }
         if (err) {
-          reject(err);
-          return;
+          console.log("[claude-auth] CLI logout error (non-fatal):", err.message);
         }
         resolve();
       });
     });
 
-    killLoginProcess();
+    // Also remove our credentials file to be thorough.
+    try {
+      fs.unlinkSync(credentialsPath());
+    } catch {
+      // Already gone — fine.
+    }
+
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ error: err.message ?? "Failed to logout" });
