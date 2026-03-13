@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { CreateNoteInputSchema, UpdateNoteInputSchema } from "@repo/types";
+import { CreateNoteInputSchema, UpdateNoteInputSchema, ListNotesQuerySchema, AddTagInputSchema } from "@repo/types";
 import domain from "@repo/domain";
 
 export const notesRouter = Router();
@@ -15,12 +15,13 @@ notesRouter.get("/export", async (_req, res) => {
 });
 
 notesRouter.get("/", async (req, res) => {
-  const query = typeof req.query.q === "string" ? req.query.q : undefined;
-  const tagsParam = typeof req.query.tags === "string" ? req.query.tags : undefined;
-  const tags = tagsParam ? tagsParam.split(",") : undefined;
-  const collectionParam = typeof req.query.collectionId === "string" ? req.query.collectionId : undefined;
-  const collectionId = collectionParam ? Number(collectionParam) : undefined;
-  const notes = await domain.notes.list(query, tags, collectionId);
+  const result = ListNotesQuerySchema.safeParse(req.query);
+  if (!result.success) {
+    res.status(400).json({ error: result.error.flatten().fieldErrors });
+    return;
+  }
+  const { q, tags, collectionId } = result.data;
+  const notes = await domain.notes.list(q, tags, collectionId);
   res.json(notes);
 });
 
@@ -39,10 +40,7 @@ notesRouter.post("/", async (req, res) => {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const collectionId = typeof req.body.collectionId === "number" ? req.body.collectionId : undefined;
-  const tags = Array.isArray(req.body.tags) ? req.body.tags.filter((t: unknown) => typeof t === "string") : undefined;
-  const pinned = typeof req.body.pinned === "boolean" ? req.body.pinned : undefined;
-  const note = await domain.notes.create({ ...result.data, tags, collectionId, pinned });
+  const note = await domain.notes.create(result.data);
   res.status(201).json(note);
 });
 
@@ -61,12 +59,12 @@ notesRouter.patch("/:id", async (req, res) => {
 });
 
 notesRouter.post("/:id/tags", async (req, res) => {
-  const { tag } = req.body;
-  if (typeof tag !== "string" || !tag.trim()) {
-    res.status(400).json({ error: "tag is required" });
+  const result = AddTagInputSchema.safeParse(req.body);
+  if (!result.success) {
+    res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const note = await domain.notes.addTag(req.params.id, tag.trim());
+  const note = await domain.notes.addTag(req.params.id, result.data.tag.trim());
   if (!note) {
     res.status(404).json({ error: "Note not found" });
     return;

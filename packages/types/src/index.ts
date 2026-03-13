@@ -16,6 +16,8 @@ export const CreateNoteInputSchema = z.object({
   title: z.string().min(1),
   content: z.string().optional(),
   pinned: z.boolean().optional(),
+  tags: z.array(z.string()).optional(),
+  collectionId: z.number().optional(),
 });
 
 export type CreateNoteInput = z.infer<typeof CreateNoteInputSchema>;
@@ -28,6 +30,28 @@ export const UpdateNoteInputSchema = z.object({
 });
 
 export type UpdateNoteInput = z.infer<typeof UpdateNoteInputSchema>;
+
+export const ListNotesQuerySchema = z.object({
+  q: z.string().optional(),
+  tags: z.string().transform((s) => s.split(",")).optional(),
+  collectionId: z.coerce.number().optional(),
+});
+
+export const AddTagInputSchema = z.object({
+  tag: z.string().min(1),
+});
+
+export const IdParamSchema = z.object({
+  id: z.coerce.number(),
+});
+
+export const CreateCollectionInputSchema = z.object({
+  name: z.string().min(1),
+});
+
+export const ListTagsQuerySchema = z.object({
+  collectionId: z.coerce.number().optional(),
+});
 
 export const CollectionSchema = z.object({
   id: z.number(),
