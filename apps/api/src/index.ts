@@ -6,6 +6,7 @@ import { notesRouter } from "./routes/notes";
 import { tagsRouter } from "./routes/tags";
 import { collectionsRouter } from "./routes/collections";
 import { settingsRouter } from "./routes/settings";
+import { claudeAuthRouter } from "./routes/claude-auth";
 import { errorHandler } from "./middleware/errorHandler";
 import { basicAuth } from "./middleware/basicAuth";
 
@@ -26,6 +27,7 @@ async function main() {
   app.use("/api/tags", tagsRouter);
   app.use("/api/collections", collectionsRouter);
   app.use("/api/settings", settingsRouter);
+  app.use("/api/claude/auth", claudeAuthRouter);
   app.use(errorHandler);
 
   // Serve built frontend static files

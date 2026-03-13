@@ -20,6 +20,11 @@ export interface CreateNoteParams {
   pinned?: boolean;
 }
 
+export interface ClaudeAuthStatus {
+  authenticated: boolean;
+  output: string;
+}
+
 export class WebClient {
   private http: AxiosInstance;
 
@@ -107,6 +112,23 @@ export class WebClient {
 
   async removeTag(noteId: string, tag: string): Promise<Note> {
     const { data } = await this.http.delete<Note>(`/api/notes/${noteId}/tags/${encodeURIComponent(tag)}`);
+    return data;
+  }
+
+  // Claude Auth
+
+  async fetchClaudeAuthStatus(): Promise<ClaudeAuthStatus> {
+    const { data } = await this.http.get<ClaudeAuthStatus>("/api/claude/auth/status");
+    return data;
+  }
+
+  async startClaudeLogin(): Promise<{ url: string }> {
+    const { data } = await this.http.post<{ url: string }>("/api/claude/auth/login");
+    return data;
+  }
+
+  async submitClaudeAuthCode(code: string): Promise<{ success: boolean; output: string }> {
+    const { data } = await this.http.post<{ success: boolean; output: string }>("/api/claude/auth/callback", { code });
     return data;
   }
 

@@ -9,8 +9,9 @@ export interface Command {
   action: () => void;
 }
 
-export function useCommands(onClose: () => void, onOpenCollectionPicker: () => void, onOpenImport: () => void, onOpenReset: () => void): Command[] {
+export function useCommands(onClose: () => void, onOpenCollectionPicker: () => void, onOpenImport: () => void, onOpenReset: () => void, onOpenClaudeAuth: () => void, onOpenClaudePrompt: () => void): Command[] {
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
+  const claudeAuthenticated = useNoteStore((s) => s.claudeAuthenticated);
   return useMemo(() => {
     const run = (fn: () => void) => () => {
       onClose();
@@ -99,6 +100,25 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
           onOpenReset();
         },
       },
+      {
+        id: "claude-auth",
+        label: "Authenticate Claude Code",
+        disabled: claudeAuthenticated,
+        action: () => {
+          onClose();
+          onOpenClaudeAuth();
+        },
+      },
+      {
+        id: "claude-prompt",
+        label: "Ask Claude",
+        shortcut: "⌘⇧Z",
+        disabled: !claudeAuthenticated,
+        action: () => {
+          onClose();
+          onOpenClaudePrompt();
+        },
+      },
     ];
-  }, [onClose, onOpenCollectionPicker, onOpenImport, onOpenReset, selectedNoteId]);
+  }, [onClose, onOpenCollectionPicker, onOpenImport, onOpenReset, onOpenClaudeAuth, onOpenClaudePrompt, selectedNoteId, claudeAuthenticated]);
 }

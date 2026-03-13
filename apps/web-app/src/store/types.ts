@@ -13,6 +13,7 @@ export interface NoteStore {
   selectedNoteId: string | null;
   searchQuery: string;
   selectedTags: string[];
+  claudeAuthenticated: boolean;
   editOnCreate: boolean;
   saving: boolean;
   archiving: boolean;
@@ -31,6 +32,7 @@ export interface NoteStore {
   setSelectedNoteId: (id: string | null) => void;
   setActiveCollectionId: (id: number) => void;
   toggleTag: (tag: string) => void;
+  fetchClaudeAuthStatus: () => Promise<void>;
   fetchNotes: () => Promise<void>;
   fetchTags: () => Promise<void>;
   fetchCollections: () => Promise<void>;

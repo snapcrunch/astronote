@@ -17,6 +17,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   selectedTags: [],
   settings: { default_view: "renderer" as DefaultView, show_info_panel: true, theme: "default" as const, auth_method: "none" as const, auth_username: "", auth_password: "" },
   settingsLoaded: false,
+  claudeAuthenticated: false,
   editOnCreate: false,
   importing: false,
   saving: false,

@@ -30,8 +30,18 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       get().fetchTags();
       get().fetchCollections();
       get().fetchSettings();
+      get().fetchClaudeAuthStatus();
       window.addEventListener("popstate", restoreFromUrl);
       return () => window.removeEventListener("popstate", restoreFromUrl);
+    },
+
+    fetchClaudeAuthStatus: async () => {
+      try {
+        const status = await client.fetchClaudeAuthStatus();
+        set({ claudeAuthenticated: status.authenticated });
+      } catch {
+        set({ claudeAuthenticated: false });
+      }
     },
 
     fetchSettings: async () => {
