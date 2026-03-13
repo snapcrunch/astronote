@@ -29,7 +29,7 @@ export const infoPanelHeaderTitle: SxProps<Theme> = { fontWeight: 600 };
 
 export const infoPanelContent: SxProps<Theme> = { px: 2, py: 1.5, overflow: "auto" };
 
-export const infoPanelContentInner: SxProps<Theme> = { px: 2, py: 1.5 };
+export const infoPanelContentInner: SxProps<Theme> = { px: 2 };
 
 // TagManager
 export const tagInputWrapper: SxProps<Theme> = {
@@ -74,13 +74,17 @@ export const infoPanelInlineContent: SxProps<Theme> = { flex: 1, px: 2, py: 1.5,
 // SectionHeading
 export const sectionHeading = (first: boolean): SxProps<Theme> => ({
   fontWeight: 600,
+  textTransform: "uppercase",
+  lineHeight: "40px",
+  height: 40,
   display: "block",
   mb: 1,
   mx: -2,
   px: 2,
   borderBottom: 1,
   borderColor: "divider",
+  bgcolor: "grey.200",
   ...(first
-    ? { pb: 0.5 }
-    : { mt: 2, pt: 0.5, pb: 0.5, borderTop: 1, borderTopColor: "divider" }),
+    ? {}
+    : { mt: 2, borderTop: 1, borderTopColor: "divider" }),
 });
