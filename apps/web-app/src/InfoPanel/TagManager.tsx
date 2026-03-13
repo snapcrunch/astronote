@@ -1,12 +1,16 @@
 import { useState } from "react";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 import TextField from "@mui/material/TextField";
 import type { SxProps, Theme } from "@mui/material/styles";
 import SectionHeading from "./SectionHeading";
-import Tag from "../components/Tag";
 import { useNoteStore, useSelectedNote } from "../store";
-import { tagInput, tagInputWrapper, tagList } from "./styles";
+import { tagInput, tagInputWrapper } from "./styles";
 
 function TagManager() {
   const note = useSelectedNote();
@@ -78,15 +82,31 @@ function TagManager() {
         />
       </Box>
       {tags.length > 0 && (
-        <Box sx={tagList}>
-          {tags.map((tag) => (
-            <Tag
+        <List dense disablePadding sx={{ mx: -2, mt: -1, mb: -2 }}>
+          {tags.map((tag, index) => (
+            <ListItem
               key={tag}
-              label={tag}
-              onRemoved={() => removeTag(noteId, tag)}
-            />
+              disablePadding
+              secondaryAction={
+                <IconButton edge="end" size="small" onClick={() => removeTag(noteId, tag)}>
+                  <CloseIcon sx={{ fontSize: 14 }} />
+                </IconButton>
+              }
+              sx={{
+                py: 0.25,
+                px: 2,
+                borderBottom: index < tags.length - 1 ? 1 : 0,
+                borderColor: "divider",
+                bgcolor: index % 2 === 0 ? "background.paper" : "grey.50",
+              }}
+            >
+              <ListItemText
+                primary={tag}
+                primaryTypographyProps={{ variant: "body2", noWrap: true }}
+              />
+            </ListItem>
           ))}
-        </Box>
+        </List>
       )}
     </>
   );
