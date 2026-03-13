@@ -146,7 +146,7 @@ function NoteEditor() {
           {editing ? (
             <MarkdownEditor
               value={note.content}
-              onChange={(content) => debouncedUpdateNote(note.id, { content })}
+              onChange={(content) => { if (content !== note.content) debouncedUpdateNote(note.id, { content }); }}
               onEscape={flushAndExitEdit}
               autoFocus
             />

@@ -1,60 +1,9 @@
 import { useState, useRef, useCallback } from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import LinearProgress from "@mui/material/LinearProgress";
-import Paper from "@mui/material/Paper";
 import JSZip from "jszip";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import { useNoteStore } from "../store";
+import { useNoteStore } from "../../store";
+import { isMarkdownFile, titleFromFilename, parseFrontmatter } from "./util";
 
-function isMarkdownFile(name: string): boolean {
-  return /\.(md|markdown|mdown|mkd|mkdn|mdwn|mdtxt|mdtext|txt)$/i.test(name);
-}
-
-function titleFromFilename(name: string): string {
-  const basename = name.includes("/") ? name.split("/").pop()! : name;
-  return basename.replace(/\.[^.]+$/, "");
-}
-
-interface Frontmatter {
-  title?: string;
-  tags?: string[];
-  collection?: string;
-  pinned?: boolean;
-}
-
-function parseFrontmatter(content: string): { frontmatter: Frontmatter; body: string } {
-  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
-  if (!match) return { frontmatter: {}, body: content };
-
-  const raw = match[1]!;
-  const body = match[2]!;
-  const frontmatter: Frontmatter = {};
-
-  for (const line of raw.split(/\r?\n/)) {
-    const sep = line.indexOf(":");
-    if (sep === -1) continue;
-    const key = line.slice(0, sep).trim().toLowerCase();
-    const value = line.slice(sep + 1).trim();
-    if (key === "title" && value) {
-      frontmatter.title = value;
-    } else if (key === "tags" && value) {
-      frontmatter.tags = value.split(",").map((t) => t.trim()).filter(Boolean);
-    } else if (key === "collection" && value) {
-      frontmatter.collection = value;
-    } else if (key === "pinned") {
-      frontmatter.pinned = value.toLowerCase() === "true";
-    }
-  }
-
-  return { frontmatter, body };
-}
-
-function ImportSection() {
+export function useImport() {
   const importNote = useNoteStore((s) => s.importNote);
   const fetchNotes = useNoteStore((s) => s.fetchNotes);
   const fetchTags = useNoteStore((s) => s.fetchTags);
@@ -170,65 +119,5 @@ function ImportSection() {
     [processFiles],
   );
 
-  return (
-    <>
-      <Paper variant="outlined" sx={{ p: 2, mt: 3, bgcolor: "#fff" }}>
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>
-          Import Notes
-        </Typography>
-        <Box
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragOver(true);
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-          sx={{
-            border: 2,
-            borderStyle: "dashed",
-            borderColor: dragOver ? "primary.main" : "divider",
-            borderRadius: 2,
-            p: 3,
-            textAlign: "center",
-            cursor: "pointer",
-            bgcolor: dragOver ? "action.hover" : "transparent",
-            transition: "all 0.15s",
-          }}
-        >
-          <UploadFileIcon sx={{ fontSize: 32, color: "text.secondary", mb: 1 }} />
-          <Typography variant="body2" color="text.secondary">
-            Drag and drop markdown files or a .zip file here, or click to browse.
-          </Typography>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".md,.markdown,.mdown,.mkd,.mkdn,.mdwn,.mdtxt,.mdtext,.txt,.zip"
-            multiple
-            onChange={handleFileInput}
-            hidden
-          />
-        </Box>
-        {status && (
-          <Typography variant="body2" sx={{ mt: 1 }} color="text.secondary">
-            {status}
-          </Typography>
-        )}
-      </Paper>
-      <Dialog open={progress !== null}>
-        <DialogTitle>Importing Notes</DialogTitle>
-        <DialogContent sx={{ minWidth: 400 }}>
-          <DialogContentText sx={{ mb: 2 }}>
-            {progress && `Importing note ${progress.current} of ${progress.total}...`}
-          </DialogContentText>
-          <LinearProgress
-            variant="determinate"
-            value={progress ? (progress.current / progress.total) * 100 : 0}
-          />
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+  return { dragOver, setDragOver, status, progress, fileInputRef, handleDrop, handleFileInput };
 }
-
-export default ImportSection;

@@ -2,7 +2,6 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import InputAdornment from "@mui/material/InputAdornment";
-import SearchIcon from "@mui/icons-material/Search";
 import { omnibarRef, omnibarKeyDownHandler } from "./refs";
 import { useSearch } from "./hooks";
 
@@ -23,7 +22,7 @@ function Omnibar() {
           input: {
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
+                <img src="/favicon.svg" alt="" width={20} height={20} style={{ cursor: "pointer", opacity: 0.75, transition: "opacity 0.15s" }} onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; }} onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.75"; }} onClick={() => { document.dispatchEvent(new KeyboardEvent("keydown", { key: "p", metaKey: true, shiftKey: true, bubbles: true })); }} />
               </InputAdornment>
             ),
             endAdornment: (
