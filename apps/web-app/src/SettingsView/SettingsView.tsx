@@ -88,31 +88,72 @@ function SettingsView() {
         <CollectionsSection />
         <Paper variant="outlined" sx={{ p: 2, mt: 3, bgcolor: "#fff" }}>
           <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            Default Note View
+            Preferences
           </Typography>
-          <Select
-            variant="standard"
-            value={draft.default_view}
-            onChange={(e) => setDraft({ ...draft, default_view: e.target.value as DefaultView })}
-            size="small"
-            sx={{ minWidth: 200 }}
+          <Box
+            component="table"
+            sx={{
+              width: "100%",
+              borderCollapse: "collapse",
+              "& th, & td": {
+                textAlign: "left",
+                py: 0.75,
+                px: 1,
+                borderBottom: 1,
+                borderColor: "divider",
+              },
+              "& th": {
+                fontWeight: 600,
+                fontSize: "0.75rem",
+                color: "text.secondary",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              },
+            }}
           >
-            <MenuItem value="renderer">Renderer</MenuItem>
-            <MenuItem value="editor">Editor</MenuItem>
-          </Select>
-          <Typography variant="subtitle2" sx={{ mt: 3, mb: 1 }}>
-            Show Note Metadata By Default
-          </Typography>
-          <Select
-            variant="standard"
-            value={draft.show_info_panel ? "yes" : "no"}
-            onChange={(e) => setDraft({ ...draft, show_info_panel: e.target.value === "yes" })}
-            size="small"
-            sx={{ minWidth: 200 }}
-          >
-            <MenuItem value="yes">Open</MenuItem>
-            <MenuItem value="no">Closed</MenuItem>
-          </Select>
+            <thead>
+              <tr>
+                <th>Setting</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <Typography variant="body2">Default Note View</Typography>
+                </td>
+                <td>
+                  <Select
+                    variant="standard"
+                    value={draft.default_view}
+                    onChange={(e) => setDraft({ ...draft, default_view: e.target.value as DefaultView })}
+                    size="small"
+                    sx={{ minWidth: 200 }}
+                  >
+                    <MenuItem value="renderer">Renderer</MenuItem>
+                    <MenuItem value="editor">Editor</MenuItem>
+                  </Select>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <Typography variant="body2">Show Note Metadata By Default</Typography>
+                </td>
+                <td>
+                  <Select
+                    variant="standard"
+                    value={draft.show_info_panel ? "yes" : "no"}
+                    onChange={(e) => setDraft({ ...draft, show_info_panel: e.target.value === "yes" })}
+                    size="small"
+                    sx={{ minWidth: 200 }}
+                  >
+                    <MenuItem value="yes">Open</MenuItem>
+                    <MenuItem value="no">Closed</MenuItem>
+                  </Select>
+                </td>
+              </tr>
+            </tbody>
+          </Box>
         </Paper>
         <ImportSection />
         <ResetSection onReset={resetAll} />
