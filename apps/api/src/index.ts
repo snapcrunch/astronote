@@ -29,7 +29,7 @@ async function main() {
   app.use("/api/collections", collectionsRouter);
   app.use("/api/settings", settingsRouter);
   app.use("/api/claude/auth", claudeAuthRouter);
-  app.use("/api/claude/prompt", claudePromptRouter);
+  app.use("/api/claude/prompt", claudePromptRouter(DB_PATH));
   app.use(errorHandler);
 
   // Serve built frontend static files

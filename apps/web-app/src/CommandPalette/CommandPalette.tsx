@@ -127,7 +127,14 @@ export default function CommandPalette() {
     client.streamClaudePrompt(
       prompt,
       (text) => setClaudeResponseText((prev) => prev + text),
-      () => setClaudeResponseStatus("done"),
+      () => {
+        setClaudeResponseStatus("done");
+        const s = useNoteStore.getState();
+        s.fetchNotes();
+        s.fetchTags();
+        s.fetchCollections();
+        s.fetchSettings();
+      },
       (message) => {
         setClaudeResponseStatus("error");
         setClaudeResponseError(message);
