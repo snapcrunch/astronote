@@ -21,29 +21,33 @@ function TableOfContents() {
   };
 
   return (
-    <>
-      <SectionHeading first>Table of Contents</SectionHeading>
-      {headings.length === 0 ? (
-        <Typography variant="caption" color="text.secondary">
-          No headings found.
-        </Typography>
-      ) : (
-        <Box sx={tocList}>
-          {headings.map((h, i) => (
-            <Link
-              key={i}
-              component="button"
-              variant="caption"
-              underline="hover"
-              onClick={() => handleClick(h.text)}
-              sx={tocLink(h.level - minLevel)}
-            >
-              {h.text}
-            </Link>
-          ))}
-        </Box>
-      )}
-    </>
+    <SectionHeading
+      first
+      content={
+        headings.length === 0 ? (
+          <Typography variant="caption" color="text.secondary">
+            No headings found.
+          </Typography>
+        ) : (
+          <Box sx={tocList}>
+            {headings.map((h, i) => (
+              <Link
+                key={i}
+                component="button"
+                variant="caption"
+                underline="hover"
+                onClick={() => handleClick(h.text)}
+                sx={tocLink(h.level - minLevel)}
+              >
+                {h.text}
+              </Link>
+            ))}
+          </Box>
+        )
+      }
+    >
+      Table of Contents
+    </SectionHeading>
   );
 }
 

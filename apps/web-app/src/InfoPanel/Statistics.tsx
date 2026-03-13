@@ -11,13 +11,18 @@ function Statistics() {
   if (!stats) return null;
 
   return (
-    <>
-      <SectionHeading>Statistics</SectionHeading>
-      <StatRow label="Words" value={stats.words} />
-      <StatRow label="Characters" value={stats.characters} />
-      <StatRow label="Sentences" value={stats.sentences} />
-      <StatRow label="Paragraphs" value={stats.paragraphs} />
-    </>
+    <SectionHeading
+      content={
+        <>
+          <StatRow label="Words" value={stats.words} />
+          <StatRow label="Characters" value={stats.characters} />
+          <StatRow label="Sentences" value={stats.sentences} />
+          <StatRow label="Paragraphs" value={stats.paragraphs} />
+        </>
+      }
+    >
+      Statistics
+    </SectionHeading>
   );
 }
 

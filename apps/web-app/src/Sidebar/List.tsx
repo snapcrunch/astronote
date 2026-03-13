@@ -34,25 +34,33 @@ function formatDate(dateStr: string) {
   return moment(dateStr).fromNow();
 }
 
-function useIsScrollable(ref: React.RefObject<HTMLElement | null>) {
+function useIsScrollable(contentRef: React.RefObject<HTMLElement | null>, viewportRef: React.RefObject<HTMLElement | null>) {
   const [scrollable, setScrollable] = useState(false);
   const check = useCallback(() => {
-    const el = ref.current;
-    setScrollable(el ? el.scrollHeight > el.clientHeight : false);
-  }, [ref]);
+    const content = contentRef.current;
+    const viewport = viewportRef.current;
+    if (content && viewport) {
+      setScrollable(content.scrollHeight > viewport.clientHeight);
+    } else if (content) {
+      setScrollable(content.scrollHeight > content.clientHeight);
+    }
+  }, [contentRef, viewportRef]);
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const content = contentRef.current;
+    const viewport = viewportRef.current;
+    if (!content) return;
     check();
     const ro = new ResizeObserver(check);
-    ro.observe(el);
+    ro.observe(content);
+    if (viewport) ro.observe(viewport);
     return () => ro.disconnect();
-  }, [ref, check]);
+  }, [contentRef, viewportRef, check]);
   return scrollable;
 }
 
 function NoteList({ notes, selectedNoteId, listRef, onSelectNote, onDeleteNote, onItemKeyDown, onRenameNote }: NoteListProps) {
-  const isScrollable = useIsScrollable(listRef);
+  const scrollViewportRef = useRef<HTMLDivElement>(null);
+  const isScrollable = useIsScrollable(listRef, scrollViewportRef);
   const searchQuery = useNoteStore((s) => s.searchQuery);
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; noteId: string } | null>(null);
   const [tagsMenuOpen, setTagsMenuOpen] = useState(false);
@@ -121,7 +129,8 @@ function NoteList({ notes, selectedNoteId, listRef, onSelectNote, onDeleteNote, 
 
   return (
     <>
-      <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" } }}>
+      <div ref={scrollViewportRef} style={{ flex: 1, overflow: "hidden" }}>
+      <OverlayScrollbarsComponent style={{ height: "100%" }} options={{ scrollbars: { autoHide: "move" } }}>
       <MuiList ref={listRef} sx={{ pt: 0 }} disablePadding>
         {notes.map((note, index) => (
           <ListItemButton
@@ -207,6 +216,7 @@ function NoteList({ notes, selectedNoteId, listRef, onSelectNote, onDeleteNote, 
         )}
       </MuiList>
       </OverlayScrollbarsComponent>
+      </div>
       <Menu
         open={contextMenu !== null}
         onClose={handleClose}

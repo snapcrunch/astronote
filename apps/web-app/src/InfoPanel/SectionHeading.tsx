@@ -1,16 +1,36 @@
+import { useState } from "react";
+import Box from "@mui/material/Box";
+import Collapse from "@mui/material/Collapse";
 import Typography from "@mui/material/Typography";
 import { sectionHeading } from "./styles";
 
 interface SectionHeadingProps {
   children: React.ReactNode;
+  content?: React.ReactNode;
   first?: boolean;
+  defaultOpen?: boolean;
 }
 
-function SectionHeading({ children, first = false }: SectionHeadingProps) {
+function SectionHeading({ children, content, first = false, defaultOpen = true }: SectionHeadingProps) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  if (content === undefined) {
+    return (
+      <Typography variant="caption" sx={sectionHeading(first, open)} onClick={() => setOpen((o) => !o)} style={{ cursor: "pointer" }}>
+        {children}
+      </Typography>
+    );
+  }
+
   return (
-    <Typography variant="caption" sx={sectionHeading(first)}>
-      {children}
-    </Typography>
+    <Box>
+      <Typography variant="caption" sx={sectionHeading(first, open)} onClick={() => setOpen((o) => !o)} style={{ cursor: "pointer" }}>
+        {children}
+      </Typography>
+      <Collapse in={open}>
+        {content}
+      </Collapse>
+    </Box>
   );
 }
 

@@ -72,13 +72,13 @@ export const tocLink = (indent: number): SxProps<Theme> => ({
 export const infoPanelInlineContent: SxProps<Theme> = { flex: 1, px: 2, py: 1.5, overflow: "auto" };
 
 // SectionHeading
-export const sectionHeading = (first: boolean): SxProps<Theme> => ({
+export const sectionHeading = (first: boolean, open = true): SxProps<Theme> => ({
   fontWeight: 600,
   textTransform: "uppercase",
   lineHeight: "40px",
   height: 40,
   display: "block",
-  mb: 1,
+  mb: open ? 1 : 0,
   mx: -2,
   px: 2,
   borderBottom: 1,
@@ -86,5 +86,5 @@ export const sectionHeading = (first: boolean): SxProps<Theme> => ({
   bgcolor: "grey.200",
   ...(first
     ? {}
-    : { mt: 2, borderTop: 1, borderTopColor: "divider" }),
+    : { borderTop: 1, borderTopColor: "divider" }),
 });

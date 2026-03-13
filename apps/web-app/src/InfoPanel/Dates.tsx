@@ -9,11 +9,16 @@ function Dates() {
   if (!note) return null;
 
   return (
-    <>
-      <SectionHeading>Dates</SectionHeading>
-      <StatRow label="Created" value={formatDateTime(note.createdAt)} />
-      <StatRow label="Modified" value={formatDateTime(note.updatedAt)} />
-    </>
+    <SectionHeading
+      content={
+        <>
+          <StatRow label="Created" value={formatDateTime(note.createdAt)} />
+          <StatRow label="Modified" value={formatDateTime(note.updatedAt)} />
+        </>
+      }
+    >
+      Dates
+    </SectionHeading>
   );
 }
 
