@@ -5,6 +5,7 @@ import Dates from "./Dates";
 import Statistics from "./Statistics";
 import TableOfContents from "./TableOfContents";
 import TagManager from "./TagManager";
+import RelatedNotes from "./RelatedNotes";
 import { infoPanelRoot, infoPanelHeader, infoPanelHeaderTitle, infoPanelContent, infoPanelInlineContent } from "./styles";
 
 interface InfoPanelProps {
@@ -30,6 +31,7 @@ function InfoPanel({ variant = "side" }: InfoPanelProps) {
           <TagManager />
           <Statistics />
           <Dates />
+          <RelatedNotes />
         </Box>
       </Box>
     );

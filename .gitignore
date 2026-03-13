@@ -1,6 +1,7 @@
 .DS_Store
+.yarn/install-state.gz
 node_modules/
 .emdash/
 .turbo/
 .playwright-cli/
-dist
+dist/
