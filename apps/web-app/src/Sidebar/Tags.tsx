@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Collapse from "@mui/material/Collapse";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
-import Tag from "../components/Tag";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useNoteStore } from "../store";
 import { useIsMobile } from "../hooks";
@@ -22,13 +24,11 @@ function Tags() {
       sx={{
         borderTop: 1,
         borderColor: "divider",
-        px: 1.5,
-        pt: 1,
       }}
     >
       <Box
         onClick={() => setOpen((prev) => !prev)}
-        sx={{ display: "flex", alignItems: "center", borderBottom: 1, borderColor: open ? "divider" : "transparent", pb: 0.5, mb: 0.5, mx: -1.5, px: 1.5, cursor: "pointer", minHeight: 32 }}
+        sx={{ display: "flex", alignItems: "center", borderBottom: 1, borderColor: open ? "divider" : "transparent", pb: 0.5, pt: 1, px: 1.5, cursor: "pointer", minHeight: 32 }}
       >
         <Typography variant="caption" sx={{ fontWeight: 600 }}>
           Tags
@@ -36,11 +36,42 @@ function Tags() {
       </Box>
       <Collapse in={open}>
         <OverlayScrollbarsComponent style={{ maxHeight: 400 }} options={{ scrollbars: { autoHide: "move" }, overflow: { x: "hidden" } }}>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, pt: 0.5, pb: 1, mx: -1.5, px: 1.5 }}>
-            {sortedTags.map(({ tag, count }) => (
-              <Tag key={tag} label={tag} count={count} selected={selectedTags.includes(tag)} onClick={() => toggleTag(tag)} />
-            ))}
-          </Box>
+          <List dense disablePadding>
+            {sortedTags.map(({ tag, count }, index) => {
+              const selected = selectedTags.includes(tag);
+              return (
+                <ListItemButton
+                  key={tag}
+                  selected={selected}
+                  onClick={() => toggleTag(tag)}
+                  disableRipple
+                  sx={{
+                    py: 0.25,
+                    px: 1.5,
+                    borderBottom: 1,
+                    borderColor: "divider",
+                    bgcolor: index % 2 === 0 ? "background.paper" : "grey.50",
+                    "&.Mui-selected": {
+                      bgcolor: "primary.main",
+                      color: "primary.contrastText",
+                      "&:hover": { bgcolor: "primary.dark" },
+                    },
+                  }}
+                >
+                  <ListItemText
+                    primary={tag}
+                    primaryTypographyProps={{ variant: "body2", noWrap: true }}
+                  />
+                  <Typography
+                    variant="caption"
+                    sx={{ color: selected ? "primary.contrastText" : "text.secondary", opacity: selected ? 0.7 : 1 }}
+                  >
+                    {count}
+                  </Typography>
+                </ListItemButton>
+              );
+            })}
+          </List>
         </OverlayScrollbarsComponent>
       </Collapse>
     </Box>
