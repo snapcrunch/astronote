@@ -1,10 +1,8 @@
-import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNoteStore } from "../store";
@@ -18,23 +16,6 @@ function SettingsView() {
   const settings = useNoteStore((s) => s.settings);
   const settingsLoaded = useNoteStore((s) => s.settingsLoaded);
   const updateSettings = useNoteStore((s) => s.updateSettings);
-
-  const [draft, setDraft] = useState(settings);
-  const dirty = draft.default_view !== settings.default_view
-    || draft.show_info_panel !== settings.show_info_panel
-    || draft.theme !== settings.theme;
-
-  useEffect(() => {
-    setDraft(settings);
-  }, [settings]);
-
-  const handleSave = async () => {
-    await updateSettings({
-      default_view: draft.default_view,
-      show_info_panel: draft.show_info_panel,
-      theme: draft.theme,
-    });
-  };
 
   if (!settingsLoaded) return null;
 
@@ -70,21 +51,9 @@ function SettingsView() {
         <Typography variant="body1" sx={{ fontWeight: 600 }}>
           Settings
         </Typography>
-        <Box sx={{ flex: 1 }} />
-        <Button
-          variant="contained"
-          size="small"
-          disabled={!dirty}
-          onClick={handleSave}
-        >
-          Save
-        </Button>
       </Box>
-      <Box sx={{ flex: 1, px: 3, py: 3, overflow: "auto", bgcolor: "#ECECED" }}>
-        <Paper variant="outlined" sx={{ p: 2, mt: 3, bgcolor: "#fff" }}>
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            Preferences
-          </Typography>
+      <Box sx={{ flex: 1, overflow: "auto", bgcolor: "#ECECED" }}>
+        <Paper sx={{ pt: 0, px: 2, pb: 0, borderRadius: 0, bgcolor: "#fff", boxShadow: "none", borderBottom: 1, borderColor: "divider" }}>
           <Box
             component="table"
             sx={{
@@ -97,6 +66,12 @@ function SettingsView() {
                 borderBottom: 1,
                 borderColor: "divider",
               },
+              "& td:last-child": {
+                textAlign: "right",
+              },
+              "& tr:last-child td": {
+                borderBottom: 0,
+              },
               "& th": {
                 fontWeight: 600,
                 fontSize: "0.75rem",
@@ -106,12 +81,6 @@ function SettingsView() {
               },
             }}
           >
-            <thead>
-              <tr>
-                <th>Setting</th>
-                <th>Value</th>
-              </tr>
-            </thead>
             <tbody>
               <tr>
                 <td>
@@ -120,10 +89,10 @@ function SettingsView() {
                 <td>
                   <Select
                     variant="standard"
-                    value={draft.default_view}
-                    onChange={(e) => setDraft({ ...draft, default_view: e.target.value as DefaultView })}
+                    value={settings.default_view}
+                    onChange={(e) => updateSettings({ default_view: e.target.value as DefaultView })}
                     size="small"
-                    sx={{ minWidth: 200 }}
+                    sx={{ minWidth: 200, fontSize: "0.875rem" }}
                   >
                     <MenuItem value="renderer">Renderer</MenuItem>
                     <MenuItem value="editor">Editor</MenuItem>
@@ -137,13 +106,13 @@ function SettingsView() {
                 <td>
                   <Select
                     variant="standard"
-                    value={draft.show_info_panel ? "yes" : "no"}
-                    onChange={(e) => setDraft({ ...draft, show_info_panel: e.target.value === "yes" })}
+                    value={settings.show_info_panel ? "yes" : "no"}
+                    onChange={(e) => updateSettings({ show_info_panel: e.target.value === "yes" })}
                     size="small"
-                    sx={{ minWidth: 200 }}
+                    sx={{ minWidth: 200, fontSize: "0.875rem" }}
                   >
-                    <MenuItem value="yes">Open</MenuItem>
-                    <MenuItem value="no">Closed</MenuItem>
+                    <MenuItem value="yes">Yes</MenuItem>
+                    <MenuItem value="no">No</MenuItem>
                   </Select>
                 </td>
               </tr>

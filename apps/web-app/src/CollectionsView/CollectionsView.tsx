@@ -43,7 +43,7 @@ function CollectionsView() {
           Collections
         </Typography>
       </Box>
-      <Box sx={{ flex: 1, px: 3, py: 3, overflow: "auto", bgcolor: "#ECECED" }}>
+      <Box sx={{ flex: 1, overflow: "auto", bgcolor: "#ECECED" }}>
         <CollectionsSection />
       </Box>
     </Box>

@@ -13,10 +13,7 @@ function CollectionsSection() {
   const setDefaultCollection = useNoteStore((s) => s.setDefaultCollection);
 
   return (
-    <Paper variant="outlined" sx={{ p: 2, bgcolor: "#fff" }}>
-      <Typography variant="subtitle2" sx={{ mb: 1 }}>
-        Collections
-      </Typography>
+    <Paper sx={{ pt: 0, px: 2, pb: 0, borderRadius: 0, bgcolor: "#fff", boxShadow: "none", borderBottom: 1, borderColor: "divider" }}>
       <Box
         component="table"
         sx={{
@@ -29,12 +26,16 @@ function CollectionsSection() {
             borderBottom: 1,
             borderColor: "divider",
           },
+          "& tbody tr:last-child td": {
+            borderBottom: 0,
+          },
           "& th": {
             fontWeight: 600,
             fontSize: "0.75rem",
             color: "text.secondary",
             textTransform: "uppercase",
             letterSpacing: "0.05em",
+            py: 1.5,
           },
         }}
       >
