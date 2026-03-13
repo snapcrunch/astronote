@@ -12,8 +12,8 @@ export function parseTags(text: string): string[] {
   return [...unique];
 }
 
-export async function listTags(): Promise<{ tag: string; count: number }[]> {
-  return repository.getTags();
+export async function listTags(collectionId?: number): Promise<{ tag: string; count: number }[]> {
+  return repository.getTags(collectionId);
 }
 
 export async function listNotes(query?: string, tags?: string[], collectionId?: number): Promise<Note[]> {

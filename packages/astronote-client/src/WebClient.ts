@@ -46,8 +46,10 @@ export class WebClient {
 
   // Tags
 
-  async fetchTags(): Promise<Tag[]> {
-    const { data } = await this.http.get<Tag[]>("/api/tags");
+  async fetchTags(collectionId?: number): Promise<Tag[]> {
+    const { data } = await this.http.get<Tag[]>("/api/tags", {
+      params: collectionId != null ? { collectionId } : {},
+    });
     return data;
   }
 

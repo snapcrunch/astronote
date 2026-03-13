@@ -172,8 +172,20 @@ export async function decrementTags(tags: string[]): Promise<void> {
   await db("tags").where("count", "<=", 0).delete();
 }
 
-export async function getTags(): Promise<{ tag: string; count: number }[]> {
-  return db("tags").orderBy("count", "desc").orderBy("tag", "asc").select("tag", "count");
+export async function getTags(collectionId?: number): Promise<{ tag: string; count: number }[]> {
+  if (collectionId == null) {
+    return db("tags").orderBy("count", "desc").orderBy("tag", "asc").select("tag", "count");
+  }
+  const rows = await db("note_tags")
+    .join("notes", "note_tags.noteId", "notes.id")
+    .where("notes.archived", 0)
+    .andWhere("notes.collectionId", collectionId)
+    .select("note_tags.tag as tag")
+    .count("* as count")
+    .groupBy("note_tags.tag")
+    .orderBy("count", "desc")
+    .orderBy("tag", "asc");
+  return rows.map((r) => ({ tag: String(r.tag), count: Number(r.count) }));
 }
 
 export async function getNoteCount(): Promise<number> {

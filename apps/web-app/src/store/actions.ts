@@ -91,6 +91,7 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       set({ activeCollectionId: id, selectedNoteId: null });
       syncUrl({ view: "notes", selectedNoteId: null, showInfoPanel: get().showInfoPanel, settingDefault: sd() });
       get().fetchNotes();
+      get().fetchTags();
     },
 
     toggleTag: (tag: string) => {
@@ -103,7 +104,7 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
     },
 
     fetchTags: async () => {
-      const tags: Tag[] = await client.fetchTags();
+      const tags: Tag[] = await client.fetchTags(get().activeCollectionId ?? undefined);
       set({ tags });
     },
 
