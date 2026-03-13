@@ -28,9 +28,9 @@ function Tags() {
     >
       <Box
         onClick={() => setOpen((prev) => !prev)}
-        sx={{ display: "flex", alignItems: "center", borderBottom: 1, borderColor: open ? "divider" : "transparent", pb: 0.5, pt: 1, px: 1.5, cursor: "pointer", minHeight: 32 }}
+        sx={{ display: "flex", alignItems: "center", borderBottom: 1, borderColor: open ? "divider" : "transparent", px: 1.5, cursor: "pointer", height: 40, bgcolor: "grey.200" }}
       >
-        <Typography variant="caption" sx={{ fontWeight: 600 }}>
+        <Typography variant="caption" sx={{ fontWeight: 600, textTransform: "uppercase" }}>
           Tags
         </Typography>
       </Box>

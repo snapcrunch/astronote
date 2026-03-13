@@ -91,7 +91,7 @@ export class WebClient {
     return data;
   }
 
-  async updateNote(id: string, updates: Partial<Pick<Note, "title" | "content" | "pinned">>): Promise<Note> {
+  async updateNote(id: string, updates: Partial<Pick<Note, "title" | "content" | "pinned">> & { collectionId?: number }): Promise<Note> {
     const { data } = await this.http.patch<Note>(`/api/notes/${id}`, updates);
     return data;
   }

@@ -164,15 +164,20 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       await client.createNote({ title, content, tags: opts?.tags, collectionId, pinned: opts?.pinned });
     },
 
-    updateNote: async (id: string, updates: Partial<Pick<Note, "title" | "content" | "pinned">>) => {
+    updateNote: async (id: string, updates: Partial<Pick<Note, "title" | "content" | "pinned">> & { collectionId?: number }) => {
       set({ saving: true });
       try {
         const updated = await client.updateNote(id, updates);
-        set((state) => ({
-          notes: state.notes.map((n) => (n.id === id ? updated : n)),
-        }));
-        if (updates.pinned !== undefined) {
+        if (updates.collectionId !== undefined) {
           await get().fetchNotes();
+          await get().fetchCollections();
+        } else {
+          set((state) => ({
+            notes: state.notes.map((n) => (n.id === id ? updated : n)),
+          }));
+          if (updates.pinned !== undefined) {
+            await get().fetchNotes();
+          }
         }
         get().fetchTags();
       } finally {

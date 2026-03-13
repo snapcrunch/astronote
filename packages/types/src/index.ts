@@ -24,6 +24,7 @@ export const UpdateNoteInputSchema = z.object({
   title: z.string().min(1).optional(),
   content: z.string().optional(),
   pinned: z.boolean().optional(),
+  collectionId: z.number().optional(),
 });
 
 export type UpdateNoteInput = z.infer<typeof UpdateNoteInputSchema>;

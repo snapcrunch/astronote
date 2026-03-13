@@ -95,7 +95,7 @@ export async function createNote(note: Note, collectionId?: number): Promise<Not
 
 export async function updateNote(
   id: string,
-  updates: { title?: string; content?: string; pinned?: boolean; updatedAt: string },
+  updates: { title?: string; content?: string; pinned?: boolean; collectionId?: number; updatedAt: string },
 ): Promise<Note | null> {
   const existing = await getNoteById(id);
   if (!existing) return null;
@@ -104,12 +104,17 @@ export async function updateNote(
   const content = updates.content ?? existing.content;
   const pinned = updates.pinned !== undefined ? updates.pinned : existing.pinned;
 
-  await db("notes").where("id", id).update({
+  const dbUpdate: Record<string, unknown> = {
     title,
     content,
     pinned,
     updatedAt: updates.updatedAt,
-  });
+  };
+  if (updates.collectionId !== undefined) {
+    dbUpdate.collectionId = updates.collectionId;
+  }
+
+  await db("notes").where("id", id).update(dbUpdate);
 
   return { ...existing, title, content, pinned, updatedAt: updates.updatedAt };
 }

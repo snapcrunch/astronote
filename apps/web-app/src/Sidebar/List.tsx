@@ -11,6 +11,7 @@ import MenuItem from "@mui/material/MenuItem";
 import CheckIcon from "@mui/icons-material/Check";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DriveFileMoveOutlinedIcon from "@mui/icons-material/DriveFileMoveOutlined";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import PushPinIcon from "@mui/icons-material/PushPin";
@@ -55,8 +56,12 @@ function NoteList({ notes, selectedNoteId, listRef, onSelectNote, onDeleteNote, 
   const searchQuery = useNoteStore((s) => s.searchQuery);
   const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; noteId: string } | null>(null);
   const [tagsMenuOpen, setTagsMenuOpen] = useState(false);
+  const [moveMenuOpen, setMoveMenuOpen] = useState(false);
   const tagsMenuAnchorRef = useRef<HTMLLIElement>(null);
+  const moveMenuAnchorRef = useRef<HTMLLIElement>(null);
   const allTags = useNoteStore((s) => s.tags);
+  const collections = useNoteStore((s) => s.collections);
+  const activeCollectionId = useNoteStore((s) => s.activeCollectionId);
   const addTag = useNoteStore((s) => s.addTag);
   const removeTag = useNoteStore((s) => s.removeTag);
   const updateNote = useNoteStore((s) => s.updateNote);
@@ -67,11 +72,13 @@ function NoteList({ notes, selectedNoteId, listRef, onSelectNote, onDeleteNote, 
     e.preventDefault();
     setContextMenu({ mouseX: e.clientX, mouseY: e.clientY, noteId });
     setTagsMenuOpen(false);
+    setMoveMenuOpen(false);
   };
 
   const handleClose = () => {
     setContextMenu(null);
     setTagsMenuOpen(false);
+    setMoveMenuOpen(false);
   };
 
   const handleDelete = () => {
@@ -91,6 +98,12 @@ function NoteList({ notes, selectedNoteId, listRef, onSelectNote, onDeleteNote, 
   const handleTogglePin = () => {
     if (!contextMenuNote) return;
     updateNote(contextMenuNote.id, { pinned: !contextMenuNote.pinned });
+    handleClose();
+  };
+
+  const handleMoveToCollection = (collectionId: number) => {
+    if (!contextMenuNote) return;
+    updateNote(contextMenuNote.id, { collectionId });
     handleClose();
   };
 
@@ -221,6 +234,13 @@ function NoteList({ notes, selectedNoteId, listRef, onSelectNote, onDeleteNote, 
           <Typography variant="body2" sx={{ ...menuTextSx, flex: 1 }}>Tags</Typography>
           <ChevronRightIcon sx={{ fontSize: 12, color: "text.secondary" }} />
         </MenuItem>
+        <MenuItem ref={moveMenuAnchorRef} onClick={() => setMoveMenuOpen(true)} dense sx={menuItemSx}>
+          <ListItemIcon sx={menuIconSx}>
+            <DriveFileMoveOutlinedIcon sx={{ fontSize: 14 }} />
+          </ListItemIcon>
+          <Typography variant="body2" sx={{ ...menuTextSx, flex: 1 }}>Collection</Typography>
+          <ChevronRightIcon sx={{ fontSize: 12, color: "text.secondary" }} />
+        </MenuItem>
         <MenuItem onClick={handleRenameClick} dense sx={menuItemSx}>
           <ListItemIcon sx={menuIconSx}>
             <DriveFileRenameOutlineIcon sx={{ fontSize: 14 }} />
@@ -260,6 +280,27 @@ function NoteList({ notes, selectedNoteId, listRef, onSelectNote, onDeleteNote, 
             </MenuItem>
           );
         })}
+      </Menu>
+      <Menu
+        open={moveMenuOpen}
+        onClose={() => setMoveMenuOpen(false)}
+        anchorEl={moveMenuAnchorRef.current}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        style={{ pointerEvents: "none" }}
+        MenuListProps={{ style: { pointerEvents: "auto" } }}
+        autoFocus={false}
+        slotProps={{ paper: { sx: { minWidth: 120, py: 0.25 } } }}
+      >
+        {collections.filter((c) => c.id !== activeCollectionId).length === 0 ? (
+          <MenuItem disabled dense sx={menuItemSx}>
+            <Typography variant="body2" sx={{ ...menuTextSx, color: "text.secondary" }}>No other collections</Typography>
+          </MenuItem>
+        ) : collections.filter((c) => c.id !== activeCollectionId).map((c) => (
+          <MenuItem key={c.id} onClick={() => handleMoveToCollection(c.id)} dense sx={menuItemSx}>
+            <Typography variant="body2" sx={menuTextSx}>{c.name}</Typography>
+          </MenuItem>
+        ))}
       </Menu>
     </>
   );

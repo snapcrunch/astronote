@@ -49,6 +49,7 @@ export async function updateNote(id: string, input: UpdateNoteInput): Promise<No
     title: input.title,
     content: input.content,
     pinned: input.pinned,
+    collectionId: input.collectionId,
     updatedAt: new Date().toISOString(),
   });
   return updated;
