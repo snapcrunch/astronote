@@ -1,0 +1,2 @@
+- [ ] Add support for REST API keys. When a key is generated, it must be assigned a unique name.
+- [ ] Integrate claude directly with the note editor (requires further review: do not implement).

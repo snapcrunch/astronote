@@ -31,7 +31,7 @@ function RelatedNotes() {
       <Box sx={{ px: 2, "& > *": { mb: 0, mt: 0 } }}>
         <Typography
           variant="caption"
-          sx={sectionHeading(false, open)}
+          sx={sectionHeading(false, open, true)}
           onClick={() => setOpen((o) => !o)}
           style={{ cursor: "pointer" }}
         >

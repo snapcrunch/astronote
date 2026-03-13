@@ -8,15 +8,16 @@ interface SectionHeadingProps {
   children: React.ReactNode;
   content?: React.ReactNode;
   first?: boolean;
+  last?: boolean;
   defaultOpen?: boolean;
 }
 
-function SectionHeading({ children, content, first = false, defaultOpen = true }: SectionHeadingProps) {
+function SectionHeading({ children, content, first = false, last = false, defaultOpen = true }: SectionHeadingProps) {
   const [open, setOpen] = useState(defaultOpen);
 
   if (content === undefined) {
     return (
-      <Typography variant="caption" sx={sectionHeading(first, open)} onClick={() => setOpen((o) => !o)} style={{ cursor: "pointer" }}>
+      <Typography variant="caption" sx={sectionHeading(first, open, last)} onClick={() => setOpen((o) => !o)} style={{ cursor: "pointer" }}>
         {children}
       </Typography>
     );
@@ -24,7 +25,7 @@ function SectionHeading({ children, content, first = false, defaultOpen = true }
 
   return (
     <Box>
-      <Typography variant="caption" sx={sectionHeading(first, open)} onClick={() => setOpen((o) => !o)} style={{ cursor: "pointer" }}>
+      <Typography variant="caption" sx={sectionHeading(first, open, last)} onClick={() => setOpen((o) => !o)} style={{ cursor: "pointer" }}>
         {children}
       </Typography>
       <Collapse in={open}>
