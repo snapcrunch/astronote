@@ -26,7 +26,7 @@ function RelatedNotes() {
 
   return (
     <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
-      <Box sx={{ px: 2, "& > *": { mb: 0 } }}>
+      <Box sx={{ px: 2, "& > *": { mb: 0, mt: 0 } }}>
         <SectionHeading>Related Notes</SectionHeading>
       </Box>
       <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" }, overflow: { x: "hidden" } }}>
