@@ -1,7 +1,10 @@
 import { useMemo } from "react";
+import moment from "moment";
+import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
+import Typography from "@mui/material/Typography";
 import { useNoteStore, useSelectedNote } from "../store";
 import SectionHeading from "./SectionHeading";
 
@@ -23,19 +26,41 @@ function RelatedNotes() {
   return (
     <>
       <SectionHeading>Related Notes</SectionHeading>
-      <List dense disablePadding sx={{ mt: -1 }}>
-        {relatedNotes.map((n) => (
+      <List dense disablePadding sx={{ mt: -1, mx: -2 }}>
+        {relatedNotes.map((n, index) => (
           <ListItemButton
             key={n.id}
             onClick={() => setSelectedNoteId(n.id)}
-            sx={{ mx: -2, px: 2 }}
+            disableRipple
+            sx={{
+              px: 2,
+              py: 0.25,
+              borderBottom: 1,
+              borderColor: "divider",
+              bgcolor: index % 2 === 0 ? "background.paper" : "grey.50",
+            }}
           >
             <ListItemText
               primary={n.title}
+              secondary={
+                <Box component="span" sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
+                  <Typography variant="caption" noWrap component="span" sx={{ flexShrink: 0 }}>
+                    {moment(n.updatedAt).fromNow()}
+                  </Typography>
+                  <Typography variant="caption" noWrap component="span" sx={{ flexShrink: 1, minWidth: 0 }}>
+                    {n.tags.join(", ")}
+                  </Typography>
+                </Box>
+              }
               primaryTypographyProps={{
                 variant: "body2",
+                component: "div",
+                fontWeight: 500,
                 noWrap: true,
-                color: "text.secondary",
+                sx: { lineHeight: 1.2 },
+              }}
+              secondaryTypographyProps={{
+                component: "div",
               }}
             />
           </ListItemButton>
