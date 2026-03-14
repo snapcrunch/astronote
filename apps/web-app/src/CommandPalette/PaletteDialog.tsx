@@ -123,7 +123,7 @@ export default function PaletteDialog({
             key={item.id}
             selected={index === selectedIndex}
             disabled={item.disabled}
-            onClick={() => onSelect(item)}
+            onClick={() => !item.disabled && onSelect(item)}
             onMouseEnter={() => setSelectedIndex(index)}
             sx={{ px: 2, py: 0.75 }}
           >

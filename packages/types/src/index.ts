@@ -82,6 +82,7 @@ export const SettingsSchema = z.object({
   default_view: DefaultViewSchema,
   show_info_panel: z.boolean(),
   theme: ThemeIdSchema,
+  intro_dismissed: z.boolean(),
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;
@@ -90,4 +91,5 @@ export const DEFAULT_SETTINGS: Settings = {
   default_view: "renderer",
   show_info_panel: true,
   theme: "default",
+  intro_dismissed: false,
 };

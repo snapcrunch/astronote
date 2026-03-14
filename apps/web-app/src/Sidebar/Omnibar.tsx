@@ -22,7 +22,7 @@ function Omnibar() {
           input: {
             startAdornment: (
               <InputAdornment position="start">
-                <img src="/favicon.svg" alt="" width={20} height={20} style={{ cursor: "pointer", opacity: 0.75, transition: "opacity 0.15s" }} onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; }} onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.75"; }} onClick={() => { document.dispatchEvent(new KeyboardEvent("keydown", { key: "p", metaKey: true, shiftKey: true, bubbles: true })); }} />
+                <img id="omnibar-planet-icon" src="/favicon.svg" alt="" width={20} height={20} style={{ cursor: "pointer", opacity: 0.75, transition: "opacity 0.15s" }} onMouseEnter={(e) => { e.currentTarget.style.opacity = "1"; }} onMouseLeave={(e) => { e.currentTarget.style.opacity = "0.75"; }} onClick={() => { document.dispatchEvent(new KeyboardEvent("keydown", { key: "p", metaKey: true, shiftKey: true, bubbles: true })); }} />
               </InputAdornment>
             ),
             endAdornment: (

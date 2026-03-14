@@ -1881,6 +1881,7 @@ __metadata:
     "@vitejs/plugin-react": ^4.5.2
     codemirror: ^6.0.2
     eslint: ^9.39.1
+    intro.js: ^8.3.2
     jszip: ^3.10.1
     moment: ^2.30.1
     overlayscrollbars: ^2.14.0
@@ -5014,6 +5015,13 @@ __metadata:
   version: 2.2.0
   resolution: "interpret@npm:2.2.0"
   checksum: f51efef7cb8d02da16408ffa3504cd6053014c5aeb7bb8c223727e053e4235bf565e45d67028b0c8740d917c603807aa3c27d7bd2f21bf20b6417e2bb3e5fd6e
+  languageName: node
+  linkType: hard
+
+"intro.js@npm:^8.3.2":
+  version: 8.3.2
+  resolution: "intro.js@npm:8.3.2"
+  checksum: 57b9874d766a1eb5ad745764749a91e330b11c4ef97cf42d76ebaff836297871c429d2ac2947a04b1bf8b3a62215da5fa88155ffa912d78a6fc24af8bd0297d3
   languageName: node
   linkType: hard
 

@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
+import introJs from "intro.js";
+import "intro.js/introjs.css";
 import Sidebar from "./Sidebar";
 import NoteEditor from "./NoteEditor";
 import SettingsView from "./SettingsView";
@@ -19,7 +21,28 @@ function App() {
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
   const view = useNoteStore((s) => s.view);
   const isMobile = useIsMobile();
+  const introDismissed = useNoteStore((s) => s.settings.intro_dismissed);
+  const updateSettings = useNoteStore((s) => s.updateSettings);
   useEffect(() => init(), [init]);
+
+  useEffect(() => {
+    if (introDismissed) return;
+    const timer = setTimeout(() => {
+      const dismiss = () => updateSettings({ intro_dismissed: true });
+      introJs().setOptions({
+        steps: [
+          {
+            element: "#omnibar-planet-icon",
+            intro: isMobile ? "Tap the planet icon to open the command palette." : "Click the planet icon to open the command palette.",
+          },
+        ],
+        showBullets: false,
+        showStepNumbers: false,
+        exitOnOverlayClick: true,
+      }).oncomplete(dismiss).onexit(dismiss).start();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [introDismissed, updateSettings]);
 
   const isNotes = view === "notes";
   const showNoteView = isMobile && (selectedNoteId !== null || !isNotes);
