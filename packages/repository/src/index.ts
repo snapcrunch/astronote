@@ -21,3 +21,4 @@ export {
 } from './collections';
 export { getTags } from './tags';
 export { getSettings, updateSettings, resetAll } from './settings';
+export { getUserByEmail } from './users';

@@ -1,11 +1,14 @@
 import type { Note, Collection, Settings } from '@repo/types';
-import type { Tag } from '@repo/astronote-client/WebClient';
+import type { Tag, User } from '@repo/astronote-client/WebClient';
 
-export type { Tag };
+export type { Tag, User };
 
+export type Route = 'loading' | 'login' | 'app';
 export type View = 'notes' | 'settings' | 'collections';
 
 export interface NoteStore {
+  route: Route;
+  user: User | null;
   notes: Note[];
   tags: Tag[];
   collections: Collection[];
@@ -21,7 +24,8 @@ export interface NoteStore {
   view: View;
   showInfoPanel: boolean;
 
-  init: () => () => void;
+  init: () => Promise<() => void>;
+  login: (email: string, password: string) => Promise<void>;
   fetchSettings: () => Promise<void>;
   updateSettings: (updates: Partial<Settings>) => Promise<void>;
   resetAll: () => Promise<void>;

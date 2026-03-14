@@ -29,13 +29,42 @@ export function createActions({
   }
 
   return {
-    init: () => {
+    init: async () => {
+      try {
+        const user = await client.getUser();
+        set({ user });
+      } catch {
+        set({ user: null, route: 'login' });
+        window.history.replaceState(null, '', '/login');
+        return () => {};
+      }
+
+      set({ route: 'app' });
       get().fetchNotes();
       get().fetchTags();
       get().fetchCollections();
       get().fetchSettings();
       window.addEventListener('popstate', restoreFromUrl);
-      return () => window.removeEventListener('popstate', restoreFromUrl);
+
+      const authCheck = setInterval(async () => {
+        try {
+          await client.getUser();
+        } catch {
+          set({ user: null, route: 'login' });
+          window.history.replaceState(null, '', '/login');
+        }
+      }, 60_000);
+
+      return () => {
+        window.removeEventListener('popstate', restoreFromUrl);
+        clearInterval(authCheck);
+      };
+    },
+
+    login: async (email: string, password: string) => {
+      await client.login(email, password);
+      set({ route: 'loading' });
+      await get().init();
     },
 
     fetchSettings: async () => {

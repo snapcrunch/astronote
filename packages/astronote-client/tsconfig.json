@@ -1,6 +1,7 @@
 {
   "extends": "@repo/typescript-config/node.json",
   "compilerOptions": {
+    "lib": ["es2022", "dom"],
     "outDir": "dist",
     "rootDir": "src"
   },

@@ -1,0 +1,1 @@
+export { getUserByEmail } from './getByEmail';

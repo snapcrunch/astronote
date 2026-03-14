@@ -1,10 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcrypt';
 import type { Knex } from 'knex';
 
 const collections = [
   { name: 'Personal' },
   { name: 'Work' },
   { name: 'Research' },
+  { name: 'Study' },
 ];
 
 const seedNotes: {
@@ -370,6 +372,49 @@ const seedNotes: {
     content:
       '> "We are what we repeatedly do. Excellence, then, is not an act, but a habit." — *Will Durant*\n\n> "The best time to plant a tree was 20 years ago. The second best time is now." — *Chinese proverb*\n\n> "Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away." — *Antoine de Saint-Exupéry*\n\n> "The map is not the territory." — *Alfred Korzybski*\n\n> "Strong opinions, weakly held." — *Paul Saffo*',
     tags: [],
+  },
+  {
+    collection_id: 4,
+    pinned: true,
+    title: 'Linear Algebra Cheat Sheet',
+    content:
+      '# Linear Algebra Quick Reference\n\n## Vectors\n\n- **Dot product:** a · b = |a||b|cos(θ)\n- **Cross product:** a × b = |a||b|sin(θ)n̂\n- **Magnitude:** |v| = √(v₁² + v₂² + v₃²)\n\n## Matrices\n\n- **Identity:** AI = IA = A\n- **Inverse:** AA⁻¹ = A⁻¹A = I\n- **Transpose:** (AB)ᵀ = BᵀAᵀ\n- **Determinant:** det(AB) = det(A)det(B)\n\n## Eigenvalues & Eigenvectors\n\nAv = λv where:\n- λ = eigenvalue\n- v = eigenvector\n\nFind eigenvalues by solving: det(A - λI) = 0\n\n## Key Transformations\n\n| Matrix | Effect |\n|---|---|\n| Rotation | Preserves lengths |\n| Scaling | Stretches/shrinks |\n| Shear | Slants along axis |\n| Projection | Drops a dimension |',
+    tags: ['math', 'reference'],
+  },
+  {
+    collection_id: 4,
+    title: 'Probability Fundamentals',
+    content:
+      "# Probability Notes\n\n## Basic Rules\n\n- P(A or B) = P(A) + P(B) - P(A and B)\n- P(A and B) = P(A) × P(B|A)\n- P(A|B) = P(B|A)P(A) / P(B) ← **Bayes' Theorem**\n\n## Distributions\n\n### Discrete\n- **Bernoulli:** single yes/no trial\n- **Binomial:** n independent Bernoulli trials\n- **Poisson:** events per unit time\n\n### Continuous\n- **Uniform:** equal probability across range\n- **Normal:** bell curve, defined by μ and σ\n- **Exponential:** time between Poisson events\n\n## Central Limit Theorem\n\nThe mean of sufficiently large samples from *any* distribution approximates a normal distribution.\n\nThis is why the normal distribution shows up everywhere.",
+    tags: ['math', 'statistics'],
+  },
+  {
+    collection_id: 4,
+    title: 'Python Data Science Stack',
+    content:
+      '# Python for Data Science\n\n## Core Libraries\n\n| Library | Purpose |\n|---|---|\n| NumPy | Numerical computing, arrays |\n| Pandas | Data manipulation, DataFrames |\n| Matplotlib | Basic plotting |\n| Seaborn | Statistical visualization |\n| Scikit-learn | Machine learning |\n| Jupyter | Interactive notebooks |\n\n## Quick Pandas Reference\n\n```python\nimport pandas as pd\n\ndf = pd.read_csv("data.csv")\ndf.head()                    # first 5 rows\ndf.describe()                # summary stats\ndf.groupby("col").mean()     # group and aggregate\ndf[df["age"] > 30]           # filter rows\ndf.sort_values("col", ascending=False)\n```\n\n## Plotting\n\n```python\nimport matplotlib.pyplot as plt\nimport seaborn as sns\n\nsns.histplot(df["age"], bins=20)\nplt.title("Age Distribution")\nplt.show()\n```',
+    tags: ['python', 'data-science', 'reference'],
+  },
+  {
+    collection_id: 4,
+    title: 'Machine Learning Glossary',
+    content:
+      '# ML Terminology\n\n- **Supervised learning:** labeled training data (classification, regression)\n- **Unsupervised learning:** no labels (clustering, dimensionality reduction)\n- **Overfitting:** model memorizes training data, fails on new data\n- **Underfitting:** model too simple to capture patterns\n- **Bias-variance tradeoff:** simpler models = more bias, less variance\n- **Cross-validation:** split data into k folds, train/test on each\n- **Feature engineering:** creating useful inputs from raw data\n- **Regularization:** penalizing model complexity (L1/L2)\n- **Gradient descent:** iteratively minimize loss function\n- **Epoch:** one full pass through the training data\n- **Batch size:** number of samples per gradient update\n- **Learning rate:** step size for gradient descent — too high = diverge, too low = slow',
+    tags: ['machine-learning', 'reference'],
+  },
+  {
+    collection_id: 4,
+    title: 'SQL Window Functions',
+    content:
+      '# Window Functions in SQL\n\n## Syntax\n\n```sql\nfunction() OVER (\n  PARTITION BY col\n  ORDER BY col\n  ROWS BETWEEN ... AND ...\n)\n```\n\n## Common Functions\n\n| Function | Description |\n|---|---|\n| ROW_NUMBER() | Unique row number |\n| RANK() | Rank with gaps |\n| DENSE_RANK() | Rank without gaps |\n| LAG(col, n) | Value n rows before |\n| LEAD(col, n) | Value n rows after |\n| SUM() OVER | Running total |\n| AVG() OVER | Moving average |\n\n## Example: Running Total\n\n```sql\nSELECT\n  date,\n  amount,\n  SUM(amount) OVER (ORDER BY date) AS running_total\nFROM transactions;\n```\n\n## Example: Rank Within Groups\n\n```sql\nSELECT\n  department,\n  name,\n  salary,\n  RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_rank\nFROM employees;\n```',
+    tags: ['sql', 'databases', 'reference'],
+  },
+  {
+    collection_id: 4,
+    title: 'Git Internals',
+    content:
+      '# How Git Works Under the Hood\n\n## Object Types\n\n| Type | Description |\n|---|---|\n| blob | File contents |\n| tree | Directory listing |\n| commit | Snapshot + metadata |\n| tag | Named reference to a commit |\n\n## Everything is a Hash\n\nGit stores everything as SHA-1 hashed objects in `.git/objects/`.\n\n```bash\n# See what a hash points to\ngit cat-file -t abc123\ngit cat-file -p abc123\n```\n\n## Refs\n\nBranches are just pointers (files in `.git/refs/heads/`) that store a commit hash. HEAD points to the current branch.\n\n## The Index (Staging Area)\n\nThe index (`.git/index`) is a binary file that represents the next commit. `git add` updates the index, `git commit` writes it as a tree object.',
+    tags: ['git', 'reference'],
   },
 ];
 
@@ -2605,10 +2650,24 @@ export async function seed(knex: Knex): Promise<void> {
     .first();
   if (existingCount && Number(existingCount.count) > 0) return;
 
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash('changeme', salt);
+  await knex('users').insert({
+    email: 'herp.derpson@flurp.com',
+    password: hashedPassword,
+    salt,
+  });
+
   for (const collection of collections) {
-    await knex('collections').insert({
-      name: collection.name,
-      isDefault: collection.name === 'Personal' ? 1 : 0,
+    const [inserted] = await knex('collections')
+      .insert({
+        name: collection.name,
+        isDefault: collection.name === 'Personal' ? 1 : 0,
+      })
+      .returning('id');
+    await knex('users_collections').insert({
+      user_id: 1,
+      collection_id: inserted.id,
     });
   }
 
@@ -2626,6 +2685,143 @@ export async function seed(knex: Knex): Promise<void> {
       updatedAt,
     });
 
+    await knex('users_notes').insert({
+      user_id: 1,
+      note_id: id,
+    });
+
+    for (const tag of note.tags) {
+      const normalizedTag = tag.toLowerCase();
+      await knex('note_tags').insert({ noteId: id, tag: normalizedTag });
+      await knex.raw(
+        'INSERT INTO tags (tag, count) VALUES (?, 1) ON CONFLICT(tag) DO UPDATE SET count = count + 1',
+        [normalizedTag]
+      );
+    }
+  }
+
+  // -----------------------------------------------------------------------
+  // Second user: Jane Derpson
+  // -----------------------------------------------------------------------
+
+  const janeSalt = await bcrypt.genSalt(10);
+  const janeHash = await bcrypt.hash('changeme', janeSalt);
+  const [janeRow] = await knex('users')
+    .insert({
+      email: 'jane.derpson@flurp.com',
+      password: janeHash,
+      salt: janeSalt,
+    })
+    .returning('id');
+  const janeId = janeRow.id;
+
+  const janeCollections = ['Recipes', 'Travel'];
+  const janeCollectionIds: Record<string, number> = {};
+
+  for (const name of janeCollections) {
+    const [inserted] = await knex('collections')
+      .insert({ name, isDefault: name === 'Recipes' ? 1 : 0 })
+      .returning('id');
+    janeCollectionIds[name] = inserted.id;
+    await knex('users_collections').insert({
+      user_id: janeId,
+      collection_id: inserted.id,
+    });
+  }
+
+  const janeNotes: {
+    collection: string;
+    title: string;
+    content: string;
+    tags: string[];
+    pinned?: boolean;
+  }[] = [
+    {
+      collection: 'Recipes',
+      pinned: true,
+      title: 'Thai Green Curry',
+      content:
+        '# Thai Green Curry\n\n**Serves:** 4 | **Time:** 35 min\n\n## Ingredients\n\n- 400ml coconut milk\n- 2 tbsp green curry paste\n- 500g chicken thigh, sliced\n- 1 cup Thai basil\n- 2 tbsp fish sauce\n- 1 tbsp palm sugar\n- 1 red chili, sliced\n- Baby eggplant, halved\n\n## Instructions\n\n1. Heat thick coconut cream in a wok until oil separates\n2. Fry curry paste for 2 min until fragrant\n3. Add chicken, cook until sealed\n4. Pour in remaining coconut milk, simmer 15 min\n5. Season with fish sauce and palm sugar\n6. Add eggplant, cook 5 min\n7. Stir in Thai basil and chili, serve over jasmine rice',
+      tags: ['thai', 'curry', 'dinner'],
+    },
+    {
+      collection: 'Recipes',
+      title: 'Banana Bread',
+      content:
+        '# Banana Bread\n\n**Prep:** 10 min | **Bake:** 55 min\n\n## Ingredients\n\n- 3 ripe bananas, mashed\n- 75g melted butter\n- 150g sugar\n- 1 egg\n- 1 tsp vanilla\n- 1 tsp baking soda\n- Pinch of salt\n- 190g plain flour\n\n## Instructions\n\n1. Preheat oven to 175°C\n2. Mix mashed bananas and melted butter\n3. Add sugar, egg, vanilla — stir\n4. Add baking soda, salt, flour — fold until just combined\n5. Pour into greased loaf tin\n6. Bake 55 min until golden and a skewer comes out clean\n\n> **Tip:** The riper the bananas, the sweeter the bread. Freeze overripe bananas for later.',
+      tags: ['baking', 'breakfast'],
+    },
+    {
+      collection: 'Recipes',
+      title: 'Homemade Pesto',
+      content:
+        '# Basil Pesto\n\n- 2 cups fresh basil\n- 1/3 cup pine nuts, toasted\n- 2 cloves garlic\n- 1/2 cup parmesan, grated\n- 1/2 cup extra virgin olive oil\n- Salt and pepper to taste\n\nBlend basil, pine nuts, and garlic in food processor. Add parmesan, pulse. Stream in olive oil until smooth. Season.\n\nKeeps in the fridge for a week. Freeze in ice cube trays for longer storage.',
+      tags: ['italian', 'sauce', 'quick'],
+    },
+    {
+      collection: 'Recipes',
+      title: 'Shakshuka',
+      content:
+        '# Shakshuka\n\n**Serves:** 2 | **Time:** 25 min\n\n## Ingredients\n\n- 1 can (400g) crushed tomatoes\n- 1 red pepper, diced\n- 1 onion, diced\n- 3 cloves garlic, minced\n- 1 tsp cumin\n- 1 tsp paprika\n- 1/2 tsp chili flakes\n- 4 eggs\n- Fresh cilantro and feta to serve\n\n## Instructions\n\n1. Sauté onion and pepper in olive oil, 5 min\n2. Add garlic and spices, cook 1 min\n3. Pour in tomatoes, simmer 10 min until thickened\n4. Make 4 wells, crack an egg into each\n5. Cover and cook 5-7 min until whites set\n6. Top with feta and cilantro, serve with crusty bread',
+      tags: ['breakfast', 'middle-eastern'],
+    },
+    {
+      collection: 'Travel',
+      pinned: true,
+      title: 'Japan Trip Planning',
+      content:
+        '# Japan — Spring 2026\n\n## Itinerary\n\n### Tokyo (4 nights)\n- Shibuya & Harajuku\n- Tsukiji outer market\n- TeamLab Borderless\n- Day trip to Kamakura\n\n### Kyoto (3 nights)\n- Fushimi Inari (go at sunrise)\n- Arashiyama bamboo grove\n- Nishiki Market\n- Tea ceremony in Gion\n\n### Osaka (2 nights)\n- Dotonbori street food\n- Osaka Castle\n- Day trip to Nara (deer park)\n\n## Budget\n\n| Category | Estimate |\n|---|---|\n| Flights | $1,200 |\n| Hotels | $1,500 |\n| JR Pass (14 day) | $420 |\n| Food & activities | $1,000 |\n| **Total** | **$4,120** |\n\n## Notes\n\n- Cherry blossom season: late March to mid April\n- Book JR Pass before departure\n- Get Suica card at airport for local transit',
+      tags: ['japan', 'planning', 'asia'],
+    },
+    {
+      collection: 'Travel',
+      title: 'Packing List — International',
+      content:
+        '## Documents\n\n- [ ] Passport (check expiry)\n- [ ] Travel insurance docs\n- [ ] Hotel confirmations\n- [ ] Copies of all documents (digital + paper)\n\n## Tech\n\n- [ ] Phone + charger\n- [ ] Power adapter (check plug type!)\n- [ ] Portable battery\n- [ ] Kindle\n- [ ] Noise-cancelling headphones\n\n## Clothing\n\n- [ ] 5 tops\n- [ ] 2 bottoms\n- [ ] 7 underwear/socks\n- [ ] Light jacket\n- [ ] Comfortable walking shoes\n- [ ] Flip flops for hostel showers\n\n## Toiletries\n\n- [ ] Travel-size everything (100ml limit!)\n- [ ] Sunscreen\n- [ ] Medications + prescriptions\n- [ ] First aid basics',
+      tags: ['packing', 'checklist'],
+    },
+    {
+      collection: 'Travel',
+      title: 'Portugal Notes',
+      content:
+        '# Portugal Trip — Oct 2025\n\n## Lisbon Highlights\n\n- **Pastéis de Belém** — the original pastel de nata. Worth the queue.\n- **Time Out Market** — great for sampling lots of food in one spot\n- **Tram 28** — iconic but very crowded. Walk the route instead.\n- **Alfama district** — get lost in the narrow streets, best at sunset\n\n## Porto\n\n- Livraria Lello — stunning bookshop (buy a book to skip the line)\n- Port wine tasting in Vila Nova de Gaia\n- Francesinha sandwich at Café Santiago — heavy but incredible\n- São Bento Station — the azulejo tile work is breathtaking\n\n## Tips\n\n- Portuguese people are incredibly friendly\n- Learn a few words: obrigada, bom dia, por favor\n- Food is very affordable compared to other Western Europe\n- Uber works well in both cities',
+      tags: ['portugal', 'europe', 'review'],
+    },
+    {
+      collection: 'Recipes',
+      title: 'Miso Soup',
+      content:
+        '# Miso Soup\n\n**Serves:** 2 | **Time:** 10 min\n\n- 500ml dashi stock (or water + dashi powder)\n- 2 tbsp white miso paste\n- 100g silken tofu, cubed\n- 1 sheet nori, cut into strips\n- 2 spring onions, sliced\n- Optional: wakame seaweed\n\n1. Bring dashi to a gentle simmer\n2. Add tofu and wakame, warm through\n3. Remove from heat\n4. Dissolve miso paste in a ladleful of broth, then stir back in\n5. Garnish with spring onions and nori\n\n> **Never boil miso** — it kills the beneficial cultures and makes it bitter.',
+      tags: ['japanese', 'soup', 'quick'],
+    },
+    {
+      collection: 'Travel',
+      title: 'Useful Travel Apps',
+      content:
+        '# Travel App Recommendations\n\n- **Google Maps** — download offline maps before you go\n- **Google Translate** — camera mode for signs and menus\n- **Rome2Rio** — figure out how to get between cities\n- **Wise** — best exchange rates, multi-currency card\n- **Hostelworld** — budget accommodation\n- **Airalo** — eSIM for international data\n- **Citymapper** — public transit in major cities\n- **XE Currency** — quick currency conversion\n- **PackPoint** — packing list generator based on destination',
+      tags: ['apps', 'reference'],
+    },
+  ];
+
+  for (const note of janeNotes) {
+    const id = uuidv4();
+    const { createdAt, updatedAt } = generateTimestamps();
+
+    await knex('notes').insert({
+      id,
+      title: note.title,
+      content: note.content,
+      collectionId: janeCollectionIds[note.collection],
+      pinned: note.pinned ? 1 : 0,
+      createdAt,
+      updatedAt,
+    });
+
+    await knex('users_notes').insert({
+      user_id: janeId,
+      note_id: id,
+    });
+
     for (const tag of note.tags) {
       const normalizedTag = tag.toLowerCase();
       await knex('note_tags').insert({ noteId: id, tag: normalizedTag });
@@ -2637,6 +2833,6 @@ export async function seed(knex: Knex): Promise<void> {
   }
 
   console.log(
-    `Seeded database with ${allNotes.length} notes across ${collections.length} collections`
+    `Seeded database with ${allNotes.length + janeNotes.length} notes across ${collections.length + janeCollections.length} collections for 2 users`
   );
 }

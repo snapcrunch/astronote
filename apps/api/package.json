@@ -17,6 +17,7 @@
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.3",
     "tsx": "^4.19.4"
   },
   "devDependencies": {
@@ -25,6 +26,7 @@
     "@types/archiver": "^6.0.4",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "eslint": "^9.39.1",
     "typescript": "^5.9.2"
   }

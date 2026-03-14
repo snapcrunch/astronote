@@ -1,6 +1,11 @@
 import axios, { type AxiosInstance } from 'axios';
 import type { Note, Collection, Settings } from '@repo/types';
 
+export interface User {
+  id: number;
+  email: string;
+}
+
 export interface Tag {
   tag: string;
   count: number;
@@ -25,6 +30,28 @@ export class WebClient {
 
   constructor(baseURL = '') {
     this.http = axios.create({ baseURL });
+    this.http.interceptors.request.use((config) => {
+      const token = localStorage.getItem('astronote.token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
+  }
+
+  // Auth
+
+  async getUser(): Promise<User> {
+    const { data } = await this.http.get<User>('/api/auth');
+    return data;
+  }
+
+  async login(email: string, password: string): Promise<void> {
+    const { data } = await this.http.post<{ token: string }>('/api/auth', {
+      email,
+      password,
+    });
+    localStorage.setItem('astronote.token', data.token);
   }
 
   // Settings

@@ -6,6 +6,7 @@ import { notesRouter } from './routes/notes';
 import { tagsRouter } from './routes/tags';
 import { collectionsRouter } from './routes/collections';
 import { settingsRouter } from './routes/settings';
+import { authRouter } from './routes/auth';
 import { errorHandler } from './middleware/errorHandler';
 import { basicAuth } from './middleware/basicAuth';
 
@@ -20,6 +21,7 @@ async function main() {
 
   app.use(cors());
   app.use(express.json());
+  app.use('/api/auth', authRouter);
   app.use(basicAuth);
 
   app.use('/api/notes', notesRouter);

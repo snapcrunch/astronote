@@ -8,6 +8,8 @@ import { createActions } from './actions';
 const initialUrl = parseUrl();
 
 export const useNoteStore = create<NoteStore>((set, get) => ({
+  route: 'loading',
+  user: null,
   notes: [],
   tags: [],
   collections: [],

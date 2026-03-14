@@ -11,19 +11,19 @@ import CollectionsView from './CollectionsView';
 import InfoPanel from './InfoPanel';
 import CommandPalette from './CommandPalette';
 import Omnibar from './Sidebar/Omnibar';
+import LoadingView from './LoadingView';
+import LoginView from './LoginView';
 import { useNoteStore } from './store';
 import { useIsMobile } from './hooks';
 import { themes } from './themes';
 
-function App() {
-  const init = useNoteStore((s) => s.init);
+function MainApp() {
   const themeId = useNoteStore((s) => s.settings.theme);
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
   const view = useNoteStore((s) => s.view);
   const isMobile = useIsMobile();
   const introDismissed = useNoteStore((s) => s.settings.intro_dismissed);
   const updateSettings = useNoteStore((s) => s.updateSettings);
-  useEffect(() => init(), [init]);
 
   useEffect(() => {
     if (introDismissed) return;
@@ -93,6 +93,14 @@ function App() {
       </Box>
     </ThemeProvider>
   );
+}
+
+function App() {
+  const route = useNoteStore((s) => s.route);
+
+  if (route === 'loading') return <LoadingView />;
+  if (route === 'login') return <LoginView />;
+  return <MainApp />;
 }
 
 export default App;
