@@ -6,7 +6,6 @@ import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import Typography from "@mui/material/Typography";
-import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useNoteStore, useSelectedNote } from "../store";
 import { sectionHeading } from "./styles";
 
@@ -27,7 +26,7 @@ function RelatedNotes() {
   if (!note || relatedNotes.length === 0) return null;
 
   return (
-    <Box sx={{ flex: open ? 1 : undefined, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
+    <Box>
       <Box sx={{ px: 2, "& > *": { mb: 0, mt: 0 } }}>
         <Typography
           variant="caption"
@@ -38,8 +37,7 @@ function RelatedNotes() {
           Related Notes
         </Typography>
       </Box>
-      <Collapse in={open} sx={{ flex: 1, minHeight: 0, display: open ? "flex" : undefined, flexDirection: "column" }}>
-        <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" }, overflow: { x: "hidden" } }}>
+      <Collapse in={open}>
         <List dense disablePadding>
           {relatedNotes.map((n, index) => (
             <ListItemButton
@@ -80,7 +78,6 @@ function RelatedNotes() {
             </ListItemButton>
           ))}
         </List>
-        </OverlayScrollbarsComponent>
       </Collapse>
     </Box>
   );
