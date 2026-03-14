@@ -90,6 +90,13 @@ export const SettingsSchema = z.object({
 
 export type Settings = z.infer<typeof SettingsSchema>;
 
+export const AuthUserSchema = z.object({
+  id: z.number(),
+  email: z.string(),
+});
+
+export type AuthUser = z.infer<typeof AuthUserSchema>;
+
 export const DEFAULT_SETTINGS: Settings = {
   default_view: 'renderer',
   show_info_panel: true,

@@ -2,13 +2,15 @@ import path from 'node:path';
 import express from 'express';
 import cors from 'cors';
 import { initDatabase, seedDatabase } from '@repo/repository';
-import { notesRouter } from './routes/notes';
-import { tagsRouter } from './routes/tags';
-import { collectionsRouter } from './routes/collections';
-import { settingsRouter } from './routes/settings';
-import { authRouter } from './routes/auth';
-import { errorHandler } from './middleware/errorHandler';
-import { basicAuth } from './middleware/basicAuth';
+import { notesRouter } from '#routes/notes';
+import { tagsRouter } from '#routes/tags';
+import { collectionsRouter } from '#routes/collections';
+import { settingsRouter } from '#routes/settings';
+import { authRouter } from '#routes/auth';
+import { requestLogger } from '#middleware/requestLogger';
+import { requireAuth } from '#middleware/requireAuth';
+import { errorHandler } from '#middleware/errorHandler';
+import { basicAuth } from '#middleware/basicAuth';
 
 const PORT = process.env.PORT ?? 3009;
 const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), 'astronote.db');
@@ -20,13 +22,13 @@ async function main() {
   const app = express();
 
   app.use(cors());
-  app.use(express.json());
+  app.use(express.json({ limit: '100kb' }));
+  app.use(requestLogger);
   app.use('/api/auth', authRouter);
   app.use(basicAuth);
-
-  app.use('/api/notes', notesRouter);
-  app.use('/api/tags', tagsRouter);
-  app.use('/api/collections', collectionsRouter);
+  app.use('/api/notes', requireAuth, notesRouter);
+  app.use('/api/tags', requireAuth, tagsRouter);
+  app.use('/api/collections', requireAuth, collectionsRouter);
   app.use('/api/settings', settingsRouter);
   app.use(errorHandler);
 

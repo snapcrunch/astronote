@@ -9,8 +9,8 @@ import domain from '@repo/domain';
 
 export const notesRouter = Router();
 
-notesRouter.get('/export', async (_req, res) => {
-  const archive = await domain.notes.exportAll();
+notesRouter.get('/export', async (req, res) => {
+  const archive = await domain.notes.exportAll(req.user!);
 
   res.setHeader('Content-Type', 'application/zip');
   res.setHeader('Content-Disposition', 'attachment; filename=notes.zip');
@@ -26,12 +26,12 @@ notesRouter.get('/', async (req, res) => {
     return;
   }
   const { q, tags, collectionId } = result.data;
-  const notes = await domain.notes.list(q, tags, collectionId);
+  const notes = await domain.notes.list(req.user!, q, tags, collectionId);
   res.json(notes);
 });
 
 notesRouter.get('/:id', async (req, res) => {
-  const note = await domain.notes.get(req.params.id);
+  const note = await domain.notes.get(req.user!, req.params.id);
   if (!note) {
     res.status(404).json({ error: 'Note not found' });
     return;
@@ -45,7 +45,7 @@ notesRouter.post('/', async (req, res) => {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const note = await domain.notes.create(result.data);
+  const note = await domain.notes.create(req.user!, result.data);
   res.status(201).json(note);
 });
 
@@ -55,7 +55,7 @@ notesRouter.patch('/:id', async (req, res) => {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const note = await domain.notes.update(req.params.id, result.data);
+  const note = await domain.notes.update(req.user!, req.params.id, result.data);
   if (!note) {
     res.status(404).json({ error: 'Note not found' });
     return;
@@ -69,7 +69,7 @@ notesRouter.post('/:id/tags', async (req, res) => {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const note = await domain.notes.addTag(req.params.id, result.data.tag.trim());
+  const note = await domain.notes.addTag(req.user!, req.params.id, result.data.tag.trim());
   if (!note) {
     res.status(404).json({ error: 'Note not found' });
     return;
@@ -78,7 +78,7 @@ notesRouter.post('/:id/tags', async (req, res) => {
 });
 
 notesRouter.delete('/:id/tags/:tag', async (req, res) => {
-  const note = await domain.notes.removeTag(req.params.id, req.params.tag);
+  const note = await domain.notes.removeTag(req.user!, req.params.id, req.params.tag);
   if (!note) {
     res.status(404).json({ error: 'Note not found' });
     return;
@@ -87,7 +87,7 @@ notesRouter.delete('/:id/tags/:tag', async (req, res) => {
 });
 
 notesRouter.delete('/:id', async (req, res) => {
-  const archived = await domain.notes.remove(req.params.id);
+  const archived = await domain.notes.remove(req.user!, req.params.id);
   if (!archived) {
     res.status(404).json({ error: 'Note not found' });
     return;

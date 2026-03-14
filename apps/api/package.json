@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "imports": {
+    "#routes/*": "./src/routes/*",
+    "#middleware/*": "./src/middleware/*"
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
@@ -11,6 +15,7 @@
   },
   "dependencies": {
     "@repo/domain": "*",
+    "@repo/logger": "workspace:^",
     "@repo/repository": "*",
     "@repo/types": "*",
     "archiver": "^7.0.1",

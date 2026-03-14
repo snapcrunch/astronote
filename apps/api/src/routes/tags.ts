@@ -10,6 +10,6 @@ tagsRouter.get('/', async (req, res) => {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const tags = await domain.tags.list(result.data.collectionId);
+  const tags = await domain.tags.list(req.user!, result.data.collectionId);
   res.json(tags);
 });

@@ -1,10 +1,22 @@
 import { getDb } from '../db';
 
-export async function setDefaultCollection(id: number): Promise<boolean> {
+export async function setDefaultCollection(
+  userId: number,
+  id: number
+): Promise<boolean> {
   const db = getDb();
-  const exists = await db('collections').where('id', id).first();
-  if (!exists) return false;
-  await db('collections').update({ isDefault: 0 });
+  const owns = await db('users_collections')
+    .where({ user_id: userId, collection_id: id })
+    .first();
+  if (!owns) return false;
+
+  // Only reset isDefault for collections owned by this user
+  const userCollectionIds = db('users_collections')
+    .where('user_id', userId)
+    .select('collection_id');
+  await db('collections')
+    .whereIn('id', userCollectionIds)
+    .update({ isDefault: 0 });
   await db('collections').where('id', id).update({ isDefault: 1 });
   return true;
 }

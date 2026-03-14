@@ -50,6 +50,7 @@ export function createActions({
         try {
           await client.getUser();
         } catch {
+          clearInterval(authCheck);
           set({ user: null, route: 'login' });
           window.history.replaceState(null, '', '/login');
         }
@@ -65,6 +66,28 @@ export function createActions({
       await client.login(email, password);
       set({ route: 'loading' });
       await get().init();
+    },
+
+    signOut: () => {
+      localStorage.removeItem('astronote.token');
+      set({
+        route: 'login',
+        user: null,
+        notes: [],
+        tags: [],
+        collections: [],
+        activeCollectionId: null,
+        selectedNoteId: null,
+        searchQuery: '',
+        selectedTags: [],
+        settingsLoaded: false,
+        editOnCreate: false,
+        importing: false,
+        saving: false,
+        archiving: false,
+        view: 'notes',
+      });
+      window.history.replaceState(null, '', '/login');
     },
 
     fetchSettings: async () => {
@@ -176,6 +199,7 @@ export function createActions({
           collections.find((c) => c.isDefault) ?? collections[0]!;
         set({ collections, activeCollectionId: defaultCol.id });
         get().fetchNotes();
+        get().fetchTags();
       } else {
         set({ collections });
       }

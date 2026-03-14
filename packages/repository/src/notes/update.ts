@@ -3,6 +3,7 @@ import { getDb } from '../db';
 import { getNoteById } from './get';
 
 export async function updateNote(
+  userId: number,
   id: string,
   updates: {
     title?: string;
@@ -13,7 +14,7 @@ export async function updateNote(
   }
 ): Promise<Note | null> {
   const db = getDb();
-  const existing = await getNoteById(id);
+  const existing = await getNoteById(userId, id);
   if (!existing) return null;
 
   const title = updates.title ?? existing.title;

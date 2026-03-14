@@ -3,6 +3,7 @@ import { getDb } from '../db';
 import { getNoteTagsAsync } from './helpers';
 
 export async function createNote(
+  userId: number,
   note: Note,
   collectionId?: number
 ): Promise<Note> {
@@ -16,6 +17,7 @@ export async function createNote(
     createdAt: note.createdAt,
     updatedAt: note.updatedAt,
   });
+  await db('users_notes').insert({ user_id: userId, note_id: note.id });
   for (const tag of note.tags) {
     await db('note_tags')
       .insert({ noteId: note.id, tag })

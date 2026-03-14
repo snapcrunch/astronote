@@ -4,7 +4,11 @@
     "outDir": "dist",
     "rootDir": "src",
     "module": "preserve",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "paths": {
+      "#routes/*": ["./src/routes/*"],
+      "#middleware/*": ["./src/middleware/*"]
+    }
   },
   "include": ["src"]
 }

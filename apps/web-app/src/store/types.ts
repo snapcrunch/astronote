@@ -26,6 +26,7 @@ export interface NoteStore {
 
   init: () => Promise<() => void>;
   login: (email: string, password: string) => Promise<void>;
+  signOut: () => void;
   fetchSettings: () => Promise<void>;
   updateSettings: (updates: Partial<Settings>) => Promise<void>;
   resetAll: () => Promise<void>;

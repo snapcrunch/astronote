@@ -16,6 +16,7 @@ export function useCommands(
   onOpenReset: () => void
 ): Command[] {
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
+  const user = useNoteStore((s) => s.user);
   return useMemo(() => {
     const run = (fn: () => void) => () => {
       onClose();
@@ -106,6 +107,14 @@ export function useCommands(
           onOpenReset();
         },
       },
+      {
+        id: 'sign-out',
+        label: 'Sign Out',
+        disabled: !user,
+        action: run(() => {
+          useNoteStore.getState().signOut();
+        }),
+      },
     ];
   }, [
     onClose,
@@ -113,5 +122,6 @@ export function useCommands(
     onOpenImport,
     onOpenReset,
     selectedNoteId,
+    user,
   ]);
 }
