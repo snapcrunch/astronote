@@ -20,6 +20,11 @@ export function createActions({
   get,
   initialShowInfoPanel,
 }: CreateActionsParams) {
+  client.onAuthFailure = () => {
+    set({ user: null, route: 'login' });
+    window.history.replaceState(null, '', '/login');
+  };
+
   const sd = () => get().settings.show_info_panel;
 
   function restoreFromUrl() {
@@ -45,21 +50,7 @@ export function createActions({
       get().fetchCollections();
       get().fetchSettings();
       window.addEventListener('popstate', restoreFromUrl);
-
-      const authCheck = setInterval(async () => {
-        try {
-          await client.getUser();
-        } catch {
-          clearInterval(authCheck);
-          set({ user: null, route: 'login' });
-          window.history.replaceState(null, '', '/login');
-        }
-      }, 60_000);
-
-      return () => {
-        window.removeEventListener('popstate', restoreFromUrl);
-        clearInterval(authCheck);
-      };
+      return () => window.removeEventListener('popstate', restoreFromUrl);
     },
 
     login: async (email: string, password: string) => {
@@ -68,8 +59,8 @@ export function createActions({
       await get().init();
     },
 
-    signOut: () => {
-      localStorage.removeItem('astronote.token');
+    signOut: async () => {
+      await client.logout();
       set({
         route: 'login',
         user: null,

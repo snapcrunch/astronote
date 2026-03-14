@@ -41,3 +41,30 @@ authRouter.get('/', (req, res) => {
     res.status(401).json({ error: 'Invalid or expired token' });
   }
 });
+
+authRouter.post('/refresh', async (req, res) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    res.status(400).json({ error: 'Refresh token is required' });
+    return;
+  }
+
+  try {
+    const result = await domain.auth.refreshAccessToken(refreshToken);
+    res.json(result);
+  } catch (err) {
+    if (err instanceof domain.auth.InvalidRefreshTokenError) {
+      res.status(401).json({ error: 'Invalid or expired refresh token' });
+      return;
+    }
+    throw err;
+  }
+});
+
+authRouter.post('/logout', async (req, res) => {
+  const { refreshToken } = req.body;
+  if (refreshToken) {
+    await domain.auth.logout(refreshToken);
+  }
+  res.status(204).send();
+});

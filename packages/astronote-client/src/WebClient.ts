@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance } from 'axios';
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 import type { Note, Collection, Settings } from '@repo/types';
 
 export interface User {
@@ -25,11 +25,19 @@ export interface CreateNoteParams {
   pinned?: boolean;
 }
 
+interface RetryableConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
 export class WebClient {
   private http: AxiosInstance;
+  private refreshPromise: Promise<boolean> | null = null;
+
+  onAuthFailure?: () => void;
 
   constructor(baseURL = '') {
     this.http = axios.create({ baseURL });
+
     this.http.interceptors.request.use((config) => {
       const token = localStorage.getItem('astronote.token');
       if (token) {
@@ -37,6 +45,54 @@ export class WebClient {
       }
       return config;
     });
+
+    this.http.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config as RetryableConfig | undefined;
+        if (
+          error.response?.status === 401 &&
+          originalRequest &&
+          !originalRequest._retry &&
+          !originalRequest.url?.includes('/api/auth')
+        ) {
+          originalRequest._retry = true;
+          const refreshed = await this.refresh();
+          if (refreshed) {
+            originalRequest.headers.Authorization = `Bearer ${localStorage.getItem('astronote.token')}`;
+            return this.http(originalRequest);
+          }
+          this.onAuthFailure?.();
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  private async refresh(): Promise<boolean> {
+    if (this.refreshPromise) return this.refreshPromise;
+    this.refreshPromise = this.doRefresh();
+    const result = await this.refreshPromise;
+    this.refreshPromise = null;
+    return result;
+  }
+
+  private async doRefresh(): Promise<boolean> {
+    const refreshToken = localStorage.getItem('astronote.refreshToken');
+    if (!refreshToken) return false;
+    try {
+      const { data } = await this.http.post<{
+        token: string;
+        refreshToken: string;
+      }>('/api/auth/refresh', { refreshToken });
+      localStorage.setItem('astronote.token', data.token);
+      localStorage.setItem('astronote.refreshToken', data.refreshToken);
+      return true;
+    } catch {
+      localStorage.removeItem('astronote.token');
+      localStorage.removeItem('astronote.refreshToken');
+      return false;
+    }
   }
 
   // Auth
@@ -47,11 +103,25 @@ export class WebClient {
   }
 
   async login(email: string, password: string): Promise<void> {
-    const { data } = await this.http.post<{ token: string }>('/api/auth', {
-      email,
-      password,
-    });
+    const { data } = await this.http.post<{
+      token: string;
+      refreshToken: string;
+    }>('/api/auth', { email, password });
     localStorage.setItem('astronote.token', data.token);
+    localStorage.setItem('astronote.refreshToken', data.refreshToken);
+  }
+
+  async logout(): Promise<void> {
+    const refreshToken = localStorage.getItem('astronote.refreshToken');
+    if (refreshToken) {
+      try {
+        await this.http.post('/api/auth/logout', { refreshToken });
+      } catch {
+        // Best-effort server-side invalidation
+      }
+    }
+    localStorage.removeItem('astronote.token');
+    localStorage.removeItem('astronote.refreshToken');
   }
 
   // Settings

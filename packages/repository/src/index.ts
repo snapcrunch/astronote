@@ -21,4 +21,10 @@ export {
 } from './collections';
 export { getTags } from './tags';
 export { getSettings, updateSettings, resetAll } from './settings';
-export { getUserByEmail } from './users';
+export { getUserByEmail, getUserById } from './users';
+export {
+  createRefreshToken,
+  getRefreshToken,
+  deleteRefreshToken,
+  deleteRefreshTokensByUserId,
+} from './refreshTokens';
