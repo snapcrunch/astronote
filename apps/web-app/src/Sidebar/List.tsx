@@ -259,7 +259,7 @@ function NoteList({
                   No notes found.
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Press Enter to create "{searchQuery}"
+                  Press Enter to create &quot;{searchQuery}&quot;
                 </Typography>
               </Box>
             )}

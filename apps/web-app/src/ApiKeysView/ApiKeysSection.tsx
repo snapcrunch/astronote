@@ -23,7 +23,10 @@ function ApiKeysSection() {
   const [newName, setNewName] = useState('');
   const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const handleCreate = async () => {
     if (!newName.trim()) return;
@@ -206,8 +209,9 @@ function ApiKeysSection() {
         <DialogTitle>Delete API Key</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete the API key "{deleteTarget?.name}"?
-            Any requests using this key will be rejected.
+            Are you sure you want to delete the API key &quot;
+            {deleteTarget?.name}&quot;? Any requests using this key will be
+            rejected.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

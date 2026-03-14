@@ -9,7 +9,11 @@ interface TokenPayload extends AuthUser {
   apiKeyId?: string;
 }
 
-export async function requireAuth(req: Request, res: Response, next: NextFunction) {
+export async function requireAuth(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) {
     res.status(401).json({ error: 'Authentication required' });

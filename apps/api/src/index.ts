@@ -16,7 +16,8 @@ import { basicAuth } from '#middleware/basicAuth';
 import { openApiSpec } from './openapi.js';
 
 const PORT = process.env.PORT ?? 3009;
-const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), '..', '..', 'astronote.db');
+const DB_PATH =
+  process.env.DB_PATH ?? path.join(process.cwd(), '..', '..', 'astronote.db');
 
 async function main() {
   await initDatabase(DB_PATH);

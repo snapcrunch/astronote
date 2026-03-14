@@ -37,11 +37,9 @@ export async function refreshAccessToken(
   ).toISOString();
   await createRefreshToken(user.id, newRefreshToken, expiresAt);
 
-  const accessToken = jwt.sign(
-    { id: user.id, email: user.email },
-    JWT_SECRET,
-    { expiresIn: '1h' }
-  );
+  const accessToken = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+    expiresIn: '1h',
+  });
 
   return { token: accessToken, refreshToken: newRefreshToken };
 }

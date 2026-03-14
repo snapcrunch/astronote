@@ -18,7 +18,10 @@ program
     await initDatabase(DB_PATH);
 
     try {
-      const { id } = await domain.users.createUser(options.email, options.password);
+      const { id } = await domain.users.createUser(
+        options.email,
+        options.password
+      );
       console.log(`User created successfully (id: ${id})`);
     } catch (error) {
       if (error instanceof domain.users.UserAlreadyExistsError) {

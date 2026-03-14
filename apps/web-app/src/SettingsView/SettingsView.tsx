@@ -8,8 +8,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { useNoteStore } from '../store';
 import { useIsMobile } from '../hooks';
-import type { ThemeId, DefaultView } from '@repo/types';
-import { themes as themeEntries } from '../themes';
+import type { DefaultView } from '@repo/types';
 
 function SettingsView() {
   const isMobile = useIsMobile();

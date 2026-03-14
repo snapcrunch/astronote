@@ -69,7 +69,11 @@ notesRouter.post('/:id/tags', async (req, res) => {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const note = await domain.notes.addTag(req.user!, req.params.id, result.data.tag.trim());
+  const note = await domain.notes.addTag(
+    req.user!,
+    req.params.id,
+    result.data.tag.trim()
+  );
   if (!note) {
     res.status(404).json({ error: 'Note not found' });
     return;
@@ -78,7 +82,11 @@ notesRouter.post('/:id/tags', async (req, res) => {
 });
 
 notesRouter.delete('/:id/tags/:tag', async (req, res) => {
-  const note = await domain.notes.removeTag(req.user!, req.params.id, req.params.tag);
+  const note = await domain.notes.removeTag(
+    req.user!,
+    req.params.id,
+    req.params.tag
+  );
   if (!note) {
     res.status(404).json({ error: 'Note not found' });
     return;

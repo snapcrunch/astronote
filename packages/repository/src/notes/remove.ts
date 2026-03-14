@@ -1,10 +1,7 @@
 import { getDb } from '../db';
 import { getNoteById } from './get';
 
-export async function deleteNote(
-  userId: number,
-  id: string
-): Promise<boolean> {
+export async function deleteNote(userId: number, id: string): Promise<boolean> {
   const db = getDb();
   const existing = await getNoteById(userId, id);
   if (!existing) return false;

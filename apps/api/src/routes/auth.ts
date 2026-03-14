@@ -36,7 +36,10 @@ authRouter.get('/', async (req, res) => {
 
   const token = header.slice(7);
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as { id: number; email: string };
+    const payload = jwt.verify(token, JWT_SECRET) as {
+      id: number;
+      email: string;
+    };
     const user = await getUserById(payload.id);
     if (!user) {
       res.status(401).json({ error: 'User not found' });

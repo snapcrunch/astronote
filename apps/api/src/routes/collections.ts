@@ -15,7 +15,10 @@ collectionsRouter.post('/', async (req, res) => {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const collection = await domain.collections.create(req.user!, result.data.name.trim());
+  const collection = await domain.collections.create(
+    req.user!,
+    result.data.name.trim()
+  );
   res.status(201).json(collection);
 });
 
@@ -39,7 +42,10 @@ collectionsRouter.post('/:id/default', async (req, res) => {
     res.status(400).json({ error: 'Invalid id' });
     return;
   }
-  const success = await domain.collections.setDefault(req.user!, result.data.id);
+  const success = await domain.collections.setDefault(
+    req.user!,
+    result.data.id
+  );
   if (!success) {
     res.status(404).json({ error: 'Collection not found' });
     return;

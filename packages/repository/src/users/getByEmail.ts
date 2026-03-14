@@ -7,9 +7,7 @@ interface UserRow {
   salt: string;
 }
 
-export async function getUserByEmail(
-  email: string
-): Promise<UserRow | null> {
+export async function getUserByEmail(email: string): Promise<UserRow | null> {
   const db = getDb();
   const row = await db('users').where('email', email).first();
   if (!row) return null;

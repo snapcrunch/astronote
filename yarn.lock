@@ -1849,7 +1849,6 @@ __metadata:
     "@next/eslint-plugin-next": ^15.5.0
     eslint: ^9.39.1
     eslint-config-prettier: ^10.1.1
-    eslint-plugin-only-warn: ^1.1.0
     eslint-plugin-prettier: ^5.4.1
     eslint-plugin-react: ^7.37.5
     eslint-plugin-react-hooks: ^5.2.0
@@ -4241,13 +4240,6 @@ __metadata:
   bin:
     eslint-config-prettier: bin/cli.js
   checksum: 9140e19f78f0dbc888b160bb72b85f8043bada7b12a548faa56cea0ba74f8ef16653250ffd014d85d9a376a88c4941c96a3cdc9d39a07eb3def6967166635bd8
-  languageName: node
-  linkType: hard
-
-"eslint-plugin-only-warn@npm:^1.1.0":
-  version: 1.2.1
-  resolution: "eslint-plugin-only-warn@npm:1.2.1"
-  checksum: 856c06a607bc80777aa4169f03ab3d510566efdf7171d0509e9bd92b0d77ae4193bfe27e578e87d8fd8e1dd812f81c1cd5edb3f1c53b69a35e01cb6d28a570a5
   languageName: node
   linkType: hard
 

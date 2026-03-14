@@ -17,7 +17,11 @@ export async function create(
     createdAt: now,
     updatedAt: now,
   };
-  const created = await repository.createNote(user.id, note, input.collectionId);
+  const created = await repository.createNote(
+    user.id,
+    note,
+    input.collectionId
+  );
   await repository.incrementTags(tags);
   return created;
 }

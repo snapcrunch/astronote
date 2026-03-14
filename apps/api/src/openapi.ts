@@ -113,9 +113,24 @@ export const openApiSpec: JsonObject = {
         tags: ['Notes'],
         summary: 'List notes',
         parameters: [
-          { name: 'q', in: 'query', schema: { type: 'string' }, description: 'Search query' },
-          { name: 'tags', in: 'query', schema: { type: 'string' }, description: 'Comma-separated tag filter' },
-          { name: 'collectionId', in: 'query', schema: { type: 'integer' }, description: 'Filter by collection' },
+          {
+            name: 'q',
+            in: 'query',
+            schema: { type: 'string' },
+            description: 'Search query',
+          },
+          {
+            name: 'tags',
+            in: 'query',
+            schema: { type: 'string' },
+            description: 'Comma-separated tag filter',
+          },
+          {
+            name: 'collectionId',
+            in: 'query',
+            schema: { type: 'integer' },
+            description: 'Filter by collection',
+          },
         ],
         responses: {
           '200': { description: 'List of notes' },
@@ -162,7 +177,14 @@ export const openApiSpec: JsonObject = {
       get: {
         tags: ['Notes'],
         summary: 'Get a note by ID',
-        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
         responses: {
           '200': { description: 'The note' },
           '404': { description: 'Note not found' },
@@ -171,7 +193,14 @@ export const openApiSpec: JsonObject = {
       patch: {
         tags: ['Notes'],
         summary: 'Update a note',
-        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
         requestBody: {
           required: true,
           content: {
@@ -196,7 +225,14 @@ export const openApiSpec: JsonObject = {
       delete: {
         tags: ['Notes'],
         summary: 'Delete a note',
-        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
         responses: {
           '204': { description: 'Note deleted' },
           '404': { description: 'Note not found' },
@@ -207,7 +243,14 @@ export const openApiSpec: JsonObject = {
       post: {
         tags: ['Notes'],
         summary: 'Add a tag to a note',
-        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
         requestBody: {
           required: true,
           content: {
@@ -234,8 +277,18 @@ export const openApiSpec: JsonObject = {
         tags: ['Notes'],
         summary: 'Remove a tag from a note',
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
-          { name: 'tag', in: 'path', required: true, schema: { type: 'string' } },
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+          {
+            name: 'tag',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
         ],
         responses: {
           '200': { description: 'Updated note without the tag' },
@@ -248,7 +301,12 @@ export const openApiSpec: JsonObject = {
         tags: ['Tags'],
         summary: 'List tags',
         parameters: [
-          { name: 'collectionId', in: 'query', schema: { type: 'integer' }, description: 'Filter by collection' },
+          {
+            name: 'collectionId',
+            in: 'query',
+            schema: { type: 'integer' },
+            description: 'Filter by collection',
+          },
         ],
         responses: {
           '200': { description: 'List of tags' },
@@ -290,7 +348,14 @@ export const openApiSpec: JsonObject = {
       delete: {
         tags: ['Collections'],
         summary: 'Delete a collection',
-        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
+        ],
         responses: {
           '204': { description: 'Collection deleted' },
           '404': { description: 'Collection not found' },
@@ -301,7 +366,14 @@ export const openApiSpec: JsonObject = {
       post: {
         tags: ['Collections'],
         summary: 'Set a collection as default',
-        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
+        ],
         responses: {
           '200': { description: 'Updated list of collections' },
           '404': { description: 'Collection not found' },
@@ -343,7 +415,14 @@ export const openApiSpec: JsonObject = {
       delete: {
         tags: ['API Keys'],
         summary: 'Delete an API key',
-        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        ],
         responses: {
           '204': { description: 'API key deleted' },
           '404': { description: 'API key not found' },

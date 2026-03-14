@@ -10,7 +10,10 @@ export async function create(
   name: string
 ): Promise<ApiKeyWithToken> {
   const id = crypto.randomUUID();
-  const token = jwt.sign({ id: user.id, email: user.email, apiKeyId: id }, JWT_SECRET);
+  const token = jwt.sign(
+    { id: user.id, email: user.email, apiKeyId: id },
+    JWT_SECRET
+  );
   await repoCreate(user.id, id, name, token);
   return { id, name, token };
 }
