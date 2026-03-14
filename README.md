@@ -31,7 +31,7 @@ services:
   astronote:
     image: tkambler/astronote:latest
     ports:
-      - "3009:3009"
+      - '3009:3009'
 ```
 
 To enable HTTP basic auth, run the following to generate a username / password string:
@@ -47,10 +47,10 @@ services:
   astronote:
     image: tkambler/astronote:latest
     ports:
-      - "3009:3009"
+      - '3009:3009'
     environment:
       ASTRONOTE_AUTH_METHOD: BASIC_AUTH
-      ASTRONOTE_AUTH_CREDENTIALS: "username:creds_go_here"
+      ASTRONOTE_AUTH_CREDENTIALS: 'username:creds_go_here'
 ```
 
 **NOTE:** Don't forget that any `$` characters in the encoded password string must be escaped (replaced `$` with `$$`).
@@ -61,6 +61,26 @@ services:
 # Install dependencies, launch the API / frontend in dev mode.
 yarn
 yarn dev
+```
+
+## Manually Creating a New User
+
+```sh
+# If running locally
+yarn cli create-user --email <email> --password <password>
+
+# If running in Docker
+docker exec <container> node_modules/.bin/tsx apps/cli/src/index.ts create-user --email <email> --password <password>
+```
+
+## Seeding the Database with Sample Data
+
+```sh
+# If running locally
+yarn cli seed
+
+# If running in Docker
+docker exec <container> node_modules/.bin/tsx apps/cli/src/index.ts seed
 ```
 
 ## Packages

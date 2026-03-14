@@ -1,7 +1,7 @@
 import path from 'node:path';
 import express from 'express';
 import cors from 'cors';
-import { initDatabase, seedDatabase } from '@repo/repository';
+import { initDatabase } from '@repo/repository';
 import { notesRouter } from '#routes/notes';
 import { tagsRouter } from '#routes/tags';
 import { collectionsRouter } from '#routes/collections';
@@ -13,11 +13,10 @@ import { errorHandler } from '#middleware/errorHandler';
 import { basicAuth } from '#middleware/basicAuth';
 
 const PORT = process.env.PORT ?? 3009;
-const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), 'astronote.db');
+const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), '..', '..', 'astronote.db');
 
 async function main() {
   await initDatabase(DB_PATH);
-  await seedDatabase();
 
   const app = express();
 

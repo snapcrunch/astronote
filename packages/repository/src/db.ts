@@ -23,3 +23,9 @@ export async function seedDatabase(): Promise<void> {
 export function getDb(): Knex {
   return db;
 }
+
+export async function closeDatabase(): Promise<void> {
+  if (db) {
+    await db.destroy();
+  }
+}

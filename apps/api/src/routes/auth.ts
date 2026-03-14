@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
+import { getUserById } from '@repo/repository';
 import domain from '@repo/domain';
 
 const JWT_SECRET = process.env.JWT_SECRET ?? 'astronote-dev-secret';
@@ -26,7 +27,7 @@ authRouter.post('/', async (req, res) => {
   }
 });
 
-authRouter.get('/', (req, res) => {
+authRouter.get('/', async (req, res) => {
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) {
     res.status(401).json({ error: 'Authentication required' });
@@ -36,7 +37,12 @@ authRouter.get('/', (req, res) => {
   const token = header.slice(7);
   try {
     const payload = jwt.verify(token, JWT_SECRET) as { id: number; email: string };
-    res.json({ id: payload.id, email: payload.email });
+    const user = await getUserById(payload.id);
+    if (!user) {
+      res.status(401).json({ error: 'User not found' });
+      return;
+    }
+    res.json({ id: user.id, email: user.email });
   } catch {
     res.status(401).json({ error: 'Invalid or expired token' });
   }

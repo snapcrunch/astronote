@@ -5,3 +5,4 @@ node_modules/
 .turbo/
 .playwright-cli/
 dist/
+astronote.db

@@ -9,6 +9,7 @@
     "start": "turbo run build && yarn workspace @repo/api start",
     "check-types": "turbo run check-types",
     "cli": "node --import tsx apps/cli/src/index.ts",
+    "db:delete": "rm -f ./apps/api/astronote.db",
     "postinstall": "simple-git-hooks"
   },
   "simple-git-hooks": {
