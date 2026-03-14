@@ -10,6 +10,7 @@ export const infoPanelRoot: SxProps<Theme> = {
   borderLeft: 1,
   borderColor: "divider",
   bgcolor: "grey.50",
+  overflow: "hidden",
   userSelect: "none",
 };
 
@@ -29,7 +30,7 @@ export const infoPanelHeaderTitle: SxProps<Theme> = { fontWeight: 600 };
 
 export const infoPanelContent: SxProps<Theme> = { px: 2, py: 1.5, overflow: "auto" };
 
-export const infoPanelContentInner: SxProps<Theme> = { px: 2 };
+export const infoPanelContentInner: SxProps<Theme> = { px: 2, flexShrink: 0 };
 
 // TagManager
 export const tagInputWrapper: SxProps<Theme> = {
