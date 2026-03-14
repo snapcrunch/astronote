@@ -1,6 +1,6 @@
-import archiver from "archiver";
-import * as repository from "@repo/repository";
-import { buildFrontmatter } from "../../util/notes";
+import archiver from 'archiver';
+import * as repository from '@repo/repository';
+import { buildFrontmatter } from '../../util/notes';
 
 /**
  * Exports all notes as a zip archive of markdown files.
@@ -11,12 +11,12 @@ import { buildFrontmatter } from "../../util/notes";
 export async function exportAll() {
   const entries = await repository.getNotesForExport();
 
-  const archive = archiver("zip", { zlib: { level: 9 } });
+  const archive = archiver('zip', { zlib: { level: 9 } });
 
   for (const { note, collectionName } of entries) {
     const frontmatter = buildFrontmatter(note, collectionName ?? undefined);
     const body = `${frontmatter}\n\n${note.content}`;
-    const safeName = note.title.replace(/[/\\:*?"<>|]/g, "_");
+    const safeName = note.title.replace(/[/\\:*?"<>|]/g, '_');
     archive.append(body, { name: `${safeName}.md` });
   }
 

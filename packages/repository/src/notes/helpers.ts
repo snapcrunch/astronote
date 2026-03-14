@@ -1,12 +1,12 @@
-import type { Note } from "@repo/types";
-import { getDb } from "../db";
+import type { Note } from '@repo/types';
+import { getDb } from '../db';
 
 export async function getNoteTagsAsync(noteId: string): Promise<string[]> {
   const db = getDb();
-  const rows = await db("note_tags")
-    .where("noteId", noteId)
-    .orderBy("tag", "asc")
-    .select("tag");
+  const rows = await db('note_tags')
+    .where('noteId', noteId)
+    .orderBy('tag', 'asc')
+    .select('tag');
   return rows.map((r) => r.tag);
 }
 

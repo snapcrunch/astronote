@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useNoteStore, useFilteredNotes } from "../store";
-import { useIsMobile } from "../hooks";
-import { omnibarRef, omnibarKeyDownHandler } from "./refs";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNoteStore, useFilteredNotes } from '../store';
+import { useIsMobile } from '../hooks';
+import { omnibarRef, omnibarKeyDownHandler } from './refs';
 
 export function useOmnibar(onRenameSelectedNote?: () => void) {
   const isMobile = useIsMobile();
@@ -12,44 +12,48 @@ export function useOmnibar(onRenameSelectedNote?: () => void) {
     if (!isMobile) omnibarRef.current?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey && e.shiftKey && e.key === "k") {
+      if (e.metaKey && e.shiftKey && e.key === 'k') {
         e.preventDefault();
         omnibarRef.current?.focus();
         omnibarRef.current?.select();
       }
-      if (e.metaKey && e.shiftKey && (e.key === "s" || e.key === "S")) {
+      if (e.metaKey && e.shiftKey && (e.key === 's' || e.key === 'S')) {
         e.preventDefault();
         const { view, setView } = useNoteStore.getState();
-        if (view !== "settings") setView("settings");
+        if (view !== 'settings') setView('settings');
       }
-      if (e.metaKey && e.shiftKey && e.key === "d") {
+      if (e.metaKey && e.shiftKey && e.key === 'd') {
         e.preventDefault();
         const { selectedNoteId, deleteNote } = useNoteStore.getState();
         if (selectedNoteId) deleteNote(selectedNoteId);
       }
-if (e.metaKey && e.shiftKey && (e.key === "e" || e.key === "E")) {
+      if (e.metaKey && e.shiftKey && (e.key === 'e' || e.key === 'E')) {
         e.preventDefault();
         const { selectedNoteId } = useNoteStore.getState();
         if (selectedNoteId) onRenameSelectedNoteRef.current?.();
       }
-      if ((e.key === "ArrowDown" || e.key === "ArrowUp") && (!document.activeElement || document.activeElement === document.body)) {
+      if (
+        (e.key === 'ArrowDown' || e.key === 'ArrowUp') &&
+        (!document.activeElement || document.activeElement === document.body)
+      ) {
         e.preventDefault();
-        const { notes, selectedNoteId, setSelectedNoteId } = useNoteStore.getState();
+        const { notes, selectedNoteId, setSelectedNoteId } =
+          useNoteStore.getState();
         if (notes.length === 0) return;
         if (!selectedNoteId) {
           setSelectedNoteId(notes[0]!.id);
           return;
         }
         const currentIndex = notes.findIndex((n) => n.id === selectedNoteId);
-        if (e.key === "ArrowDown" && currentIndex < notes.length - 1) {
+        if (e.key === 'ArrowDown' && currentIndex < notes.length - 1) {
           setSelectedNoteId(notes[currentIndex + 1]!.id);
-        } else if (e.key === "ArrowUp" && currentIndex > 0) {
+        } else if (e.key === 'ArrowUp' && currentIndex > 0) {
           setSelectedNoteId(notes[currentIndex - 1]!.id);
         }
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   return omnibarRef;
@@ -57,7 +61,9 @@ if (e.metaKey && e.shiftKey && (e.key === "e" || e.key === "E")) {
 
 export function useSearch() {
   const setSearchQuery = useNoteStore((s) => s.setSearchQuery);
-  const [localQuery, setLocalQuery] = useState(() => useNoteStore.getState().searchQuery);
+  const [localQuery, setLocalQuery] = useState(
+    () => useNoteStore.getState().searchQuery
+  );
   const searchTimer = useRef<ReturnType<typeof setTimeout>>(null);
 
   const handleSearchChange = useCallback(
@@ -66,7 +72,7 @@ export function useSearch() {
       if (searchTimer.current) clearTimeout(searchTimer.current);
       searchTimer.current = setTimeout(() => setSearchQuery(value), 250);
     },
-    [setSearchQuery],
+    [setSearchQuery]
   );
 
   // Sync local query when store resets it (e.g. after note creation)
@@ -92,24 +98,25 @@ export function useNoteList() {
     (index: number) => {
       if (index < 0 || index >= notes.length) return;
       setSelectedNoteId(notes[index]!.id);
-      const items = listRef.current?.querySelectorAll<HTMLElement>('[role="button"]');
+      const items =
+        listRef.current?.querySelectorAll<HTMLElement>('[role="button"]');
       items?.[index]?.focus();
     },
-    [notes, setSelectedNoteId],
+    [notes, setSelectedNoteId]
   );
 
   const handleOmnibarKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if ((e.key === "ArrowDown" || e.key === "ArrowUp") && notes.length > 0) {
+      if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && notes.length > 0) {
         e.preventDefault();
         focusNoteAtIndex(0);
         return;
       }
-      if (e.key === "Enter") {
+      if (e.key === 'Enter') {
         const query = (e.target as HTMLInputElement).value.trim();
         if (!query) return;
         const exactMatch = notes.find(
-          (n) => n.title.toLowerCase() === query.toLowerCase(),
+          (n) => n.title.toLowerCase() === query.toLowerCase()
         );
         if (exactMatch) {
           setSelectedNoteId(exactMatch.id);
@@ -118,21 +125,23 @@ export function useNoteList() {
         }
       }
     },
-    [notes, setSelectedNoteId, createNote, focusNoteAtIndex],
+    [notes, setSelectedNoteId, createNote, focusNoteAtIndex]
   );
 
   // Keep the shared handler in sync so Omnibar can delegate to it
   useEffect(() => {
     omnibarKeyDownHandler.current = handleOmnibarKeyDown;
-    return () => { omnibarKeyDownHandler.current = null; };
+    return () => {
+      omnibarKeyDownHandler.current = null;
+    };
   }, [handleOmnibarKeyDown]);
 
   const handleListItemKeyDown = useCallback(
     (e: React.KeyboardEvent, index: number) => {
-      if (e.key === "ArrowDown") {
+      if (e.key === 'ArrowDown') {
         e.preventDefault();
         focusNoteAtIndex(index + 1);
-      } else if (e.key === "ArrowUp") {
+      } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         if (index === 0) {
           omnibarRef.current?.focus();
@@ -141,8 +150,14 @@ export function useNoteList() {
         }
       }
     },
-    [focusNoteAtIndex],
+    [focusNoteAtIndex]
   );
 
-  return { notes, selectedNoteId, setSelectedNoteId, listRef, handleListItemKeyDown };
+  return {
+    notes,
+    selectedNoteId,
+    setSelectedNoteId,
+    listRef,
+    handleListItemKeyDown,
+  };
 }

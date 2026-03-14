@@ -1,17 +1,24 @@
-import type { Knex } from "knex";
+import type { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
-  await knex.schema.createTable("settings", (table) => {
-    table.string("key").primary();
-    table.string("value").notNullable();
+  await knex.schema.createTable('settings', (table) => {
+    table.string('key').primary();
+    table.string('value').notNullable();
   });
 
-  await knex("settings").insert({
-    key: "settings",
-    value: JSON.stringify({ default_view: "renderer", show_info_panel: true, theme: "default", auth_method: "none", auth_username: "", auth_password: "" }),
+  await knex('settings').insert({
+    key: 'settings',
+    value: JSON.stringify({
+      default_view: 'renderer',
+      show_info_panel: true,
+      theme: 'default',
+      auth_method: 'none',
+      auth_username: '',
+      auth_password: '',
+    }),
   });
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTableIfExists("settings");
+  await knex.schema.dropTableIfExists('settings');
 }

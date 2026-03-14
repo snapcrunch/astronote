@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const NoteSchema = z.object({
   id: z.string(),
@@ -33,7 +33,10 @@ export type UpdateNoteInput = z.infer<typeof UpdateNoteInputSchema>;
 
 export const ListNotesQuerySchema = z.object({
   q: z.string().optional(),
-  tags: z.string().transform((s) => s.split(",")).optional(),
+  tags: z
+    .string()
+    .transform((s) => s.split(','))
+    .optional(),
   collectionId: z.coerce.number().optional(),
 });
 
@@ -62,18 +65,18 @@ export const CollectionSchema = z.object({
 
 export type Collection = z.infer<typeof CollectionSchema>;
 
-export const DefaultViewSchema = z.enum(["editor", "renderer"]);
+export const DefaultViewSchema = z.enum(['editor', 'renderer']);
 
 export type DefaultView = z.infer<typeof DefaultViewSchema>;
 
 export const ThemeIdSchema = z.enum([
-  "default",
-  "dark",
-  "solarized-light",
-  "solarized-dark",
-  "nord",
-  "dracula",
-  "geek-light",
+  'default',
+  'dark',
+  'solarized-light',
+  'solarized-dark',
+  'nord',
+  'dracula',
+  'geek-light',
 ]);
 
 export type ThemeId = z.infer<typeof ThemeIdSchema>;
@@ -88,8 +91,8 @@ export const SettingsSchema = z.object({
 export type Settings = z.infer<typeof SettingsSchema>;
 
 export const DEFAULT_SETTINGS: Settings = {
-  default_view: "renderer",
+  default_view: 'renderer',
   show_info_panel: true,
-  theme: "default",
+  theme: 'default',
   intro_dismissed: false,
 };

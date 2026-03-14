@@ -1,11 +1,11 @@
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
-import { useNoteStore } from "../store";
-import { useIsMobile } from "../hooks";
-import CollectionsSection from "../SettingsView/CollectionsSection";
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import { useNoteStore } from '../store';
+import { useIsMobile } from '../hooks';
+import CollectionsSection from '../SettingsView/CollectionsSection';
 
 function CollectionsView() {
   const isMobile = useIsMobile();
@@ -15,28 +15,32 @@ function CollectionsView() {
     <Box
       sx={{
         flex: 1,
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
       }}
     >
       <Box
         sx={{
           px: isMobile ? 1.5 : 3,
-          display: "flex",
-          alignItems: "center",
+          display: 'flex',
+          alignItems: 'center',
           gap: 1,
-          bgcolor: "grey.100",
+          bgcolor: 'grey.100',
           borderBottom: 1,
-          borderColor: "divider",
+          borderColor: 'divider',
           height: 40,
           minHeight: 40,
-          boxSizing: "content-box",
+          boxSizing: 'content-box',
         }}
       >
         {isMobile && (
-          <IconButton size="small" onClick={() => setView("notes")} title="Back">
+          <IconButton
+            size="small"
+            onClick={() => setView('notes')}
+            title="Back"
+          >
             <ArrowBackIcon fontSize="small" />
           </IconButton>
         )}
@@ -44,8 +48,11 @@ function CollectionsView() {
           Collections
         </Typography>
       </Box>
-      <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" } }}>
-        <Box sx={{ bgcolor: "#ECECED", minHeight: "100%" }}>
+      <OverlayScrollbarsComponent
+        style={{ flex: 1 }}
+        options={{ scrollbars: { autoHide: 'move' } }}
+      >
+        <Box sx={{ bgcolor: '#ECECED', minHeight: '100%' }}>
           <CollectionsSection />
         </Box>
       </OverlayScrollbarsComponent>

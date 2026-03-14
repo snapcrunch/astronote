@@ -1,19 +1,19 @@
-import { useEffect } from "react";
-import { ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import Box from "@mui/material/Box";
-import introJs from "intro.js";
-import "intro.js/introjs.css";
-import Sidebar from "./Sidebar";
-import NoteEditor from "./NoteEditor";
-import SettingsView from "./SettingsView";
-import CollectionsView from "./CollectionsView";
-import InfoPanel from "./InfoPanel";
-import CommandPalette from "./CommandPalette";
-import Omnibar from "./Sidebar/Omnibar";
-import { useNoteStore } from "./store";
-import { useIsMobile } from "./hooks";
-import { themes } from "./themes";
+import { useEffect } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import Box from '@mui/material/Box';
+import introJs from 'intro.js';
+import 'intro.js/introjs.css';
+import Sidebar from './Sidebar';
+import NoteEditor from './NoteEditor';
+import SettingsView from './SettingsView';
+import CollectionsView from './CollectionsView';
+import InfoPanel from './InfoPanel';
+import CommandPalette from './CommandPalette';
+import Omnibar from './Sidebar/Omnibar';
+import { useNoteStore } from './store';
+import { useIsMobile } from './hooks';
+import { themes } from './themes';
 
 function App() {
   const init = useNoteStore((s) => s.init);
@@ -29,35 +29,52 @@ function App() {
     if (introDismissed) return;
     const timer = setTimeout(() => {
       const dismiss = () => updateSettings({ intro_dismissed: true });
-      introJs().setOptions({
-        steps: [
-          {
-            element: "#omnibar-planet-icon",
-            intro: isMobile ? "Tap the planet icon to open the command palette." : "Click the planet icon to open the command palette.",
-          },
-        ],
-        showBullets: false,
-        showStepNumbers: false,
-        exitOnOverlayClick: true,
-      }).oncomplete(dismiss).onexit(dismiss).start();
+      introJs()
+        .setOptions({
+          steps: [
+            {
+              element: '#omnibar-planet-icon',
+              intro: isMobile
+                ? 'Tap the planet icon to open the command palette.'
+                : 'Click the planet icon to open the command palette.',
+            },
+          ],
+          showBullets: false,
+          showStepNumbers: false,
+          exitOnOverlayClick: true,
+        })
+        .oncomplete(dismiss)
+        .onexit(dismiss)
+        .start();
     }, 500);
     return () => clearTimeout(timer);
   }, [introDismissed, updateSettings]);
 
-  const isNotes = view === "notes";
+  const isNotes = view === 'notes';
   const showNoteView = isMobile && (selectedNoteId !== null || !isNotes);
 
-  const contentView = view === "settings" ? <SettingsView />
-    : view === "collections" ? <CollectionsView />
-    : <NoteEditor />;
+  const contentView =
+    view === 'settings' ? (
+      <SettingsView />
+    ) : view === 'collections' ? (
+      <CollectionsView />
+    ) : (
+      <NoteEditor />
+    );
 
   return (
     <ThemeProvider theme={themes[themeId].theme}>
       <CssBaseline />
-      <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {isMobile ? (
           <>
-            <Box sx={{ display: showNoteView ? "none" : "flex", flexDirection: "column", height: "100%" }}>
+            <Box
+              sx={{
+                display: showNoteView ? 'none' : 'flex',
+                flexDirection: 'column',
+                height: '100%',
+              }}
+            >
               <Sidebar />
             </Box>
             {showNoteView && contentView}
@@ -65,7 +82,7 @@ function App() {
         ) : (
           <>
             <Omnibar />
-            <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
+            <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
               <Sidebar />
               {contentView}
               <InfoPanel />

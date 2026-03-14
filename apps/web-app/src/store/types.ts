@@ -1,9 +1,9 @@
-import type { Note, Collection, Settings } from "@repo/types";
-import type { Tag } from "@repo/astronote-client/WebClient";
+import type { Note, Collection, Settings } from '@repo/types';
+import type { Tag } from '@repo/astronote-client/WebClient';
 
 export type { Tag };
 
-export type View = "notes" | "settings" | "collections";
+export type View = 'notes' | 'settings' | 'collections';
 
 export interface NoteStore {
   notes: Note[];
@@ -21,7 +21,7 @@ export interface NoteStore {
   view: View;
   showInfoPanel: boolean;
 
-  init: () => (() => void);
+  init: () => () => void;
   fetchSettings: () => Promise<void>;
   updateSettings: (updates: Partial<Settings>) => Promise<void>;
   resetAll: () => Promise<void>;
@@ -38,9 +38,18 @@ export interface NoteStore {
   deleteCollection: (id: number) => Promise<void>;
   setDefaultCollection: (id: number) => Promise<void>;
   createNote: (title: string, content?: string) => Promise<void>;
-  importNote: (title: string, content: string, opts?: { tags?: string[]; collectionId?: number; pinned?: boolean }) => Promise<void>;
+  importNote: (
+    title: string,
+    content: string,
+    opts?: { tags?: string[]; collectionId?: number; pinned?: boolean }
+  ) => Promise<void>;
   importing: boolean;
-  updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content" | "pinned">> & { collectionId?: number }) => Promise<void>;
+  updateNote: (
+    id: string,
+    updates: Partial<Pick<Note, 'title' | 'content' | 'pinned'>> & {
+      collectionId?: number;
+    }
+  ) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
   addTag: (noteId: string, tag: string) => Promise<void>;
   removeTag: (noteId: string, tag: string) => Promise<void>;

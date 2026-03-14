@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@repo/domain": "*",
@@ -19,10 +20,12 @@
     "tsx": "^4.19.4"
   },
   "devDependencies": {
+    "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@types/archiver": "^6.0.4",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "eslint": "^9.39.1",
     "typescript": "^5.9.2"
   }
 }

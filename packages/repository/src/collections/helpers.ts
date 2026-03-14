@@ -1,4 +1,4 @@
-import type { Collection } from "@repo/types";
+import type { Collection } from '@repo/types';
 
 export function rowToCollection(row: Record<string, unknown>): Collection {
   return {

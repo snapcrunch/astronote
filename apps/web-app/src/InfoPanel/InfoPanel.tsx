@@ -1,23 +1,28 @@
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
-import { useNoteStore } from "../store";
-import Dates from "./Dates";
-import Statistics from "./Statistics";
-import TableOfContents from "./TableOfContents";
-import TagManager from "./TagManager";
-import RelatedNotes from "./RelatedNotes";
-import { infoPanelRoot, infoPanelHeader, infoPanelHeaderTitle, infoPanelContentInner } from "./styles";
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import { useNoteStore } from '../store';
+import Dates from './Dates';
+import Statistics from './Statistics';
+import TableOfContents from './TableOfContents';
+import TagManager from './TagManager';
+import RelatedNotes from './RelatedNotes';
+import {
+  infoPanelRoot,
+  infoPanelHeader,
+  infoPanelHeaderTitle,
+  infoPanelContentInner,
+} from './styles';
 
 interface InfoPanelProps {
-  variant?: "side" | "inline";
+  variant?: 'side' | 'inline';
 }
 
-function InfoPanel({ variant = "side" }: InfoPanelProps) {
+function InfoPanel({ variant = 'side' }: InfoPanelProps) {
   const showInfoPanel = useNoteStore((s) => s.showInfoPanel);
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
 
-  if (variant === "side") {
+  if (variant === 'side') {
     if (!showInfoPanel || !selectedNoteId) return null;
 
     return (
@@ -39,7 +44,10 @@ function InfoPanel({ variant = "side" }: InfoPanelProps) {
   }
 
   return (
-    <OverlayScrollbarsComponent style={{ flex: 1 }} options={{ scrollbars: { autoHide: "move" } }}>
+    <OverlayScrollbarsComponent
+      style={{ flex: 1 }}
+      options={{ scrollbars: { autoHide: 'move' } }}
+    >
       <Box sx={infoPanelContentInner}>
         <TableOfContents />
         <TagManager />

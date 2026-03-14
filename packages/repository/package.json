@@ -10,7 +10,8 @@
     }
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@repo/types": "*",
@@ -19,9 +20,11 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@types/better-sqlite3": "^7.6.13",
     "@types/uuid": "^11.0.0",
+    "eslint": "^9.39.1",
     "typescript": "^5.9.2"
   }
 }

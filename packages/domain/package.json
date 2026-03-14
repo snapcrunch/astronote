@@ -10,7 +10,8 @@
     }
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@repo/repository": "*",
@@ -19,9 +20,11 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
     "@types/archiver": "^6.0.4",
     "@types/uuid": "^10.0.0",
+    "eslint": "^9.39.1",
     "typescript": "^5.9.2"
   }
 }

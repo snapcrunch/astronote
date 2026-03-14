@@ -1,45 +1,56 @@
-import { useState } from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import TextField from "@mui/material/TextField";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import StarIcon from "@mui/icons-material/Star";
-import StarOutlineIcon from "@mui/icons-material/StarOutline";
-import Paper from "@mui/material/Paper";
-import { useNoteStore } from "../store";
+import { useState } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import TextField from '@mui/material/TextField';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import StarIcon from '@mui/icons-material/Star';
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import Paper from '@mui/material/Paper';
+import { useNoteStore } from '../store';
 
 function CollectionsSection() {
   const collections = useNoteStore((s) => s.collections);
   const createCollection = useNoteStore((s) => s.createCollection);
   const deleteCollection = useNoteStore((s) => s.deleteCollection);
   const setDefaultCollection = useNoteStore((s) => s.setDefaultCollection);
-  const [newName, setNewName] = useState("");
+  const [newName, setNewName] = useState('');
 
   return (
-    <Paper sx={{ pt: 0, px: 2, pb: 0, borderRadius: 0, bgcolor: "#fff", boxShadow: "none", borderBottom: 1, borderColor: "divider" }}>
+    <Paper
+      sx={{
+        pt: 0,
+        px: 2,
+        pb: 0,
+        borderRadius: 0,
+        bgcolor: '#fff',
+        boxShadow: 'none',
+        borderBottom: 1,
+        borderColor: 'divider',
+      }}
+    >
       <Box
         component="table"
         sx={{
-          width: "100%",
-          borderCollapse: "collapse",
-          "& th, & td": {
-            textAlign: "left",
+          width: '100%',
+          borderCollapse: 'collapse',
+          '& th, & td': {
+            textAlign: 'left',
             py: 0.75,
             px: 1,
             borderBottom: 1,
-            borderColor: "divider",
+            borderColor: 'divider',
           },
-          "& tbody tr:last-child td": {
+          '& tbody tr:last-child td': {
             borderBottom: 0,
           },
-          "& th": {
+          '& th': {
             fontWeight: 600,
-            fontSize: "0.75rem",
-            color: "text.secondary",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
+            fontSize: '0.75rem',
+            color: 'text.secondary',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
             py: 1.5,
           },
         }}
@@ -65,8 +76,8 @@ function CollectionsSection() {
                 <IconButton
                   size="small"
                   onClick={() => setDefaultCollection(c.id)}
-                  color={c.isDefault ? "primary" : "default"}
-                  title={c.isDefault ? "Default collection" : "Set as default"}
+                  color={c.isDefault ? 'primary' : 'default'}
+                  title={c.isDefault ? 'Default collection' : 'Set as default'}
                 >
                   {c.isDefault ? (
                     <StarIcon fontSize="small" />
@@ -96,13 +107,16 @@ function CollectionsSection() {
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && newName.trim()) {
+                  if (e.key === 'Enter' && newName.trim()) {
                     createCollection(newName.trim());
-                    setNewName("");
+                    setNewName('');
                   }
                 }}
                 fullWidth
-                InputProps={{ disableUnderline: true, sx: { fontSize: "0.875rem" } }}
+                InputProps={{
+                  disableUnderline: true,
+                  sx: { fontSize: '0.875rem' },
+                }}
               />
             </td>
             <td>
@@ -111,7 +125,7 @@ function CollectionsSection() {
                 onClick={() => {
                   if (newName.trim()) {
                     createCollection(newName.trim());
-                    setNewName("");
+                    setNewName('');
                   }
                 }}
                 title="Create collection"

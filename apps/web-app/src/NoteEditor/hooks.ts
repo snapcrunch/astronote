@@ -1,11 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useNoteStore } from "../store";
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNoteStore } from '../store';
 
-type UpdateNoteFn = ReturnType<typeof useNoteStore.getState>["updateNote"];
+type UpdateNoteFn = ReturnType<typeof useNoteStore.getState>['updateNote'];
 
 export function useDebouncedNoteUpdate(updateNote: UpdateNoteFn) {
   const debounceTimer = useRef<ReturnType<typeof setTimeout>>(null);
-  const pendingUpdate = useRef<{ id: string; updates: Parameters<UpdateNoteFn>[1] } | null>(null);
+  const pendingUpdate = useRef<{
+    id: string;
+    updates: Parameters<UpdateNoteFn>[1];
+  } | null>(null);
 
   const debouncedUpdateNote = useCallback(
     (id: string, updates: Parameters<UpdateNoteFn>[1]) => {
@@ -16,7 +19,7 @@ export function useDebouncedNoteUpdate(updateNote: UpdateNoteFn) {
         updateNote(id, updates);
       }, 500);
     },
-    [updateNote],
+    [updateNote]
   );
 
   const flushPendingUpdate = useCallback(() => {
@@ -49,7 +52,7 @@ export function useEditingState(noteId: string | undefined) {
       setEditing(true);
       useNoteStore.setState({ editOnCreate: false });
     } else {
-      setEditing(settings.default_view === "editor");
+      setEditing(settings.default_view === 'editor');
     }
   }, [noteId]);
 

@@ -1,12 +1,12 @@
-import { useState } from "react";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogActions from "@mui/material/DialogActions";
-import Paper from "@mui/material/Paper";
+import { useState } from 'react';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
+import Paper from '@mui/material/Paper';
 
 function ResetSection({ onReset }: { onReset: () => Promise<void> }) {
   const [open, setOpen] = useState(false);
@@ -18,7 +18,7 @@ function ResetSection({ onReset }: { onReset: () => Promise<void> }) {
 
   return (
     <>
-      <Paper variant="outlined" sx={{ p: 2, mt: 3, bgcolor: "#fff" }}>
+      <Paper variant="outlined" sx={{ p: 2, mt: 3, bgcolor: '#fff' }}>
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
           Reset
         </Typography>
@@ -37,7 +37,9 @@ function ResetSection({ onReset }: { onReset: () => Promise<void> }) {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={handleConfirm} color="error">Reset</Button>
+          <Button onClick={handleConfirm} color="error">
+            Reset
+          </Button>
         </DialogActions>
       </Dialog>
     </>

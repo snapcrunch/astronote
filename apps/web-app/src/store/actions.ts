@@ -1,11 +1,11 @@
-import type { StoreApi } from "zustand";
-import type { Note, Settings } from "@repo/types";
-import { WebClient } from "@repo/astronote-client/WebClient";
-import type { NoteStore, Tag, View } from "./types";
-import { syncUrl, parseUrl } from "./util";
+import type { StoreApi } from 'zustand';
+import type { Note, Settings } from '@repo/types';
+import { WebClient } from '@repo/astronote-client/WebClient';
+import type { NoteStore, Tag, View } from './types';
+import { syncUrl, parseUrl } from './util';
 
-type Set = StoreApi<NoteStore>["setState"];
-type Get = StoreApi<NoteStore>["getState"];
+type Set = StoreApi<NoteStore>['setState'];
+type Get = StoreApi<NoteStore>['getState'];
 
 const client = new WebClient();
 
@@ -15,7 +15,11 @@ interface CreateActionsParams {
   initialShowInfoPanel: boolean | null;
 }
 
-export function createActions({ set, get, initialShowInfoPanel }: CreateActionsParams) {
+export function createActions({
+  set,
+  get,
+  initialShowInfoPanel,
+}: CreateActionsParams) {
   const sd = () => get().settings.show_info_panel;
 
   function restoreFromUrl() {
@@ -30,8 +34,8 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       get().fetchTags();
       get().fetchCollections();
       get().fetchSettings();
-      window.addEventListener("popstate", restoreFromUrl);
-      return () => window.removeEventListener("popstate", restoreFromUrl);
+      window.addEventListener('popstate', restoreFromUrl);
+      return () => window.removeEventListener('popstate', restoreFromUrl);
     },
 
     fetchSettings: async () => {
@@ -56,24 +60,39 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
         collections: [defaultCollection],
         activeCollectionId: defaultCollection.id,
         selectedNoteId: null,
-        searchQuery: "",
+        searchQuery: '',
         selectedTags: [],
-        view: "notes",
+        view: 'notes',
       });
-      syncUrl({ view: "notes", selectedNoteId: null, showInfoPanel: get().showInfoPanel, settingDefault: sd() });
+      syncUrl({
+        view: 'notes',
+        selectedNoteId: null,
+        showInfoPanel: get().showInfoPanel,
+        settingDefault: sd(),
+      });
       await get().fetchSettings();
     },
 
     toggleInfoPanel: () => {
       const next = !get().showInfoPanel;
       set({ showInfoPanel: next });
-      syncUrl({ view: get().view, selectedNoteId: get().selectedNoteId, showInfoPanel: next, settingDefault: sd() });
+      syncUrl({
+        view: get().view,
+        selectedNoteId: get().selectedNoteId,
+        showInfoPanel: next,
+        settingDefault: sd(),
+      });
     },
 
     setView: (view: View) => {
-      const noteId = view === "notes" ? get().selectedNoteId : null;
+      const noteId = view === 'notes' ? get().selectedNoteId : null;
       set({ view, selectedNoteId: noteId });
-      syncUrl({ view, selectedNoteId: noteId, showInfoPanel: get().showInfoPanel, settingDefault: sd() });
+      syncUrl({
+        view,
+        selectedNoteId: noteId,
+        showInfoPanel: get().showInfoPanel,
+        settingDefault: sd(),
+      });
     },
 
     setSearchQuery: (query: string) => {
@@ -82,14 +101,24 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
     },
 
     setSelectedNoteId: (id: string | null) => {
-      const view = id ? "notes" : get().view;
+      const view = id ? 'notes' : get().view;
       set({ selectedNoteId: id, view });
-      syncUrl({ view, selectedNoteId: id, showInfoPanel: get().showInfoPanel, settingDefault: sd() });
+      syncUrl({
+        view,
+        selectedNoteId: id,
+        showInfoPanel: get().showInfoPanel,
+        settingDefault: sd(),
+      });
     },
 
     setActiveCollectionId: (id: number) => {
       set({ activeCollectionId: id, selectedNoteId: null });
-      syncUrl({ view: "notes", selectedNoteId: null, showInfoPanel: get().showInfoPanel, settingDefault: sd() });
+      syncUrl({
+        view: 'notes',
+        selectedNoteId: null,
+        showInfoPanel: get().showInfoPanel,
+        settingDefault: sd(),
+      });
       get().fetchNotes();
       get().fetchTags();
     },
@@ -104,7 +133,9 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
     },
 
     fetchTags: async () => {
-      const tags: Tag[] = await client.fetchTags(get().activeCollectionId ?? undefined);
+      const tags: Tag[] = await client.fetchTags(
+        get().activeCollectionId ?? undefined
+      );
       set({ tags });
     },
 
@@ -112,7 +143,8 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       const collections = await client.fetchCollections();
       const { activeCollectionId } = get();
       if (activeCollectionId == null && collections.length > 0) {
-        const defaultCol = collections.find((c) => c.isDefault) ?? collections[0]!;
+        const defaultCol =
+          collections.find((c) => c.isDefault) ?? collections[0]!;
         set({ collections, activeCollectionId: defaultCol.id });
         get().fetchNotes();
       } else {
@@ -149,9 +181,23 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       set({ saving: true });
       try {
         const { activeCollectionId } = get();
-        const note = await client.createNote({ title, content, collectionId: activeCollectionId });
-        set({ searchQuery: "", selectedNoteId: note.id, editOnCreate: true, view: "notes" });
-        syncUrl({ view: "notes", selectedNoteId: note.id, showInfoPanel: get().showInfoPanel, settingDefault: sd() });
+        const note = await client.createNote({
+          title,
+          content,
+          collectionId: activeCollectionId,
+        });
+        set({
+          searchQuery: '',
+          selectedNoteId: note.id,
+          editOnCreate: true,
+          view: 'notes',
+        });
+        syncUrl({
+          view: 'notes',
+          selectedNoteId: note.id,
+          showInfoPanel: get().showInfoPanel,
+          settingDefault: sd(),
+        });
         await get().fetchNotes();
         get().fetchTags();
       } finally {
@@ -159,12 +205,27 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
       }
     },
 
-    importNote: async (title: string, content: string, opts?: { tags?: string[]; collectionId?: number; pinned?: boolean }) => {
+    importNote: async (
+      title: string,
+      content: string,
+      opts?: { tags?: string[]; collectionId?: number; pinned?: boolean }
+    ) => {
       const collectionId = opts?.collectionId ?? get().activeCollectionId;
-      await client.createNote({ title, content, tags: opts?.tags, collectionId, pinned: opts?.pinned });
+      await client.createNote({
+        title,
+        content,
+        tags: opts?.tags,
+        collectionId,
+        pinned: opts?.pinned,
+      });
     },
 
-    updateNote: async (id: string, updates: Partial<Pick<Note, "title" | "content" | "pinned">> & { collectionId?: number }) => {
+    updateNote: async (
+      id: string,
+      updates: Partial<Pick<Note, 'title' | 'content' | 'pinned'>> & {
+        collectionId?: number;
+      }
+    ) => {
       set({ saving: true });
       try {
         const updated = await client.updateNote(id, updates);
@@ -196,7 +257,12 @@ export function createActions({ set, get, initialShowInfoPanel }: CreateActionsP
           const index = state.notes.findIndex((n) => n.id === id);
           const next = state.notes[index - 1] ?? state.notes[index + 1] ?? null;
           const nextId = next?.id ?? null;
-          syncUrl({ view: state.view, selectedNoteId: nextId, showInfoPanel: state.showInfoPanel, settingDefault: state.settings.show_info_panel });
+          syncUrl({
+            view: state.view,
+            selectedNoteId: nextId,
+            showInfoPanel: state.showInfoPanel,
+            settingDefault: state.settings.show_info_panel,
+          });
           return {
             notes: state.notes.filter((n) => n.id !== id),
             selectedNoteId: nextId,

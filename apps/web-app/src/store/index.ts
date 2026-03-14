@@ -1,1 +1,6 @@
-export { useNoteStore, useFilteredNotes, useStatusMessage, useSelectedNote } from "./store";
+export {
+  useNoteStore,
+  useFilteredNotes,
+  useStatusMessage,
+  useSelectedNote,
+} from './store';

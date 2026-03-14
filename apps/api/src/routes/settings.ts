@@ -1,15 +1,15 @@
-import { Router } from "express";
-import domain from "@repo/domain";
-import { SettingsSchema } from "@repo/types";
+import { Router } from 'express';
+import domain from '@repo/domain';
+import { SettingsSchema } from '@repo/types';
 
 export const settingsRouter = Router();
 
-settingsRouter.get("/", async (_req, res) => {
+settingsRouter.get('/', async (_req, res) => {
   const settings = await domain.settings.get();
   res.json(settings);
 });
 
-settingsRouter.patch("/", async (req, res) => {
+settingsRouter.patch('/', async (req, res) => {
   const result = SettingsSchema.partial().safeParse(req.body);
   if (!result.success) {
     res.status(400).json({ error: result.error.flatten() });
@@ -19,7 +19,7 @@ settingsRouter.patch("/", async (req, res) => {
   res.json(settings);
 });
 
-settingsRouter.post("/reset", async (_req, res) => {
+settingsRouter.post('/reset', async (_req, res) => {
   const defaultCollection = await domain.settings.resetAll();
   res.json(defaultCollection);
 });

@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useNoteStore } from "../store";
+import { useMemo } from 'react';
+import { useNoteStore } from '../store';
 
 export interface Command {
   id: string;
@@ -9,7 +9,12 @@ export interface Command {
   action: () => void;
 }
 
-export function useCommands(onClose: () => void, onOpenCollectionPicker: () => void, onOpenImport: () => void, onOpenReset: () => void): Command[] {
+export function useCommands(
+  onClose: () => void,
+  onOpenCollectionPicker: () => void,
+  onOpenImport: () => void,
+  onOpenReset: () => void
+): Command[] {
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
   return useMemo(() => {
     const run = (fn: () => void) => () => {
@@ -19,18 +24,20 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
 
     return [
       {
-        id: "focus-search",
-        label: "Focus Search",
-        shortcut: "⌘⇧K",
+        id: 'focus-search',
+        label: 'Focus Search',
+        shortcut: '⌘⇧K',
         action: run(() => {
-          const el = document.querySelector<HTMLInputElement>('input[placeholder*="Search"]');
+          const el = document.querySelector<HTMLInputElement>(
+            'input[placeholder*="Search"]'
+          );
           el?.focus();
         }),
       },
       {
-        id: "delete-note",
-        label: "Delete Selected Note",
-        shortcut: "⌘⇧D",
+        id: 'delete-note',
+        label: 'Delete Selected Note',
+        shortcut: '⌘⇧D',
         disabled: !selectedNoteId,
         action: run(() => {
           const { selectedNoteId, deleteNote } = useNoteStore.getState();
@@ -38,67 +45,73 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
         }),
       },
       {
-        id: "change-collection",
-        label: "Change Collection",
-        shortcut: "⌘⇧C",
+        id: 'change-collection',
+        label: 'Change Collection',
+        shortcut: '⌘⇧C',
         action: () => {
           onClose();
           onOpenCollectionPicker();
         },
       },
       {
-        id: "clear-search",
-        label: "Clear Search",
+        id: 'clear-search',
+        label: 'Clear Search',
         action: run(() => {
-          useNoteStore.getState().setSearchQuery("");
+          useNoteStore.getState().setSearchQuery('');
         }),
       },
       {
-        id: "clear-tags",
-        label: "Clear Tag Filters",
+        id: 'clear-tags',
+        label: 'Clear Tag Filters',
         action: run(() => {
           useNoteStore.setState({ selectedTags: [] });
           useNoteStore.getState().fetchNotes();
         }),
       },
       {
-        id: "import-notes",
-        label: "Import Notes",
+        id: 'import-notes',
+        label: 'Import Notes',
         action: () => {
           onClose();
           onOpenImport();
         },
       },
       {
-        id: "export-notes",
-        label: "Export Notes",
+        id: 'export-notes',
+        label: 'Export Notes',
         action: run(() => {
           useNoteStore.getState().exportNotes();
         }),
       },
       {
-        id: "manage-collections",
-        label: "Manage Collections",
+        id: 'manage-collections',
+        label: 'Manage Collections',
         action: run(() => {
-          useNoteStore.getState().setView("collections");
+          useNoteStore.getState().setView('collections');
         }),
       },
       {
-        id: "settings",
-        label: "Settings",
-        shortcut: "⌘⇧S",
+        id: 'settings',
+        label: 'Settings',
+        shortcut: '⌘⇧S',
         action: run(() => {
-          useNoteStore.getState().setView("settings");
+          useNoteStore.getState().setView('settings');
         }),
       },
       {
-        id: "reset-all",
-        label: "Reset All Data",
+        id: 'reset-all',
+        label: 'Reset All Data',
         action: () => {
           onClose();
           onOpenReset();
         },
       },
     ];
-  }, [onClose, onOpenCollectionPicker, onOpenImport, onOpenReset, selectedNoteId]);
+  }, [
+    onClose,
+    onOpenCollectionPicker,
+    onOpenImport,
+    onOpenReset,
+    selectedNoteId,
+  ]);
 }

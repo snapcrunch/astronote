@@ -1,10 +1,16 @@
-import type { Note } from "@repo/types";
-import { getDb } from "../db";
-import { getNoteById } from "./get";
+import type { Note } from '@repo/types';
+import { getDb } from '../db';
+import { getNoteById } from './get';
 
 export async function updateNote(
   id: string,
-  updates: { title?: string; content?: string; pinned?: boolean; collectionId?: number; updatedAt: string },
+  updates: {
+    title?: string;
+    content?: string;
+    pinned?: boolean;
+    collectionId?: number;
+    updatedAt: string;
+  }
 ): Promise<Note | null> {
   const db = getDb();
   const existing = await getNoteById(id);
@@ -12,7 +18,8 @@ export async function updateNote(
 
   const title = updates.title ?? existing.title;
   const content = updates.content ?? existing.content;
-  const pinned = updates.pinned !== undefined ? updates.pinned : existing.pinned;
+  const pinned =
+    updates.pinned !== undefined ? updates.pinned : existing.pinned;
 
   const dbUpdate: Record<string, unknown> = {
     title,
@@ -24,7 +31,7 @@ export async function updateNote(
     dbUpdate.collectionId = updates.collectionId;
   }
 
-  await db("notes").where("id", id).update(dbUpdate);
+  await db('notes').where('id', id).update(dbUpdate);
 
   return { ...existing, title, content, pinned, updatedAt: updates.updatedAt };
 }

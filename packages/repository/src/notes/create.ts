@@ -1,10 +1,13 @@
-import type { Note } from "@repo/types";
-import { getDb } from "../db";
-import { getNoteTagsAsync } from "./helpers";
+import type { Note } from '@repo/types';
+import { getDb } from '../db';
+import { getNoteTagsAsync } from './helpers';
 
-export async function createNote(note: Note, collectionId?: number): Promise<Note> {
+export async function createNote(
+  note: Note,
+  collectionId?: number
+): Promise<Note> {
   const db = getDb();
-  await db("notes").insert({
+  await db('notes').insert({
     id: note.id,
     title: note.title,
     content: note.content,
@@ -14,7 +17,10 @@ export async function createNote(note: Note, collectionId?: number): Promise<Not
     updatedAt: note.updatedAt,
   });
   for (const tag of note.tags) {
-    await db("note_tags").insert({ noteId: note.id, tag }).onConflict(["noteId", "tag"]).ignore();
+    await db('note_tags')
+      .insert({ noteId: note.id, tag })
+      .onConflict(['noteId', 'tag'])
+      .ignore();
   }
   return { ...note, tags: await getNoteTagsAsync(note.id) };
 }

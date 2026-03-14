@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import Dialog from "@mui/material/Dialog";
-import InputBase from "@mui/material/InputBase";
+import { useEffect, useRef, useState } from 'react';
+import Dialog from '@mui/material/Dialog';
+import InputBase from '@mui/material/InputBase';
 
 interface RenameDialogProps {
   open: boolean;
@@ -9,7 +9,12 @@ interface RenameDialogProps {
   onClose: () => void;
 }
 
-function RenameDialog({ open, currentTitle, onConfirm, onClose }: RenameDialogProps) {
+function RenameDialog({
+  open,
+  currentTitle,
+  onConfirm,
+  onClose,
+}: RenameDialogProps) {
   const [value, setValue] = useState(currentTitle);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -24,7 +29,7 @@ function RenameDialog({ open, currentTitle, onConfirm, onClose }: RenameDialogPr
   }, [open, currentTitle]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault();
       const trimmed = value.trim();
       if (trimmed && trimmed !== currentTitle) {
@@ -44,11 +49,11 @@ function RenameDialog({ open, currentTitle, onConfirm, onClose }: RenameDialogPr
       slotProps={{
         paper: {
           sx: {
-            position: "fixed",
-            top: "20%",
+            position: 'fixed',
+            top: '20%',
             m: 0,
             borderRadius: 2,
-            overflow: "hidden",
+            overflow: 'hidden',
           },
         },
       }}
@@ -62,7 +67,7 @@ function RenameDialog({ open, currentTitle, onConfirm, onClose }: RenameDialogPr
         sx={{
           px: 2,
           py: 1.5,
-          fontSize: "0.95rem",
+          fontSize: '0.95rem',
         }}
       />
     </Dialog>

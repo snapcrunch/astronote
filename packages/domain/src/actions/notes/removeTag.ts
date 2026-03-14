@@ -1,7 +1,10 @@
-import type { Note } from "@repo/types";
-import * as repository from "@repo/repository";
+import type { Note } from '@repo/types';
+import * as repository from '@repo/repository';
 
-export async function removeTag(noteId: string, tag: string): Promise<Note | null> {
+export async function removeTag(
+  noteId: string,
+  tag: string
+): Promise<Note | null> {
   const normalizedTag = tag.toLowerCase();
   await repository.removeNoteTag(noteId, normalizedTag);
   return repository.getNoteById(noteId);
