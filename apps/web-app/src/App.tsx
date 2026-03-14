@@ -8,6 +8,7 @@ import Sidebar from './Sidebar';
 import NoteEditor from './NoteEditor';
 import SettingsView from './SettingsView';
 import CollectionsView from './CollectionsView';
+import ApiKeysView from './ApiKeysView';
 import InfoPanel from './InfoPanel';
 import CommandPalette from './CommandPalette';
 import Omnibar from './Sidebar/Omnibar';
@@ -58,6 +59,8 @@ function MainApp() {
       <SettingsView />
     ) : view === 'collections' ? (
       <CollectionsView />
+    ) : view === 'keys' ? (
+      <ApiKeysView />
     ) : (
       <NoteEditor />
     );

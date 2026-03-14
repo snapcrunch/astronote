@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
-import type { Note, Collection, Settings } from '@repo/types';
+import type { Note, Collection, Settings, ApiKey, ApiKeyWithToken } from '@repo/types';
 
 export interface User {
   id: number;
@@ -170,6 +170,22 @@ export class WebClient {
       `/api/collections/${id}/default`
     );
     return data;
+  }
+
+  // API Keys
+
+  async fetchApiKeys(): Promise<ApiKey[]> {
+    const { data } = await this.http.get<ApiKey[]>('/api/keys');
+    return data;
+  }
+
+  async createApiKey(name: string): Promise<ApiKeyWithToken> {
+    const { data } = await this.http.post<ApiKeyWithToken>('/api/keys', { name });
+    return data;
+  }
+
+  async deleteApiKey(id: string): Promise<void> {
+    await this.http.delete(`/api/keys/${id}`);
   }
 
   // Notes

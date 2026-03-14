@@ -48,6 +48,7 @@ export function createActions({
       get().fetchNotes();
       get().fetchTags();
       get().fetchCollections();
+      get().fetchApiKeys();
       get().fetchSettings();
       window.addEventListener('popstate', restoreFromUrl);
       return () => window.removeEventListener('popstate', restoreFromUrl);
@@ -67,6 +68,7 @@ export function createActions({
         notes: [],
         tags: [],
         collections: [],
+        apiKeys: [],
         activeCollectionId: null,
         selectedNoteId: null,
         searchQuery: '',
@@ -336,6 +338,22 @@ export function createActions({
 
     exportNotes: async () => {
       await client.exportNotes();
+    },
+
+    fetchApiKeys: async () => {
+      const apiKeys = await client.fetchApiKeys();
+      set({ apiKeys });
+    },
+
+    createApiKey: async (name: string) => {
+      const result = await client.createApiKey(name);
+      await get().fetchApiKeys();
+      return { token: result.token };
+    },
+
+    deleteApiKey: async (id: string) => {
+      await client.deleteApiKey(id);
+      await get().fetchApiKeys();
     },
   };
 }

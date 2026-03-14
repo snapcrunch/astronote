@@ -28,3 +28,4 @@ export {
   deleteRefreshToken,
   deleteRefreshTokensByUserId,
 } from './refreshTokens';
+export { createApiKey, getApiKeyById, getApiKeys, deleteApiKey } from './apiKeys';

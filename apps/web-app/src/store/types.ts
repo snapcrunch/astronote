@@ -1,10 +1,10 @@
-import type { Note, Collection, Settings } from '@repo/types';
+import type { Note, Collection, Settings, ApiKey } from '@repo/types';
 import type { Tag, User } from '@repo/astronote-client/WebClient';
 
 export type { Tag, User };
 
 export type Route = 'loading' | 'login' | 'app';
-export type View = 'notes' | 'settings' | 'collections';
+export type View = 'notes' | 'settings' | 'collections' | 'keys';
 
 export interface NoteStore {
   route: Route;
@@ -21,6 +21,7 @@ export interface NoteStore {
   archiving: boolean;
   settings: Settings;
   settingsLoaded: boolean;
+  apiKeys: ApiKey[];
   view: View;
   showInfoPanel: boolean;
 
@@ -59,4 +60,7 @@ export interface NoteStore {
   addTag: (noteId: string, tag: string) => Promise<void>;
   removeTag: (noteId: string, tag: string) => Promise<void>;
   exportNotes: () => Promise<void>;
+  fetchApiKeys: () => Promise<void>;
+  createApiKey: (name: string) => Promise<{ token: string }>;
+  deleteApiKey: (id: string) => Promise<void>;
 }

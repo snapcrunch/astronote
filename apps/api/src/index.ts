@@ -6,6 +6,7 @@ import { notesRouter } from '#routes/notes';
 import { tagsRouter } from '#routes/tags';
 import { collectionsRouter } from '#routes/collections';
 import { settingsRouter } from '#routes/settings';
+import { keysRouter } from '#routes/keys';
 import { authRouter } from '#routes/auth';
 import { requestLogger } from '#middleware/requestLogger';
 import { requireAuth } from '#middleware/requireAuth';
@@ -28,6 +29,7 @@ async function main() {
   app.use('/api/notes', requireAuth, notesRouter);
   app.use('/api/tags', requireAuth, tagsRouter);
   app.use('/api/collections', requireAuth, collectionsRouter);
+  app.use('/api/keys', requireAuth, keysRouter);
   app.use('/api/settings', settingsRouter);
   app.use(errorHandler);
 

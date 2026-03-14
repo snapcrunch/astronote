@@ -97,6 +97,29 @@ export const AuthUserSchema = z.object({
 
 export type AuthUser = z.infer<typeof AuthUserSchema>;
 
+export const ApiKeySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+
+export type ApiKey = z.infer<typeof ApiKeySchema>;
+
+export const ApiKeyWithTokenSchema = ApiKeySchema.extend({
+  token: z.string(),
+});
+
+export type ApiKeyWithToken = z.infer<typeof ApiKeyWithTokenSchema>;
+
+export const CreateApiKeyInputSchema = z.object({
+  name: z.string().min(1),
+});
+
+export type CreateApiKeyInput = z.infer<typeof CreateApiKeyInputSchema>;
+
+export const UuidParamSchema = z.object({
+  id: z.string().uuid(),
+});
+
 export const DEFAULT_SETTINGS: Settings = {
   default_view: 'renderer',
   show_info_panel: true,

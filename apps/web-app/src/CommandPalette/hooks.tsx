@@ -92,6 +92,13 @@ export function useCommands(
         }),
       },
       {
+        id: 'manage-api-keys',
+        label: 'Manage API Keys',
+        action: run(() => {
+          useNoteStore.getState().setView('keys');
+        }),
+      },
+      {
         id: 'settings',
         label: 'Settings',
         shortcut: '⌘⇧S',

@@ -13,6 +13,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   notes: [],
   tags: [],
   collections: [],
+  apiKeys: [],
   activeCollectionId: null,
   selectedNoteId: initialUrl.selectedNoteId,
   searchQuery: '',
