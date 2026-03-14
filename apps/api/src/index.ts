@@ -33,7 +33,7 @@ async function main() {
   app.use('/api/tags', requireAuth, tagsRouter);
   app.use('/api/collections', requireAuth, collectionsRouter);
   app.use('/api/keys', requireAuth, keysRouter);
-  app.use('/api/settings', settingsRouter);
+  app.use('/api/settings', requireAuth, settingsRouter);
   app.use(errorHandler);
 
   // Serve built frontend static files

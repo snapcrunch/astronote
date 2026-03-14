@@ -1,6 +1,6 @@
-import type { Collection } from '@repo/types';
+import type { Collection, AuthUser } from '@repo/types';
 import * as repository from '@repo/repository';
 
-export async function resetAll(): Promise<Collection> {
-  return repository.resetAll();
+export async function resetAll(user: AuthUser): Promise<Collection> {
+  return repository.resetAll(user.id);
 }

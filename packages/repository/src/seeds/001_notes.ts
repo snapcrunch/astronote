@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import type { Knex } from 'knex';
+import { DEFAULT_SETTINGS } from '@repo/types';
 
 const collections = [
   { name: 'Personal' },
@@ -2658,6 +2659,12 @@ export async function seed(knex: Knex): Promise<void> {
     salt,
   });
 
+  await knex('settings').insert({
+    user_id: 1,
+    key: 'settings',
+    value: JSON.stringify(DEFAULT_SETTINGS),
+  });
+
   for (const collection of collections) {
     const [inserted] = await knex('collections')
       .insert({
@@ -2714,6 +2721,12 @@ export async function seed(knex: Knex): Promise<void> {
     })
     .returning('id');
   const janeId = janeRow.id;
+
+  await knex('settings').insert({
+    user_id: janeId,
+    key: 'settings',
+    value: JSON.stringify(DEFAULT_SETTINGS),
+  });
 
   const janeCollections = ['Recipes', 'Travel'];
   const janeCollectionIds: Record<string, number> = {};
