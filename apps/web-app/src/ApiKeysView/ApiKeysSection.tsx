@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
+import Link from '@mui/material/Link';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -137,6 +138,12 @@ function ApiKeysSection() {
           </tbody>
         </Box>
       </Paper>
+
+      <Typography variant="body2" sx={{ mt: 1.5, px: 3 }}>
+        <Link href="/docs/api" target="_blank" rel="noopener noreferrer">
+          API Documentation
+        </Link>
+      </Typography>
 
       <Dialog
         open={createdToken !== null}

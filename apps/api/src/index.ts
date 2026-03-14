@@ -1,6 +1,7 @@
 import path from 'node:path';
 import express from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import { initDatabase } from '@repo/repository';
 import { notesRouter } from '#routes/notes';
 import { tagsRouter } from '#routes/tags';
@@ -12,6 +13,7 @@ import { requestLogger } from '#middleware/requestLogger';
 import { requireAuth } from '#middleware/requireAuth';
 import { errorHandler } from '#middleware/errorHandler';
 import { basicAuth } from '#middleware/basicAuth';
+import { openApiSpec } from './openapi.js';
 
 const PORT = process.env.PORT ?? 3009;
 const DB_PATH = process.env.DB_PATH ?? path.join(process.cwd(), '..', '..', 'astronote.db');
@@ -23,6 +25,7 @@ async function main() {
 
   app.use(cors());
   app.use(express.json({ limit: '100kb' }));
+  app.use('/docs/api', swaggerUi.serve, swaggerUi.setup(openApiSpec));
   app.use(requestLogger);
   app.use('/api/auth', authRouter);
   app.use(basicAuth);
