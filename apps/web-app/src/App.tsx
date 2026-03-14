@@ -39,8 +39,14 @@ function MainApp() {
                 ? 'Tap the planet icon to open the command palette.'
                 : 'Click the planet icon to open the command palette.',
             },
+            {
+              element: '#tags-header',
+              intro: isMobile
+                ? 'Tap a tag to filter notes by that tag. Hold Option and tap to select multiple tags at once.'
+                : 'Click a tag to filter notes by that tag. Hold Option and click to select multiple tags at once.',
+            },
           ],
-          showBullets: false,
+          showBullets: true,
           showStepNumbers: false,
           exitOnOverlayClick: true,
         })

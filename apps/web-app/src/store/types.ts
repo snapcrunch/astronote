@@ -36,7 +36,7 @@ export interface NoteStore {
   setSearchQuery: (query: string) => void;
   setSelectedNoteId: (id: string | null) => void;
   setActiveCollectionId: (id: number) => void;
-  toggleTag: (tag: string) => void;
+  toggleTag: (tag: string, accumulate?: boolean) => void;
   fetchNotes: () => Promise<void>;
   fetchTags: () => Promise<void>;
   fetchCollections: () => Promise<void>;

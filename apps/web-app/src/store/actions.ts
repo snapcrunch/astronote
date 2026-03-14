@@ -168,11 +168,16 @@ export function createActions({
       get().fetchTags();
     },
 
-    toggleTag: (tag: string) => {
+    toggleTag: (tag: string, accumulate = false) => {
       const current = get().selectedTags;
-      const next = current.includes(tag)
-        ? current.filter((t) => t !== tag)
-        : [...current, tag];
+      let next: string[];
+      if (accumulate) {
+        next = current.includes(tag)
+          ? current.filter((t) => t !== tag)
+          : [...current, tag];
+      } else {
+        next = current.length === 1 && current[0] === tag ? [] : [tag];
+      }
       set({ selectedTags: next });
       get().fetchNotes();
     },

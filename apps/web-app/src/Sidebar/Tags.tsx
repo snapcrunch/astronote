@@ -43,6 +43,7 @@ function Tags() {
         }}
       >
         <Typography
+          id="tags-header"
           variant="caption"
           sx={{ fontWeight: 600, textTransform: 'uppercase' }}
         >
@@ -64,7 +65,7 @@ function Tags() {
                 <ListItemButton
                   key={tag}
                   selected={selected}
-                  onClick={() => toggleTag(tag)}
+                  onClick={(e) => toggleTag(tag, e.altKey)}
                   disableRipple
                   sx={{
                     py: 0.25,
