@@ -2649,7 +2649,9 @@ export async function seed(knex: Knex): Promise<void> {
     .where('archived', 0)
     .count('* as count')
     .first();
-  if (existingCount && Number(existingCount.count) > 0) return;
+  if (existingCount && Number(existingCount.count) > 0) {
+    return;
+  }
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash('changeme', salt);

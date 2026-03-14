@@ -8,7 +8,9 @@ interface BasicAuthConfig {
 
 function getAuthConfig(): BasicAuthConfig | null {
   const method = process.env.ASTRONOTE_AUTH_METHOD;
-  if (method !== 'BASIC_AUTH') return null;
+  if (method !== 'BASIC_AUTH') {
+    return null;
+  }
 
   const credentials = process.env.ASTRONOTE_AUTH_CREDENTIALS;
   if (!credentials) {

@@ -15,8 +15,9 @@ export async function seedDatabase(): Promise<void> {
   if (
     Number(noteCount?.count ?? 0) > 0 ||
     Number(collectionCount?.count ?? 0) > 0
-  )
+  ) {
     return;
+  }
   await db.seed.run();
 }
 

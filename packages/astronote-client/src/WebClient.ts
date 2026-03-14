@@ -79,7 +79,9 @@ export class WebClient {
   }
 
   private async refresh(): Promise<boolean> {
-    if (this.refreshPromise) return this.refreshPromise;
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
     this.refreshPromise = this.doRefresh();
     const result = await this.refreshPromise;
     this.refreshPromise = null;
@@ -88,7 +90,9 @@ export class WebClient {
 
   private async doRefresh(): Promise<boolean> {
     const refreshToken = localStorage.getItem('astronote.refreshToken');
-    if (!refreshToken) return false;
+    if (!refreshToken) {
+      return false;
+    }
     try {
       const { data } = await this.http.post<{
         token: string;

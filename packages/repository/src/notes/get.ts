@@ -13,6 +13,8 @@ export async function getNoteById(
     .andWhere('notes.id', id)
     .select('notes.*')
     .first();
-  if (!row) return null;
+  if (!row) {
+    return null;
+  }
   return rowToNote(row);
 }

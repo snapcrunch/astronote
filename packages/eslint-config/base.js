@@ -25,6 +25,7 @@ export const config = [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
+      curly: ["error", "all"],
     },
   },
   {

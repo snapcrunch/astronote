@@ -10,6 +10,8 @@ interface UserRow {
 export async function getUserByEmail(email: string): Promise<UserRow | null> {
   const db = getDb();
   const row = await db('users').where('email', email).first();
-  if (!row) return null;
+  if (!row) {
+    return null;
+  }
   return row as UserRow;
 }

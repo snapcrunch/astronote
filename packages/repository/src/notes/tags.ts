@@ -18,7 +18,9 @@ export async function removeNoteTag(
 ): Promise<void> {
   const db = getDb();
   const exists = await db('note_tags').where({ noteId, tag }).first();
-  if (!exists) return;
+  if (!exists) {
+    return;
+  }
 
   await db('note_tags').where({ noteId, tag }).delete();
   await db('tags').where('tag', tag).decrement('count', 1);

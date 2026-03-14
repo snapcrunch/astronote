@@ -13,6 +13,8 @@ export async function getRefreshToken(
 ): Promise<RefreshTokenRow | null> {
   const db = getDb();
   const row = await db('refresh_tokens').where('token', token).first();
-  if (!row) return null;
+  if (!row) {
+    return null;
+  }
   return row as RefreshTokenRow;
 }

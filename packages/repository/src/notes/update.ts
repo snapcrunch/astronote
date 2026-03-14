@@ -15,7 +15,9 @@ export async function updateNote(
 ): Promise<Note | null> {
   const db = getDb();
   const existing = await getNoteById(userId, id);
-  if (!existing) return null;
+  if (!existing) {
+    return null;
+  }
 
   const title = updates.title ?? existing.title;
   const content = updates.content ?? existing.content;

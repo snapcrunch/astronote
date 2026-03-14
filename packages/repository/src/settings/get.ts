@@ -8,6 +8,8 @@ export async function getSettings(userId: number): Promise<Settings> {
     .where('key', 'settings')
     .andWhere('user_id', userId)
     .first();
-  if (!row) return { ...DEFAULT_SETTINGS };
+  if (!row) {
+    return { ...DEFAULT_SETTINGS };
+  }
   return { ...DEFAULT_SETTINGS, ...JSON.parse(row.value as string) };
 }

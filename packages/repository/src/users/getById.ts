@@ -10,6 +10,8 @@ interface UserRow {
 export async function getUserById(id: number): Promise<UserRow | null> {
   const db = getDb();
   const row = await db('users').where('id', id).first();
-  if (!row) return null;
+  if (!row) {
+    return null;
+  }
   return row as UserRow;
 }

@@ -8,7 +8,9 @@ export async function setDefaultCollection(
   const owns = await db('users_collections')
     .where({ user_id: userId, collection_id: id })
     .first();
-  if (!owns) return false;
+  if (!owns) {
+    return false;
+  }
 
   // Only reset isDefault for collections owned by this user
   const userCollectionIds = db('users_collections')

@@ -8,7 +8,9 @@ export async function deleteCollection(
   const owns = await db('users_collections')
     .where({ user_id: userId, collection_id: id })
     .first();
-  if (!owns) return false;
+  if (!owns) {
+    return false;
+  }
   await db('notes').where('collectionId', id).update({ collectionId: null });
   await db('users_collections').where('collection_id', id).delete();
   const deleted = await db('collections').where('id', id).delete();

@@ -7,7 +7,9 @@ export async function update(
   input: UpdateNoteInput
 ): Promise<Note | null> {
   const existing = await repository.getNoteById(user.id, id);
-  if (!existing) return null;
+  if (!existing) {
+    return null;
+  }
 
   const updated = await repository.updateNote(user.id, id, {
     title: input.title,
