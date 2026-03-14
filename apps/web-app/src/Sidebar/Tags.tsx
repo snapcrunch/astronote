@@ -35,7 +35,7 @@ function Tags() {
         </Typography>
       </Box>
       <Collapse in={open}>
-        <OverlayScrollbarsComponent style={{ maxHeight: 400 }} options={{ scrollbars: { autoHide: "move" }, overflow: { x: "hidden" } }}>
+        <OverlayScrollbarsComponent style={{ maxHeight: 400, overscrollBehavior: "none" }} options={{ scrollbars: { autoHide: "move" }, overflow: { x: "hidden" } }}>
           <List dense disablePadding>
             {sortedTags.map(({ tag, count }, index) => {
               const selected = selectedTags.includes(tag);

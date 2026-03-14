@@ -33,7 +33,12 @@ function App() {
       <CssBaseline />
       <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
         {isMobile ? (
-          showNoteView ? contentView : <Sidebar />
+          <>
+            <Box sx={{ display: showNoteView ? "none" : "flex", flexDirection: "column", height: "100%" }}>
+              <Sidebar />
+            </Box>
+            {showNoteView && contentView}
+          </>
         ) : (
           <>
             <Omnibar />

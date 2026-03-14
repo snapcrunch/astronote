@@ -130,7 +130,7 @@ function NoteList({ notes, selectedNoteId, listRef, onSelectNote, onDeleteNote, 
   return (
     <>
       <div ref={scrollViewportRef} style={{ flex: 1, overflow: "hidden" }}>
-      <OverlayScrollbarsComponent style={{ height: "100%" }} options={{ scrollbars: { autoHide: "move" } }}>
+      <OverlayScrollbarsComponent style={{ height: "100%", overscrollBehavior: "none" }} options={{ scrollbars: { autoHide: "move" } }}>
       <MuiList ref={listRef} sx={{ pt: 0 }} disablePadding>
         {notes.map((note, index) => (
           <ListItemButton
