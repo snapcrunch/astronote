@@ -3,13 +3,13 @@ import moment from 'moment';
 import Box from '@mui/material/Box';
 import MuiList from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import CheckIcon from '@mui/icons-material/Check';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
@@ -19,6 +19,58 @@ import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import type { Note } from '@repo/types';
 import { useNoteStore } from '../store';
+
+interface NestedMenuItemProps {
+  label: string;
+  leftIcon?: React.ReactNode;
+  parentMenuOpen: boolean;
+  children: React.ReactNode;
+}
+
+function NestedMenuItem({
+  label,
+  leftIcon,
+  parentMenuOpen,
+  children,
+}: NestedMenuItemProps) {
+  const menuItemRef = useRef<HTMLLIElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!parentMenuOpen) setIsOpen(false);
+  }, [parentMenuOpen]);
+
+  return (
+    <>
+      <MenuItem
+        ref={menuItemRef}
+        onMouseEnter={() => setIsOpen(true)}
+        onMouseLeave={() => setIsOpen(false)}
+      >
+        {leftIcon && <ListItemIcon>{leftIcon}</ListItemIcon>}
+        <ListItemText>{label}</ListItemText>
+        <ChevronRightIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+      </MenuItem>
+      <Menu
+        anchorEl={menuItemRef.current}
+        open={isOpen && parentMenuOpen}
+        onClose={() => setIsOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        style={{ pointerEvents: 'none' }}
+        MenuListProps={{
+          dense: true,
+          style: { pointerEvents: 'auto' },
+          onMouseLeave: () => setIsOpen(false),
+        }}
+        autoFocus={false}
+        disableAutoFocus
+      >
+        {children}
+      </Menu>
+    </>
+  );
+}
 
 interface NoteListProps {
   notes: Note[];
@@ -78,10 +130,6 @@ function NoteList({
     mouseY: number;
     noteId: string;
   } | null>(null);
-  const [tagsMenuOpen, setTagsMenuOpen] = useState(false);
-  const [moveMenuOpen, setMoveMenuOpen] = useState(false);
-  const tagsMenuAnchorRef = useRef<HTMLLIElement>(null);
-  const moveMenuAnchorRef = useRef<HTMLLIElement>(null);
   const allTags = useNoteStore((s) => s.tags);
   const collections = useNoteStore((s) => s.collections);
   const activeCollectionId = useNoteStore((s) => s.activeCollectionId);
@@ -96,14 +144,10 @@ function NoteList({
   const handleContextMenu = (e: React.MouseEvent, noteId: string) => {
     e.preventDefault();
     setContextMenu({ mouseX: e.clientX, mouseY: e.clientY, noteId });
-    setTagsMenuOpen(false);
-    setMoveMenuOpen(false);
   };
 
   const handleClose = () => {
     setContextMenu(null);
-    setTagsMenuOpen(false);
-    setMoveMenuOpen(false);
   };
 
   const handleDelete = () => {
@@ -139,10 +183,6 @@ function NoteList({
     onRenameNote?.(contextMenu.noteId, note.title);
     handleClose();
   };
-
-  const menuItemSx = { py: 0.25, px: 1, minHeight: 0 };
-  const menuIconSx = { minWidth: 22 };
-  const menuTextSx = { fontSize: '0.8rem' };
 
   return (
     <>
@@ -283,144 +323,94 @@ function NoteList({
             ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
             : undefined
         }
-        slotProps={{ paper: { sx: { minWidth: 100, py: 0.25 } } }}
+        MenuListProps={{ dense: true }}
       >
-        <MenuItem onClick={handleTogglePin} dense sx={menuItemSx}>
-          <ListItemIcon sx={menuIconSx}>
+        <MenuItem onClick={handleTogglePin}>
+          <ListItemIcon>
             {contextMenuNote?.pinned ? (
-              <PushPinIcon sx={{ fontSize: 14 }} />
+              <PushPinIcon fontSize="small" />
             ) : (
-              <PushPinOutlinedIcon sx={{ fontSize: 14 }} />
+              <PushPinOutlinedIcon fontSize="small" />
             )}
           </ListItemIcon>
-          <Typography variant="body2" sx={menuTextSx}>
+          <ListItemText>
             {contextMenuNote?.pinned ? 'Unpin' : 'Pin'}
-          </Typography>
+          </ListItemText>
         </MenuItem>
-        <MenuItem
-          ref={tagsMenuAnchorRef}
-          onClick={() => setTagsMenuOpen(true)}
-          dense
-          sx={menuItemSx}
+        <NestedMenuItem
+          parentMenuOpen={contextMenu !== null}
+          label="Tags"
+          leftIcon={<LocalOfferIcon fontSize="small" />}
         >
-          <ListItemIcon sx={menuIconSx}>
-            <LocalOfferIcon sx={{ fontSize: 14 }} />
-          </ListItemIcon>
-          <Typography variant="body2" sx={{ ...menuTextSx, flex: 1 }}>
-            Tags
-          </Typography>
-          <ChevronRightIcon sx={{ fontSize: 12, color: 'text.secondary' }} />
-        </MenuItem>
-        <MenuItem
-          ref={moveMenuAnchorRef}
-          onClick={() => setMoveMenuOpen(true)}
-          dense
-          sx={menuItemSx}
+          {allTags.length === 0 ? (
+            <MenuItem disabled>
+              <ListItemText>No tags</ListItemText>
+            </MenuItem>
+          ) : (
+            [...allTags]
+              .sort((a, b) => a.tag.localeCompare(b.tag))
+              .map(({ tag }) => {
+                const isApplied =
+                  contextMenuNote?.tags.includes(tag) ?? false;
+                return (
+                  <MenuItem
+                    key={tag}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleTag(tag);
+                    }}
+                  >
+                    <ListItemIcon>
+                      {isApplied ? (
+                        <CheckIcon fontSize="small" />
+                      ) : (
+                        <CheckIcon
+                          fontSize="small"
+                          sx={{ visibility: 'hidden' }}
+                        />
+                      )}
+                    </ListItemIcon>
+                    <ListItemText>{tag}</ListItemText>
+                  </MenuItem>
+                );
+              })
+          )}
+        </NestedMenuItem>
+        <NestedMenuItem
+          parentMenuOpen={contextMenu !== null}
+          label="Collection"
+          leftIcon={<DriveFileMoveOutlinedIcon fontSize="small" />}
         >
-          <ListItemIcon sx={menuIconSx}>
-            <DriveFileMoveOutlinedIcon sx={{ fontSize: 14 }} />
-          </ListItemIcon>
-          <Typography variant="body2" sx={{ ...menuTextSx, flex: 1 }}>
-            Collection
-          </Typography>
-          <ChevronRightIcon sx={{ fontSize: 12, color: 'text.secondary' }} />
-        </MenuItem>
-        <MenuItem onClick={handleRenameClick} dense sx={menuItemSx}>
-          <ListItemIcon sx={menuIconSx}>
-            <DriveFileRenameOutlineIcon sx={{ fontSize: 14 }} />
-          </ListItemIcon>
-          <Typography variant="body2" sx={menuTextSx}>
-            Rename
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={handleDelete} dense sx={menuItemSx}>
-          <ListItemIcon sx={menuIconSx}>
-            <DeleteIcon sx={{ fontSize: 14 }} />
-          </ListItemIcon>
-          <Typography variant="body2" sx={menuTextSx}>
-            Delete
-          </Typography>
-        </MenuItem>
-      </Menu>
-      <Menu
-        open={tagsMenuOpen}
-        onClose={() => setTagsMenuOpen(false)}
-        anchorEl={tagsMenuAnchorRef.current}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-        style={{ pointerEvents: 'none' }}
-        MenuListProps={{ style: { pointerEvents: 'auto' } }}
-        autoFocus={false}
-        slotProps={{ paper: { sx: { minWidth: 120, py: 0.25 } } }}
-      >
-        {allTags.length === 0 ? (
-          <MenuItem disabled dense sx={menuItemSx}>
-            <Typography
-              variant="body2"
-              sx={{ ...menuTextSx, color: 'text.secondary' }}
-            >
-              No tags
-            </Typography>
-          </MenuItem>
-        ) : (
-          [...allTags]
-            .sort((a, b) => a.tag.localeCompare(b.tag))
-            .map(({ tag }) => {
-              const isApplied = contextMenuNote?.tags.includes(tag) ?? false;
-              return (
+          {collections.filter((c) => c.id !== activeCollectionId).length ===
+          0 ? (
+            <MenuItem disabled>
+              <ListItemText>No other collections</ListItemText>
+            </MenuItem>
+          ) : (
+            collections
+              .filter((c) => c.id !== activeCollectionId)
+              .map((c) => (
                 <MenuItem
-                  key={tag}
-                  onClick={() => handleToggleTag(tag)}
-                  dense
-                  sx={menuItemSx}
+                  key={c.id}
+                  onClick={() => handleMoveToCollection(c.id)}
                 >
-                  <ListItemIcon sx={menuIconSx}>
-                    {isApplied && <CheckIcon sx={{ fontSize: 14 }} />}
-                  </ListItemIcon>
-                  <Typography variant="body2" sx={menuTextSx}>
-                    {tag}
-                  </Typography>
+                  <ListItemText inset>{c.name}</ListItemText>
                 </MenuItem>
-              );
-            })
-        )}
-      </Menu>
-      <Menu
-        open={moveMenuOpen}
-        onClose={() => setMoveMenuOpen(false)}
-        anchorEl={moveMenuAnchorRef.current}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-        style={{ pointerEvents: 'none' }}
-        MenuListProps={{ style: { pointerEvents: 'auto' } }}
-        autoFocus={false}
-        slotProps={{ paper: { sx: { minWidth: 120, py: 0.25 } } }}
-      >
-        {collections.filter((c) => c.id !== activeCollectionId).length === 0 ? (
-          <MenuItem disabled dense sx={menuItemSx}>
-            <Typography
-              variant="body2"
-              sx={{ ...menuTextSx, color: 'text.secondary' }}
-            >
-              No other collections
-            </Typography>
-          </MenuItem>
-        ) : (
-          collections
-            .filter((c) => c.id !== activeCollectionId)
-            .map((c) => (
-              <MenuItem
-                key={c.id}
-                onClick={() => handleMoveToCollection(c.id)}
-                dense
-                sx={menuItemSx}
-              >
-                <Typography variant="body2" sx={menuTextSx}>
-                  {c.name}
-                </Typography>
-              </MenuItem>
-            ))
-        )}
+              ))
+          )}
+        </NestedMenuItem>
+        <MenuItem onClick={handleRenameClick}>
+          <ListItemIcon>
+            <DriveFileRenameOutlineIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Rename</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleDelete}>
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Delete</ListItemText>
+        </MenuItem>
       </Menu>
     </>
   );
