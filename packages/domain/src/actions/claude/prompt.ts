@@ -1,5 +1,5 @@
 import { EOL } from 'node:os';
-import { spawn, type ChildProcess } from "node:child_process";
+import { spawn, type ChildProcess } from 'node:child_process';
 
 const TIMEOUT_MS = 120_000;
 
@@ -17,12 +17,17 @@ export interface PromptHandle {
   kill: () => void;
 }
 
-const createPrompt = (txt: string, dbPath: string) => `You are operating within a note taking application. Data is stored in a SQLite database located here: ${dbPath}. Here is the user's prompt:${EOL}${EOL}${txt}`;
+const createPrompt = (txt: string, dbPath: string) =>
+  `You are operating within a note taking application. Data is stored in a SQLite database located here: ${dbPath}. Here is the user's prompt:${EOL}${EOL}${txt}`;
 
-export function prompt(text: string, options: PromptOptions, callbacks: PromptCallbacks): PromptHandle {
+export function prompt(
+  text: string,
+  options: PromptOptions,
+  callbacks: PromptCallbacks
+): PromptHandle {
   const { onChunk, onDone, onError } = callbacks;
 
-  let stderr = "";
+  let stderr = '';
   let finished = false;
 
   function finish() {
@@ -32,31 +37,31 @@ export function prompt(text: string, options: PromptOptions, callbacks: PromptCa
   const escaped = createPrompt(text, options.dbPath).replace(/'/g, "'\\''");
   const command = `claude -p '${escaped}' --output-format text --allowedTools 'Bash(sqlite3*)'`;
   const child = spawn(command, {
-    stdio: ["ignore", "pipe", "pipe"],
+    stdio: ['ignore', 'pipe', 'pipe'],
     shell: true,
     env: {
       ...process.env,
-      CI: "1",
+      CI: '1',
     },
   });
 
   const timeout = setTimeout(() => {
     child.kill();
     if (!finished) {
-      onError("Prompt timed out after 120 seconds");
+      onError('Prompt timed out after 120 seconds');
       finish();
     }
   }, TIMEOUT_MS);
 
-  child.stdout.on("data", (data: Buffer) => {
+  child.stdout.on('data', (data: Buffer) => {
     if (!finished) onChunk(data.toString());
   });
 
-  child.stderr.on("data", (data: Buffer) => {
+  child.stderr.on('data', (data: Buffer) => {
     stderr += data.toString();
   });
 
-  child.on("close", (code) => {
+  child.on('close', (code) => {
     clearTimeout(timeout);
     if (finished) return;
     if (code === 0) {
@@ -67,7 +72,7 @@ export function prompt(text: string, options: PromptOptions, callbacks: PromptCa
     finish();
   });
 
-  child.on("error", (err) => {
+  child.on('error', (err) => {
     clearTimeout(timeout);
     if (finished) return;
     onError(err.message);

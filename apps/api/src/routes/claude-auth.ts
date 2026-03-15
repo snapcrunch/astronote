@@ -1,16 +1,17 @@
-import { Router } from "express";
-import { execFile } from "node:child_process";
-import { randomBytes, createHash } from "node:crypto";
-import fs from "node:fs";
-import path from "node:path";
+import { Router } from 'express';
+import { execFile } from 'node:child_process';
+import { randomBytes, createHash } from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
 
 export const claudeAuthRouter = Router();
 
-const CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e";
-const SCOPES = "org:create_api_key user:profile user:inference user:sessions:claude_code user:mcp_servers user:file_upload";
-const REDIRECT_URI = "https://console.anthropic.com/oauth/code/callback";
-const AUTHORIZE_URL = "https://claude.ai/oauth/authorize";
-const TOKEN_URL = "https://console.anthropic.com/v1/oauth/token";
+const CLIENT_ID = '9d1c250a-e61b-44d9-88ed-5944d1962f5e';
+const SCOPES =
+  'org:create_api_key user:profile user:inference user:sessions:claude_code user:mcp_servers user:file_upload';
+const REDIRECT_URI = 'https://console.anthropic.com/oauth/code/callback';
+const AUTHORIZE_URL = 'https://claude.ai/oauth/authorize';
+const TOKEN_URL = 'https://console.anthropic.com/v1/oauth/token';
 
 /** In-memory state for the current OAuth flow. */
 let pendingAuth: {
@@ -20,20 +21,24 @@ let pendingAuth: {
 
 /** Base64url encode (no padding). */
 function base64url(buf: Buffer): string {
-  return buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return buf
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 }
 
 /** Generate a PKCE code verifier and its S256 challenge. */
 function generatePkce() {
   const verifier = base64url(randomBytes(32));
-  const challenge = base64url(createHash("sha256").update(verifier).digest());
+  const challenge = base64url(createHash('sha256').update(verifier).digest());
   return { verifier, challenge };
 }
 
 /** Resolve the credentials file path (~/.claude/.credentials.json). */
 function credentialsPath(): string {
-  const home = process.env.HOME ?? "/root";
-  return path.join(home, ".claude", ".credentials.json");
+  const home = process.env.HOME ?? '/root';
+  return path.join(home, '.claude', '.credentials.json');
 }
 
 /**
@@ -42,7 +47,7 @@ function credentialsPath(): string {
  * Starts a first-party OAuth flow. Generates PKCE parameters and returns
  * the authorization URL for the user to open in their browser.
  */
-claudeAuthRouter.post("/login", async (_req, res) => {
+claudeAuthRouter.post('/login', async (_req, res) => {
   try {
     const { verifier, challenge } = generatePkce();
     const state = base64url(randomBytes(32));
@@ -51,18 +56,20 @@ claudeAuthRouter.post("/login", async (_req, res) => {
 
     const params = new URLSearchParams({
       client_id: CLIENT_ID,
-      response_type: "code",
+      response_type: 'code',
       redirect_uri: REDIRECT_URI,
       scope: SCOPES,
       code_challenge: challenge,
-      code_challenge_method: "S256",
+      code_challenge_method: 'S256',
       state,
     });
 
     const url = `${AUTHORIZE_URL}?${params.toString()}`;
     res.json({ url });
   } catch (err: any) {
-    res.status(500).json({ error: err.message ?? "Failed to start OAuth flow" });
+    res
+      .status(500)
+      .json({ error: err.message ?? 'Failed to start OAuth flow' });
   }
 });
 
@@ -74,17 +81,18 @@ claudeAuthRouter.post("/login", async (_req, res) => {
  *
  * Body: { "code": "<the code from the browser>" }
  */
-claudeAuthRouter.post("/callback", async (req, res) => {
+claudeAuthRouter.post('/callback', async (req, res) => {
   const { code } = req.body ?? {};
 
-  if (!code || typeof code !== "string") {
-    res.status(400).json({ error: "Missing required field: code" });
+  if (!code || typeof code !== 'string') {
+    res.status(400).json({ error: 'Missing required field: code' });
     return;
   }
 
   if (!pendingAuth) {
     res.status(409).json({
-      error: "No login flow in progress. Call POST /api/claude/auth/login first.",
+      error:
+        'No login flow in progress. Call POST /api/claude/auth/login first.',
     });
     return;
   }
@@ -94,14 +102,14 @@ claudeAuthRouter.post("/callback", async (req, res) => {
 
   // The callback page may show the code as "code#state" — strip the
   // fragment (state) suffix so we send only the actual authorization code.
-  const authCode = code.split("#")[0]!;
+  const authCode = code.split('#')[0]!;
 
   try {
     const tokenRes = await fetch(TOKEN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        grant_type: "authorization_code",
+        grant_type: 'authorization_code',
         client_id: CLIENT_ID,
         code: authCode,
         state: pendingState,
@@ -126,7 +134,11 @@ claudeAuthRouter.post("/callback", async (req, res) => {
     if (!tokenRes.ok) {
       res.status(400).json({
         success: false,
-        output: (body as any).error?.message ?? (body as any).error_description ?? (body as any).error ?? "Token exchange failed",
+        output:
+          (body as any).error?.message ??
+          (body as any).error_description ??
+          (body as any).error ??
+          'Token exchange failed',
       });
       return;
     }
@@ -141,7 +153,7 @@ claudeAuthRouter.post("/callback", async (req, res) => {
 
     let existing: Record<string, unknown> = {};
     try {
-      existing = JSON.parse(fs.readFileSync(credPath, "utf-8"));
+      existing = JSON.parse(fs.readFileSync(credPath, 'utf-8'));
     } catch {
       // File doesn't exist yet — start fresh.
     }
@@ -150,15 +162,19 @@ claudeAuthRouter.post("/callback", async (req, res) => {
       accessToken,
       refreshToken,
       expiresAt: Date.now() + expiresIn * 1000,
-      scopes: (body.scope as string ?? SCOPES).split(" "),
+      scopes: ((body.scope as string) ?? SCOPES).split(' '),
     };
 
     fs.mkdirSync(credDir, { recursive: true, mode: 0o700 });
-    fs.writeFileSync(credPath, JSON.stringify(existing, null, 2), { mode: 0o600 });
+    fs.writeFileSync(credPath, JSON.stringify(existing, null, 2), {
+      mode: 0o600,
+    });
 
-    res.json({ success: true, output: "Authenticated successfully" });
+    res.json({ success: true, output: 'Authenticated successfully' });
   } catch (err: any) {
-    res.status(500).json({ error: err.message ?? "Failed to exchange code for tokens" });
+    res
+      .status(500)
+      .json({ error: err.message ?? 'Failed to exchange code for tokens' });
   }
 });
 
@@ -167,27 +183,30 @@ claudeAuthRouter.post("/callback", async (req, res) => {
  *
  * Returns the current authentication status of the Claude Code CLI.
  */
-claudeAuthRouter.get("/status", async (_req, res) => {
+claudeAuthRouter.get('/status', async (_req, res) => {
   try {
-    const result = await new Promise<{ authenticated: boolean; output: string }>(
-      (resolve, reject) => {
-        execFile("claude", ["auth", "status"], (err, stdout, stderr) => {
-          if (err && (err as any).code === "ENOENT") {
-            reject(new Error("claude CLI not found"));
-            return;
-          }
-          const exitCode = err ? (err as any).code ?? 1 : 0;
-          resolve({
-            authenticated: exitCode === 0,
-            output: (stdout || stderr).trim(),
-          });
+    const result = await new Promise<{
+      authenticated: boolean;
+      output: string;
+    }>((resolve, reject) => {
+      execFile('claude', ['auth', 'status'], (err, stdout, stderr) => {
+        if (err && (err as any).code === 'ENOENT') {
+          reject(new Error('claude CLI not found'));
+          return;
+        }
+        const exitCode = err ? ((err as any).code ?? 1) : 0;
+        resolve({
+          authenticated: exitCode === 0,
+          output: (stdout || stderr).trim(),
         });
-      },
-    );
+      });
+    });
 
     res.json(result);
   } catch (err: any) {
-    res.status(500).json({ error: err.message ?? "Failed to check auth status" });
+    res
+      .status(500)
+      .json({ error: err.message ?? 'Failed to check auth status' });
   }
 });
 
@@ -196,13 +215,16 @@ claudeAuthRouter.get("/status", async (_req, res) => {
  *
  * Logs out by removing stored credentials.
  */
-claudeAuthRouter.post("/logout", async (_req, res) => {
+claudeAuthRouter.post('/logout', async (_req, res) => {
   try {
     // Try CLI logout first (it may clear additional state).
     await new Promise<void>((resolve) => {
-      execFile("claude", ["auth", "logout"], (err) => {
+      execFile('claude', ['auth', 'logout'], (err) => {
         if (err) {
-          console.log("[claude-auth] CLI logout error (non-fatal):", err.message);
+          console.log(
+            '[claude-auth] CLI logout error (non-fatal):',
+            err.message
+          );
         }
         resolve();
       });
@@ -217,6 +239,6 @@ claudeAuthRouter.post("/logout", async (_req, res) => {
 
     res.json({ success: true });
   } catch (err: any) {
-    res.status(500).json({ error: err.message ?? "Failed to logout" });
+    res.status(500).json({ error: err.message ?? 'Failed to logout' });
   }
 });
