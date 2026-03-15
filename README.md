@@ -20,7 +20,6 @@ Yet another note taking application[^1].
 ## Quick Start
 
 ```sh
-# Note: To build the Docker image yourself, run `make`
 docker run \
   -p 8080:3009 \
   --env ASTRONOTE_DEFAULT_USER="herp.derpson@flurp.com" \
