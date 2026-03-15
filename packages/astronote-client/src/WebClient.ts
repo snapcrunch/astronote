@@ -45,6 +45,19 @@ export interface ClaudeAuthStatus {
   output: string;
 }
 
+export interface StreamClaudePromptOptions {
+  prompt: string;
+  signal?: AbortSignal;
+  sessionId?: string;
+  activeNoteTitle?: string;
+}
+
+export interface StreamClaudePromptCallbacks {
+  onChunk: (text: string) => void;
+  onDone: (sessionId: string | null) => void;
+  onError: (message: string) => void;
+}
+
 export class WebClient {
   private http: AxiosInstance;
   private refreshPromise: Promise<boolean> | null = null;
@@ -261,42 +274,49 @@ export class WebClient {
   // Claude Auth
 
   async fetchClaudeAuthStatus(): Promise<ClaudeAuthStatus> {
-    const { data } = await this.http.get<ClaudeAuthStatus>("/api/claude/auth/status");
+    const { data } = await this.http.get<ClaudeAuthStatus>(
+      '/api/claude/auth/status'
+    );
     return data;
   }
 
   async startClaudeLogin(): Promise<{ url: string }> {
-    const { data } = await this.http.post<{ url: string }>("/api/claude/auth/login");
+    const { data } = await this.http.post<{ url: string }>(
+      '/api/claude/auth/login'
+    );
     return data;
   }
 
-  async submitClaudeAuthCode(code: string): Promise<{ success: boolean; output: string }> {
-    const { data } = await this.http.post<{ success: boolean; output: string }>("/api/claude/auth/callback", { code });
+  async submitClaudeAuthCode(
+    code: string
+  ): Promise<{ success: boolean; output: string }> {
+    const { data } = await this.http.post<{ success: boolean; output: string }>(
+      '/api/claude/auth/callback',
+      { code }
+    );
     return data;
   }
 
   async streamClaudePrompt(
-    prompt: string,
-    onChunk: (text: string) => void,
-    onDone: (sessionId: string | null) => void,
-    onError: (message: string) => void,
-    signal?: AbortSignal,
-    sessionId?: string,
-    activeNoteTitle?: string,
+    options: StreamClaudePromptOptions,
+    callbacks: StreamClaudePromptCallbacks
   ): Promise<void> {
-    const baseURL = this.http.defaults.baseURL ?? "";
+    const { prompt, signal, sessionId, activeNoteTitle } = options;
+    const { onChunk, onDone, onError } = callbacks;
+
+    const baseURL = this.http.defaults.baseURL ?? '';
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     };
     const token = localStorage.getItem('astronote.token');
     if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     let response: Response;
     try {
       response = await fetch(`${baseURL}/api/claude/prompt`, {
-        method: "POST",
+        method: 'POST',
         headers,
         body: JSON.stringify({
           prompt,
@@ -305,9 +325,11 @@ export class WebClient {
         }),
         signal,
       });
-    } catch (err: any) {
-      if (err.name === "AbortError") return;
-      onError(err.message ?? "Network error");
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
+      onError(err instanceof Error ? err.message : 'Network error');
       return;
     }
 
@@ -323,33 +345,37 @@ export class WebClient {
 
     const reader = response.body?.getReader();
     if (!reader) {
-      onError("No response body");
+      onError('No response body');
       return;
     }
 
     const decoder = new TextDecoder();
-    let buffer = "";
+    let buffer = '';
 
     try {
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          break;
+        }
 
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
 
         for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
+          if (!line.startsWith('data: ')) {
+            continue;
+          }
           const json = line.slice(6);
           try {
             const event = JSON.parse(json);
-            if (event.type === "chunk") {
+            if (event.type === 'chunk') {
               onChunk(event.text);
-            } else if (event.type === "done") {
+            } else if (event.type === 'done') {
               onDone(event.sessionId ?? null);
               return;
-            } else if (event.type === "error") {
+            } else if (event.type === 'error') {
               onError(event.message);
               return;
             }
@@ -360,9 +386,11 @@ export class WebClient {
       }
       // Stream ended without a done/error event
       onDone(null);
-    } catch (err: any) {
-      if (err.name === "AbortError") return;
-      onError(err.message ?? "Stream error");
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
+      onError(err instanceof Error ? err.message : 'Stream error');
     }
   }
 

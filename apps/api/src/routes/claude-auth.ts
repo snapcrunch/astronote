@@ -66,10 +66,10 @@ claudeAuthRouter.post('/login', async (_req, res) => {
 
     const url = `${AUTHORIZE_URL}?${params.toString()}`;
     res.json({ url });
-  } catch (err: any) {
-    res
-      .status(500)
-      .json({ error: err.message ?? 'Failed to start OAuth flow' });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : 'Failed to start OAuth flow';
+    res.status(500).json({ error: message });
   }
 });
 
@@ -132,14 +132,19 @@ claudeAuthRouter.post('/callback', async (req, res) => {
     }
 
     if (!tokenRes.ok) {
-      res.status(400).json({
-        success: false,
-        output:
-          (body as any).error?.message ??
-          (body as any).error_description ??
-          (body as any).error ??
-          'Token exchange failed',
-      });
+      const errorBody = body as Record<string, unknown>;
+      const errorObj = errorBody.error as
+        | Record<string, unknown>
+        | string
+        | undefined;
+      const errorMessage =
+        (typeof errorObj === 'object' && errorObj !== null
+          ? (errorObj.message as string)
+          : undefined) ??
+        (errorBody.error_description as string) ??
+        (typeof errorObj === 'string' ? errorObj : undefined) ??
+        'Token exchange failed';
+      res.status(400).json({ success: false, output: errorMessage });
       return;
     }
 
@@ -171,10 +176,10 @@ claudeAuthRouter.post('/callback', async (req, res) => {
     });
 
     res.json({ success: true, output: 'Authenticated successfully' });
-  } catch (err: any) {
-    res
-      .status(500)
-      .json({ error: err.message ?? 'Failed to exchange code for tokens' });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : 'Failed to exchange code for tokens';
+    res.status(500).json({ error: message });
   }
 });
 
@@ -190,11 +195,11 @@ claudeAuthRouter.get('/status', async (_req, res) => {
       output: string;
     }>((resolve, reject) => {
       execFile('claude', ['auth', 'status'], (err, stdout, stderr) => {
-        if (err && (err as any).code === 'ENOENT') {
+        if (err && (err as NodeJS.ErrnoException).code === 'ENOENT') {
           reject(new Error('claude CLI not found'));
           return;
         }
-        const exitCode = err ? ((err as any).code ?? 1) : 0;
+        const exitCode = err ? ((err as NodeJS.ErrnoException).code ?? 1) : 0;
         resolve({
           authenticated: exitCode === 0,
           output: (stdout || stderr).trim(),
@@ -203,10 +208,10 @@ claudeAuthRouter.get('/status', async (_req, res) => {
     });
 
     res.json(result);
-  } catch (err: any) {
-    res
-      .status(500)
-      .json({ error: err.message ?? 'Failed to check auth status' });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : 'Failed to check auth status';
+    res.status(500).json({ error: message });
   }
 });
 
@@ -238,7 +243,8 @@ claudeAuthRouter.post('/logout', async (_req, res) => {
     }
 
     res.json({ success: true });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message ?? 'Failed to logout' });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Failed to logout';
+    res.status(500).json({ error: message });
   }
 });

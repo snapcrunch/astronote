@@ -6,7 +6,9 @@ export function setJwtSecret(secret: string) {
 
 export function getJwtSecret(): string {
   if (!jwtSecret) {
-    throw new Error('JWT secret not configured. Call domain.system.init() first.');
+    throw new Error(
+      'JWT secret not configured. Call domain.system.init() first.'
+    );
   }
   return jwtSecret;
 }

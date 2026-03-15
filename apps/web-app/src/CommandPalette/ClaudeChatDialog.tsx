@@ -26,7 +26,10 @@ interface ClaudeChatDialogProps {
   onClose: () => void;
 }
 
-export default function ClaudeChatDialog({ open, onClose }: ClaudeChatDialogProps) {
+export default function ClaudeChatDialog({
+  open,
+  onClose,
+}: ClaudeChatDialogProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [status, setStatus] = useState<ChatStatus>('idle');
@@ -68,34 +71,38 @@ export default function ClaudeChatDialog({ open, onClose }: ClaudeChatDialogProp
     abortControllerRef.current = controller;
 
     client.streamClaudePrompt(
-      prompt,
-      (text) => {
-        setMessages((prev) => {
-          const updated = [...prev];
-          const last = updated[updated.length - 1];
-          if (last?.role === 'assistant') {
-            updated[updated.length - 1] = { ...last, text: last.text + text };
-          }
-          return updated;
-        });
+      {
+        prompt,
+        signal: controller.signal,
+        sessionId: sessionId ?? undefined,
+        activeNoteTitle: !sessionId ? selectedNote?.title : undefined,
       },
-      (sid) => {
-        setStatus('idle');
-        if (sid) setSessionId(sid);
-        setTimeout(() => inputRef.current?.focus(), 50);
-        const s = useNoteStore.getState();
-        s.fetchNotes();
-        s.fetchTags();
-        s.fetchCollections();
-        s.fetchSettings();
-      },
-      (message) => {
-        setStatus('error');
-        setError(message);
-      },
-      controller.signal,
-      sessionId ?? undefined,
-      !sessionId ? selectedNote?.title : undefined,
+      {
+        onChunk: (text) => {
+          setMessages((prev) => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+            if (last?.role === 'assistant') {
+              updated[updated.length - 1] = { ...last, text: last.text + text };
+            }
+            return updated;
+          });
+        },
+        onDone: (sid) => {
+          setStatus('idle');
+          if (sid) setSessionId(sid);
+          setTimeout(() => inputRef.current?.focus(), 50);
+          const s = useNoteStore.getState();
+          s.fetchNotes();
+          s.fetchTags();
+          s.fetchCollections();
+          s.fetchSettings();
+        },
+        onError: (message) => {
+          setStatus('error');
+          setError(message);
+        },
+      }
     );
   }, [input, status, sessionId, selectedNote]);
 
@@ -126,7 +133,9 @@ export default function ClaudeChatDialog({ open, onClose }: ClaudeChatDialogProp
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={{ borderBottom: 1, borderColor: 'divider' }}>Claude</DialogTitle>
+      <DialogTitle sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        Claude
+      </DialogTitle>
       <DialogContent
         ref={scrollRef}
         sx={{
@@ -140,7 +149,10 @@ export default function ClaudeChatDialog({ open, onClose }: ClaudeChatDialogProp
         }}
       >
         {messages.length === 0 && status === 'idle' && (
-          <Typography color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+          <Typography
+            color="text.secondary"
+            sx={{ py: 2, textAlign: 'center' }}
+          >
             Ask Claude anything about your notes.
           </Typography>
         )}
@@ -152,7 +164,8 @@ export default function ClaudeChatDialog({ open, onClose }: ClaudeChatDialogProp
                 alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                 maxWidth: '85%',
                 bgcolor: msg.role === 'user' ? 'primary.main' : 'grey.100',
-                color: msg.role === 'user' ? 'primary.contrastText' : 'text.primary',
+                color:
+                  msg.role === 'user' ? 'primary.contrastText' : 'text.primary',
                 px: 1.5,
                 py: 1,
                 borderRadius: 2,
@@ -171,7 +184,9 @@ export default function ClaudeChatDialog({ open, onClose }: ClaudeChatDialogProp
           </Box>
         )}
         {status === 'error' && (
-          <Alert severity="error" sx={{ mt: 1 }}>{error}</Alert>
+          <Alert severity="error" sx={{ mt: 1 }}>
+            {error}
+          </Alert>
         )}
       </DialogContent>
       <Box sx={{ px: 3, py: 1.5, borderTop: 1, borderColor: 'divider' }}>
@@ -192,9 +207,7 @@ export default function ClaudeChatDialog({ open, onClose }: ClaudeChatDialogProp
         />
       </Box>
       <DialogActions>
-        {status === 'streaming' && (
-          <Button onClick={handleStop}>Stop</Button>
-        )}
+        {status === 'streaming' && <Button onClick={handleStop}>Stop</Button>}
         {messages.length > 0 && status !== 'streaming' && (
           <Button onClick={handleNewChat}>New Chat</Button>
         )}

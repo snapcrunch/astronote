@@ -49,7 +49,7 @@ export function claudePromptRouter(dbPath: string): Router {
 
     const handle = domain.claude.prompt(
       prompt,
-      { dbPath, sessionId, activeNoteTitle },
+      { dbPath, userId: req.user!.id, sessionId, activeNoteTitle },
       {
         onChunk: (text) => sendEvent({ type: 'chunk', text }),
         onDone: (sid) => {

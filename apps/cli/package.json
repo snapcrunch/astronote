@@ -10,6 +10,7 @@
   "dependencies": {
     "@repo/domain": "*",
     "@repo/repository": "*",
+    "@repo/types": "*",
     "commander": "^13.1.0"
   },
   "devDependencies": {

@@ -21,7 +21,24 @@ import ClaudeChatDialog from './ClaudeChatDialog';
 
 const client = new WebClient();
 
-type ClaudeAuthStep = "idle" | "loading-url" | "awaiting-code" | "submitting" | "success" | "error";
+function extractErrorMessage(err: unknown, fallback: string): string {
+  if (err && typeof err === 'object' && 'response' in err) {
+    const resp = (err as { response?: { data?: Record<string, string> } })
+      .response;
+    if (resp?.data?.error) return resp.data.error;
+    if (resp?.data?.output) return resp.data.output;
+  }
+  if (err instanceof Error) return err.message;
+  return fallback;
+}
+
+type ClaudeAuthStep =
+  | 'idle'
+  | 'loading-url'
+  | 'awaiting-code'
+  | 'submitting'
+  | 'success'
+  | 'error';
 
 export default function CommandPalette() {
   const [open, setOpen] = useState(false);
@@ -29,10 +46,10 @@ export default function CommandPalette() {
   const [importOpen, setImportOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [claudeAuthOpen, setClaudeAuthOpen] = useState(false);
-  const [claudeAuthStep, setClaudeAuthStep] = useState<ClaudeAuthStep>("idle");
-  const [claudeAuthUrl, setClaudeAuthUrl] = useState("");
-  const [claudeAuthCode, setClaudeAuthCode] = useState("");
-  const [claudeAuthError, setClaudeAuthError] = useState("");
+  const [claudeAuthStep, setClaudeAuthStep] = useState<ClaudeAuthStep>('idle');
+  const [claudeAuthUrl, setClaudeAuthUrl] = useState('');
+  const [claudeAuthCode, setClaudeAuthCode] = useState('');
+  const [claudeAuthError, setClaudeAuthError] = useState('');
   const [claudeChatOpen, setClaudeChatOpen] = useState(false);
   const resetAll = useNoteStore((s) => s.resetAll);
   const fetchClaudeAuthStatus = useNoteStore((s) => s.fetchClaudeAuthStatus);
@@ -62,35 +79,35 @@ export default function CommandPalette() {
 
   const handleOpenClaudeAuth = useCallback(async () => {
     setClaudeAuthOpen(true);
-    setClaudeAuthStep("loading-url");
-    setClaudeAuthUrl("");
-    setClaudeAuthCode("");
-    setClaudeAuthError("");
+    setClaudeAuthStep('loading-url');
+    setClaudeAuthUrl('');
+    setClaudeAuthCode('');
+    setClaudeAuthError('');
     try {
       const { url } = await client.startClaudeLogin();
       setClaudeAuthUrl(url);
-      setClaudeAuthStep("awaiting-code");
-    } catch (err: any) {
-      setClaudeAuthError(err?.response?.data?.error ?? err.message ?? "Failed to start login");
-      setClaudeAuthStep("error");
+      setClaudeAuthStep('awaiting-code');
+    } catch (err: unknown) {
+      setClaudeAuthError(extractErrorMessage(err, 'Failed to start login'));
+      setClaudeAuthStep('error');
     }
   }, []);
 
   const handleClaudeAuthClose = useCallback(() => {
     setClaudeAuthOpen(false);
-    setClaudeAuthStep("idle");
+    setClaudeAuthStep('idle');
   }, []);
 
   const handleSubmitClaudeCode = useCallback(async () => {
-    setClaudeAuthStep("submitting");
-    setClaudeAuthError("");
+    setClaudeAuthStep('submitting');
+    setClaudeAuthError('');
     try {
       await client.submitClaudeAuthCode(claudeAuthCode);
-      setClaudeAuthStep("success");
+      setClaudeAuthStep('success');
       await fetchClaudeAuthStatus();
-    } catch (err: any) {
-      setClaudeAuthError(err?.response?.data?.error ?? err?.response?.data?.output ?? err.message ?? "Authentication failed");
-      setClaudeAuthStep("error");
+    } catch (err: unknown) {
+      setClaudeAuthError(extractErrorMessage(err, 'Authentication failed'));
+      setClaudeAuthStep('error');
     }
   }, [claudeAuthCode, fetchClaudeAuthStatus]);
 
@@ -129,7 +146,7 @@ export default function CommandPalette() {
         e.preventDefault();
         setCollectionPickerOpen((prev) => !prev);
       }
-      if (e.metaKey && e.shiftKey && (e.key === "z" || e.key === "Z")) {
+      if (e.metaKey && e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
         e.preventDefault();
         setClaudeChatOpen((prev) => !prev);
       }
@@ -257,21 +274,32 @@ export default function CommandPalette() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={claudeAuthOpen} onClose={handleClaudeAuthClose} maxWidth="sm" fullWidth>
+      <Dialog
+        open={claudeAuthOpen}
+        onClose={handleClaudeAuthClose}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Authenticate Claude Code</DialogTitle>
         <DialogContent>
-          {claudeAuthStep === "loading-url" && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, py: 2 }}>
+          {claudeAuthStep === 'loading-url' && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2 }}>
               <CircularProgress size={20} />
               <Typography>Starting authentication flow...</Typography>
             </Box>
           )}
-          {claudeAuthStep === "awaiting-code" && (
+          {claudeAuthStep === 'awaiting-code' && (
             <>
               <DialogContentText sx={{ mb: 2 }}>
-                Open the following URL in your browser to authenticate, then enter the code you receive below.
+                Open the following URL in your browser to authenticate, then
+                enter the code you receive below.
               </DialogContentText>
-              <Link href={claudeAuthUrl} target="_blank" rel="noopener noreferrer" sx={{ wordBreak: "break-all", display: "block", mb: 2 }}>
+              <Link
+                href={claudeAuthUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ wordBreak: 'break-all', display: 'block', mb: 2 }}
+              >
                 {claudeAuthUrl}
               </Link>
               <TextField
@@ -281,32 +309,41 @@ export default function CommandPalette() {
                 value={claudeAuthCode}
                 onChange={(e) => setClaudeAuthCode(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && claudeAuthCode.trim()) {
+                  if (e.key === 'Enter' && claudeAuthCode.trim()) {
                     handleSubmitClaudeCode();
                   }
                 }}
               />
             </>
           )}
-          {claudeAuthStep === "submitting" && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, py: 2 }}>
+          {claudeAuthStep === 'submitting' && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2 }}>
               <CircularProgress size={20} />
               <Typography>Authenticating...</Typography>
             </Box>
           )}
-          {claudeAuthStep === "success" && (
-            <Alert severity="success">Claude Code authenticated successfully.</Alert>
+          {claudeAuthStep === 'success' && (
+            <Alert severity="success">
+              Claude Code authenticated successfully.
+            </Alert>
           )}
-          {claudeAuthStep === "error" && (
-            <Alert severity="error" sx={{ mb: 1 }}>{claudeAuthError}</Alert>
+          {claudeAuthStep === 'error' && (
+            <Alert severity="error" sx={{ mb: 1 }}>
+              {claudeAuthError}
+            </Alert>
           )}
         </DialogContent>
         <DialogActions>
-          {claudeAuthStep === "awaiting-code" && (
-            <Button onClick={handleSubmitClaudeCode} disabled={!claudeAuthCode.trim()}>Submit</Button>
+          {claudeAuthStep === 'awaiting-code' && (
+            <Button
+              onClick={handleSubmitClaudeCode}
+              disabled={!claudeAuthCode.trim()}
+            >
+              Submit
+            </Button>
           )}
           <Button onClick={handleClaudeAuthClose}>
-            {claudeAuthStep === "success" ? "Done" : "Cancel"}
+            {claudeAuthStep === 'success' ? 'Done' : 'Cancel'}
           </Button>
         </DialogActions>
       </Dialog>
