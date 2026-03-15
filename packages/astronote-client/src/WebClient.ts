@@ -278,18 +278,19 @@ export class WebClient {
   async streamClaudePrompt(
     prompt: string,
     onChunk: (text: string) => void,
-    onDone: () => void,
+    onDone: (sessionId: string | null) => void,
     onError: (message: string) => void,
     signal?: AbortSignal,
+    sessionId?: string,
+    activeNoteTitle?: string,
   ): Promise<void> {
     const baseURL = this.http.defaults.baseURL ?? "";
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
-    // Forward basic auth header if configured on the Axios instance
-    const authHeader = this.http.defaults.headers?.common?.["Authorization"];
-    if (typeof authHeader === "string") {
-      headers["Authorization"] = authHeader;
+    const token = localStorage.getItem('astronote.token');
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     let response: Response;
@@ -297,7 +298,11 @@ export class WebClient {
       response = await fetch(`${baseURL}/api/claude/prompt`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({
+          prompt,
+          ...(sessionId ? { sessionId } : {}),
+          ...(activeNoteTitle ? { activeNoteTitle } : {}),
+        }),
         signal,
       });
     } catch (err: any) {
@@ -342,7 +347,7 @@ export class WebClient {
             if (event.type === "chunk") {
               onChunk(event.text);
             } else if (event.type === "done") {
-              onDone();
+              onDone(event.sessionId ?? null);
               return;
             } else if (event.type === "error") {
               onError(event.message);
@@ -354,7 +359,7 @@ export class WebClient {
         }
       }
       // Stream ended without a done/error event
-      onDone();
+      onDone(null);
     } catch (err: any) {
       if (err.name === "AbortError") return;
       onError(err.message ?? "Stream error");

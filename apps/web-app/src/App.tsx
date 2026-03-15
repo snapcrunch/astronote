@@ -107,6 +107,26 @@ function MainApp() {
 function App() {
   const route = useNoteStore((s) => s.route);
 
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const anchor = (e.target as HTMLElement).closest('a');
+      if (!anchor) return;
+      const href = anchor.getAttribute('href');
+      if (!href) return;
+      try {
+        const url = new URL(href, window.location.origin);
+        if (url.origin !== window.location.origin) {
+          e.preventDefault();
+          window.open(href, '_blank', 'noopener,noreferrer');
+        }
+      } catch {
+        // not a valid URL, let browser handle it
+      }
+    };
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, []);
+
   if (route === 'loading') return <LoadingView />;
   if (route === 'login') return <LoginView />;
   return <MainApp />;

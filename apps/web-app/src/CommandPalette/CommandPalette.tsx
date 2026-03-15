@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -8,7 +8,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
-import InputBase from '@mui/material/InputBase';
 import Link from '@mui/material/Link';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
@@ -18,6 +17,7 @@ import { useNoteStore } from '../store';
 import { ImportDropZone } from '../SettingsView/ImportSection';
 import { useCommands } from './hooks';
 import PaletteDialog from './PaletteDialog';
+import ClaudeChatDialog from './ClaudeChatDialog';
 
 const client = new WebClient();
 
@@ -33,15 +33,7 @@ export default function CommandPalette() {
   const [claudeAuthUrl, setClaudeAuthUrl] = useState("");
   const [claudeAuthCode, setClaudeAuthCode] = useState("");
   const [claudeAuthError, setClaudeAuthError] = useState("");
-  const [claudePromptOpen, setClaudePromptOpen] = useState(false);
-  const [claudePromptValue, setClaudePromptValue] = useState("");
-  const claudePromptInputRef = useRef<HTMLInputElement>(null);
-  const [claudeResponseOpen, setClaudeResponseOpen] = useState(false);
-  const [claudeResponseText, setClaudeResponseText] = useState("");
-  const [claudeResponseStatus, setClaudeResponseStatus] = useState<"streaming" | "done" | "error">("done");
-  const [claudeResponseError, setClaudeResponseError] = useState("");
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const responseContentRef = useRef<HTMLDivElement>(null);
+  const [claudeChatOpen, setClaudeChatOpen] = useState(false);
   const resetAll = useNoteStore((s) => s.resetAll);
   const fetchClaudeAuthStatus = useNoteStore((s) => s.fetchClaudeAuthStatus);
   const collections = useNoteStore((s) => s.collections);
@@ -102,64 +94,9 @@ export default function CommandPalette() {
     }
   }, [claudeAuthCode, fetchClaudeAuthStatus]);
 
-  const handleOpenClaudePrompt = useCallback(() => {
-    setClaudePromptOpen(true);
-    setClaudePromptValue("");
-    setTimeout(() => claudePromptInputRef.current?.focus(), 50);
+  const handleOpenClaudeChat = useCallback(() => {
+    setClaudeChatOpen(true);
   }, []);
-
-  const handleClaudePromptClose = useCallback(() => {
-    setClaudePromptOpen(false);
-  }, []);
-
-  const handleClaudePromptSubmit = useCallback(() => {
-    const prompt = claudePromptValue.trim();
-    if (!prompt) return;
-    setClaudePromptOpen(false);
-    setClaudeResponseOpen(true);
-    setClaudeResponseText("");
-    setClaudeResponseStatus("streaming");
-    setClaudeResponseError("");
-
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-
-    client.streamClaudePrompt(
-      prompt,
-      (text) => setClaudeResponseText((prev) => prev + text),
-      () => {
-        setClaudeResponseStatus("done");
-        const s = useNoteStore.getState();
-        s.fetchNotes();
-        s.fetchTags();
-        s.fetchCollections();
-        s.fetchSettings();
-      },
-      (message) => {
-        setClaudeResponseStatus("error");
-        setClaudeResponseError(message);
-      },
-      controller.signal,
-    );
-  }, [claudePromptValue]);
-
-  const handleClaudeResponseClose = useCallback(() => {
-    if (claudeResponseStatus === "streaming") {
-      abortControllerRef.current?.abort();
-    }
-    setClaudeResponseOpen(false);
-    setClaudeResponseText("");
-    setClaudeResponseStatus("done");
-    setClaudeResponseError("");
-    abortControllerRef.current = null;
-  }, [claudeResponseStatus]);
-
-  // Auto-scroll response dialog during streaming
-  useEffect(() => {
-    if (claudeResponseStatus === "streaming" && responseContentRef.current) {
-      responseContentRef.current.scrollTop = responseContentRef.current.scrollHeight;
-    }
-  }, [claudeResponseText, claudeResponseStatus]);
 
   const commands = useCommands(
     handleClose,
@@ -167,7 +104,7 @@ export default function CommandPalette() {
     handleOpenImport,
     handleOpenReset,
     handleOpenClaudeAuth,
-    handleOpenClaudePrompt
+    handleOpenClaudeChat
   );
 
   const commandItems = useMemo(
@@ -194,13 +131,7 @@ export default function CommandPalette() {
       }
       if (e.metaKey && e.shiftKey && (e.key === "z" || e.key === "Z")) {
         e.preventDefault();
-        setClaudePromptOpen((prev) => {
-          if (!prev) {
-            setClaudePromptValue("");
-            setTimeout(() => claudePromptInputRef.current?.focus(), 50);
-          }
-          return !prev;
-        });
+        setClaudeChatOpen((prev) => !prev);
       }
     };
     document.addEventListener('keydown', handleKeyDown);
@@ -379,77 +310,10 @@ export default function CommandPalette() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog
-        open={claudePromptOpen}
-        onClose={handleClaudePromptClose}
-        maxWidth="sm"
-        fullWidth
-        slotProps={{
-          paper: {
-            sx: {
-              position: "fixed",
-              top: "20%",
-              m: 0,
-              borderRadius: 2,
-              overflow: "hidden",
-            },
-          },
-        }}
-      >
-        <InputBase
-          inputRef={claudePromptInputRef}
-          fullWidth
-          placeholder="Ask Claude…"
-          value={claudePromptValue}
-          onChange={(e) => setClaudePromptValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              handleClaudePromptSubmit();
-            }
-          }}
-          sx={{
-            px: 2,
-            py: 1.5,
-            fontSize: "0.95rem",
-          }}
-        />
-      </Dialog>
-      <Dialog
-        open={claudeResponseOpen}
-        onClose={handleClaudeResponseClose}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Claude Response</DialogTitle>
-        <DialogContent
-          ref={responseContentRef}
-          sx={{ whiteSpace: "pre-wrap", maxHeight: "60vh", overflowY: "auto" }}
-        >
-          {claudeResponseText}
-          {claudeResponseStatus === "streaming" && (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-              <CircularProgress size={20} />
-            </Box>
-          )}
-          {claudeResponseStatus === "error" && (
-            <Alert severity="error" sx={{ mt: 2 }}>{claudeResponseError}</Alert>
-          )}
-        </DialogContent>
-        <DialogActions>
-          {claudeResponseStatus === "streaming" && (
-            <Button
-              onClick={() => {
-                abortControllerRef.current?.abort();
-                setClaudeResponseStatus("done");
-              }}
-            >
-              Stop
-            </Button>
-          )}
-          <Button onClick={handleClaudeResponseClose}>Close</Button>
-        </DialogActions>
-      </Dialog>
+      <ClaudeChatDialog
+        open={claudeChatOpen}
+        onClose={() => setClaudeChatOpen(false)}
+      />
     </>
   );
 }

@@ -4,6 +4,8 @@ import domain from '@repo/domain';
 
 const promptSchema = z.object({
   prompt: z.string().min(1).max(4000),
+  sessionId: z.string().optional(),
+  activeNoteTitle: z.string().optional(),
 });
 
 /**
@@ -29,7 +31,7 @@ export function claudePromptRouter(dbPath: string): Router {
       return;
     }
 
-    const { prompt } = parsed.data;
+    const { prompt, sessionId, activeNoteTitle } = parsed.data;
 
     // Set SSE headers
     res.setHeader('Content-Type', 'text/event-stream');
@@ -47,11 +49,11 @@ export function claudePromptRouter(dbPath: string): Router {
 
     const handle = domain.claude.prompt(
       prompt,
-      { dbPath },
+      { dbPath, sessionId, activeNoteTitle },
       {
         onChunk: (text) => sendEvent({ type: 'chunk', text }),
-        onDone: () => {
-          sendEvent({ type: 'done' });
+        onDone: (sid) => {
+          sendEvent({ type: 'done', sessionId: sid ?? undefined });
           done = true;
           res.end();
         },
