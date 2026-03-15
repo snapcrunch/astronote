@@ -6,7 +6,7 @@ import { loadEnv } from '#utils/env';
 const config = {
   port: loadEnv<number>('ASTRONOTE_API_PORT', {
     format: 'integer',
-    required: true,
+    defaultValue: 3009,
   }),
   dbFile: 'astronote.db',
   dataDir: loadEnv<string>('ASTRONOTE_DATA_DIR', {

@@ -17,6 +17,10 @@ import domain from '@repo/domain';
 import { logger } from '@repo/logger';
 
 async function main() {
+  logger.info(
+    { dbPath: config.dbPath },
+    `Data will be stored in: ${config.dataDir}`
+  );
   await domain.system.init({
     dbPath: config.dbPath,
     jwtSecret: config.jwtSecret,

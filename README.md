@@ -20,40 +20,15 @@ Yet another note taking application[^1].
 ## Quick Start
 
 ```sh
-# If you want to build the Docker image yourself, just run: `make`
-docker run -p 8080:3009 tkambler/astronote:latest
+# Note: To build the Docker image yourself, run `make`
+docker run \
+  -p 8080:3009 \
+  --env ASTRONOTE_DEFAULT_USER="herp.derpson@flurp.com" \
+  --env ASTRONOTE_DEFAULT_PASSWORD="changeme" \
+  --env ASTRONOTE_JWT_SECRET="random-string" \
+  --volume ./astronote-data:/app/data \
+  tkambler/astronote:latest
 ```
-
-If you prefer to use `docker-compose.yaml`:
-
-```yaml
-services:
-  astronote:
-    image: tkambler/astronote:latest
-    ports:
-      - '3009:3009'
-```
-
-To enable HTTP basic auth, run the following to generate a username / password string:
-
-```sh
-docker run --rm -it httpd:2.4 htpasswd -nbB myusername mypassword
-```
-
-Then update the config below with the output:
-
-```yaml
-services:
-  astronote:
-    image: tkambler/astronote:latest
-    ports:
-      - '3009:3009'
-    environment:
-      ASTRONOTE_AUTH_METHOD: BASIC_AUTH
-      ASTRONOTE_AUTH_CREDENTIALS: 'username:creds_go_here'
-```
-
-**NOTE:** Don't forget that any `$` characters in the encoded password string must be escaped (replaced `$` with `$$`).
 
 ## Running in Development Mode
 

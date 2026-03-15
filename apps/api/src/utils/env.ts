@@ -4,15 +4,20 @@ const loadEnv = <T>(
     format,
     required,
     parse,
+    defaultValue,
   }: {
     format: 'string' | 'number' | 'integer';
     required?: boolean;
     parse?: (val: unknown) => T;
+    defaultValue?: T;
   }
 ): T => {
   const raw = process.env[key];
   if (!raw && required) {
     throw new Error(`Required environment variable was not found: ${key}`);
+  }
+  if (defaultValue) {
+    return defaultValue;
   }
   if (parse) {
     const val = parse(raw);
