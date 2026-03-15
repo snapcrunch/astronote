@@ -14,6 +14,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@repo/logger": "*",
     "@repo/repository": "*",
     "@repo/types": "*",
     "archiver": "^7.0.1",

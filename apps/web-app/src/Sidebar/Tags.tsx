@@ -63,6 +63,7 @@ function Tags() {
               const selected = selectedTags.includes(tag);
               return (
                 <ListItemButton
+                  id={index === 0 ? 'first-tag' : undefined}
                   key={tag}
                   selected={selected}
                   onClick={(e) => toggleTag(tag, e.altKey)}

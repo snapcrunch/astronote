@@ -7,6 +7,14 @@ let db: Knex;
 export async function initDatabase(path: string): Promise<void> {
   db = knexLib(createKnexConfig(path));
   await db.migrate.latest();
+
+  const existing = await db('keyval').where('key', 'settings').first();
+  if (!existing) {
+    await db('keyval').insert({
+      key: 'settings',
+      value: JSON.stringify({ initialized: false }),
+    });
+  }
 }
 
 export async function seedDatabase(): Promise<void> {

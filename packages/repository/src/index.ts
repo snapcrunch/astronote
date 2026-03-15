@@ -34,3 +34,8 @@ export {
   getApiKeys,
   deleteApiKey,
 } from './apiKeys';
+export {
+  getSettings as getSystemSettings,
+  patchSettings as patchSystemSettings,
+  updateSettings as updateSystemSettings,
+} from './systemSettings';

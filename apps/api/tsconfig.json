@@ -6,8 +6,7 @@
     "module": "preserve",
     "moduleResolution": "bundler",
     "paths": {
-      "#routes/*": ["./src/routes/*"],
-      "#middleware/*": ["./src/middleware/*"]
+      "#*": ["./src/*"]
     }
   },
   "include": ["src"]

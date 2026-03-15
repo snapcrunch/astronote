@@ -2,8 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import type { AuthUser } from '@repo/types';
 import { getApiKeyById } from '@repo/repository';
-
-const JWT_SECRET = process.env.JWT_SECRET ?? 'astronote-dev-secret';
+import config from '#config';
 
 interface TokenPayload extends AuthUser {
   apiKeyId?: string;
@@ -21,7 +20,10 @@ export async function requireAuth(
   }
 
   try {
-    const payload = jwt.verify(header.slice(7), JWT_SECRET) as TokenPayload;
+    const payload = jwt.verify(
+      header.slice(7),
+      config.jwtSecret
+    ) as TokenPayload;
 
     if (payload.apiKeyId) {
       const exists = await getApiKeyById(payload.apiKeyId, payload.id);

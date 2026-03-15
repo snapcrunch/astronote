@@ -2,8 +2,7 @@ import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getUserByEmail, createRefreshToken } from '@repo/repository';
-
-const JWT_SECRET = process.env.JWT_SECRET ?? 'astronote-dev-secret';
+import { getJwtSecret } from '../../config';
 const REFRESH_TOKEN_EXPIRY_DAYS = 30;
 
 export async function login(
@@ -20,7 +19,7 @@ export async function login(
     throw new InvalidCredentialsError();
   }
 
-  const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+  const token = jwt.sign({ id: user.id, email: user.email }, getJwtSecret(), {
     expiresIn: '1h',
   });
 

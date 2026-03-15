@@ -6,8 +6,7 @@ import {
   createRefreshToken,
   getUserById,
 } from '@repo/repository';
-
-const JWT_SECRET = process.env.JWT_SECRET ?? 'astronote-dev-secret';
+import { getJwtSecret } from '../../config';
 const REFRESH_TOKEN_EXPIRY_DAYS = 30;
 
 export async function refreshAccessToken(
@@ -37,7 +36,7 @@ export async function refreshAccessToken(
   ).toISOString();
   await createRefreshToken(user.id, newRefreshToken, expiresAt);
 
-  const accessToken = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+  const accessToken = jwt.sign({ id: user.id, email: user.email }, getJwtSecret(), {
     expiresIn: '1h',
   });
 

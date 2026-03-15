@@ -2,7 +2,6 @@ import path from 'node:path';
 import express from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
-import { initDatabase } from '@repo/repository';
 import { notesRouter } from '#routes/notes';
 import { tagsRouter } from '#routes/tags';
 import { collectionsRouter } from '#routes/collections';
@@ -12,16 +11,18 @@ import { authRouter } from '#routes/auth';
 import { requestLogger } from '#middleware/requestLogger';
 import { requireAuth } from '#middleware/requireAuth';
 import { errorHandler } from '#middleware/errorHandler';
-import { basicAuth } from '#middleware/basicAuth';
 import { openApiSpec } from './openapi.js';
-
-const PORT = process.env.PORT ?? 3009;
-const DB_PATH =
-  process.env.DB_PATH ?? path.join(process.cwd(), '..', '..', 'astronote.db');
+import config from '#config';
+import domain from '@repo/domain';
+import { logger } from '@repo/logger';
 
 async function main() {
-  await initDatabase(DB_PATH);
-
+  await domain.system.init({
+    dbPath: config.dbPath,
+    jwtSecret: config.jwtSecret,
+    defaultUsername: config.defaultUser.username,
+    defaultPassword: config.defaultUser.password,
+  });
   const app = express();
 
   app.use(cors());
@@ -29,7 +30,6 @@ async function main() {
   app.use('/docs/api', swaggerUi.serve, swaggerUi.setup(openApiSpec));
   app.use(requestLogger);
   app.use('/api/auth', authRouter);
-  app.use(basicAuth);
   app.use('/api/notes', requireAuth, notesRouter);
   app.use('/api/tags', requireAuth, tagsRouter);
   app.use('/api/collections', requireAuth, collectionsRouter);
@@ -44,8 +44,8 @@ async function main() {
     res.sendFile(path.join(staticDir, 'index.html'));
   });
 
-  app.listen(PORT, () => {
-    console.log(`API server running on http://localhost:${PORT}`);
+  app.listen(config.port, () => {
+    logger.info({ port: config.port }, 'API server is running.');
   });
 }
 

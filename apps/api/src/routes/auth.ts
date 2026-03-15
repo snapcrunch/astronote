@@ -2,8 +2,7 @@ import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import { getUserById } from '@repo/repository';
 import domain from '@repo/domain';
-
-const JWT_SECRET = process.env.JWT_SECRET ?? 'astronote-dev-secret';
+import config from '#config';
 
 export const authRouter = Router();
 
@@ -36,7 +35,7 @@ authRouter.get('/', async (req, res) => {
 
   const token = header.slice(7);
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as {
+    const payload = jwt.verify(token, config.jwtSecret) as {
       id: number;
       email: string;
     };
