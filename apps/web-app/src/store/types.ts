@@ -47,7 +47,13 @@ export interface NoteStore {
   importNote: (
     title: string,
     content: string,
-    opts?: { tags?: string[]; collectionId?: number; pinned?: boolean }
+    opts?: {
+      tags?: string[];
+      collectionId?: number;
+      pinned?: boolean;
+      createdAt?: string;
+      updatedAt?: string;
+    }
   ) => Promise<void>;
   importing: boolean;
   updateNote: (

@@ -18,6 +18,8 @@ export const CreateNoteInputSchema = z.object({
   pinned: z.boolean().optional(),
   tags: z.array(z.string()).optional(),
   collectionId: z.number().optional(),
+  createdAt: z.string().datetime().optional(),
+  updatedAt: z.string().datetime().optional(),
 });
 
 export type CreateNoteInput = z.infer<typeof CreateNoteInputSchema>;

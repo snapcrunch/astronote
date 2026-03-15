@@ -60,6 +60,8 @@ export function useImport() {
             tags,
             collectionId,
             pinned: frontmatter.pinned,
+            createdAt: frontmatter.createdAt,
+            updatedAt: frontmatter.updatedAt,
           });
           setProgress({ current: i + 1, total: validFiles.length });
         }

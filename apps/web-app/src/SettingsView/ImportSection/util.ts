@@ -12,6 +12,8 @@ export interface Frontmatter {
   tags?: string[];
   collection?: string;
   pinned?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export function parseFrontmatter(content: string): {
@@ -41,6 +43,10 @@ export function parseFrontmatter(content: string): {
       frontmatter.collection = value;
     } else if (key === 'pinned') {
       frontmatter.pinned = value.toLowerCase() === 'true';
+    } else if (key === 'createdat' && value) {
+      frontmatter.createdAt = value;
+    } else if (key === 'updatedat' && value) {
+      frontmatter.updatedAt = value;
     }
   }
 

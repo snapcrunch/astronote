@@ -32,6 +32,8 @@ export interface CreateNoteParams {
   tags?: string[];
   collectionId?: number | null;
   pinned?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface RetryableConfig extends InternalAxiosRequestConfig {

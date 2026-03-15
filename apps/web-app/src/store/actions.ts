@@ -259,7 +259,13 @@ export function createActions({
     importNote: async (
       title: string,
       content: string,
-      opts?: { tags?: string[]; collectionId?: number; pinned?: boolean }
+      opts?: {
+        tags?: string[];
+        collectionId?: number;
+        pinned?: boolean;
+        createdAt?: string;
+        updatedAt?: string;
+      }
     ) => {
       const collectionId = opts?.collectionId ?? get().activeCollectionId;
       await client.createNote({
@@ -268,6 +274,8 @@ export function createActions({
         tags: opts?.tags,
         collectionId,
         pinned: opts?.pinned,
+        createdAt: opts?.createdAt,
+        updatedAt: opts?.updatedAt,
       });
     },
 

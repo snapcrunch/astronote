@@ -14,8 +14,8 @@ export async function create(
     content: input.content ?? '',
     tags,
     pinned: input.pinned ?? false,
-    createdAt: now,
-    updatedAt: now,
+    createdAt: input.createdAt ?? now,
+    updatedAt: input.updatedAt ?? now,
   };
   const created = await repository.createNote(
     user.id,
