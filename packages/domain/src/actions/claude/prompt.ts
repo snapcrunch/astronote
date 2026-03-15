@@ -6,7 +6,7 @@ import { logger } from '@repo/logger';
 const TIMEOUT_MS = 120_000;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const CLI_PATH = path.resolve(__dirname, '../../../../apps/cli/src/index.ts');
+const CLI_PATH = path.resolve(__dirname, '../../../../../apps/cli/src/index.ts');
 
 const ADMIN_COMMANDS = ['create-user', 'seed', 'help-all', 'help'];
 
@@ -149,10 +149,6 @@ export function prompt(
           }
           try {
             const msg = JSON.parse(trimmed);
-            logger.debug(
-              { type: msg.type, subtype: msg.subtype, keys: Object.keys(msg) },
-              'claude: parsed stream-json line'
-            );
 
             if (
               msg.type === 'system' &&
@@ -160,7 +156,6 @@ export function prompt(
               msg.session_id
             ) {
               sessionId = msg.session_id;
-              logger.info({ sessionId }, 'claude: session started');
             } else if (msg.type === 'assistant' && msg.message?.content) {
               for (const block of msg.message.content) {
                 if (block.type === 'text' && block.text) {
@@ -172,13 +167,9 @@ export function prompt(
               }
             } else if (msg.type === 'result' && msg.session_id) {
               sessionId = msg.session_id;
-              logger.info({ sessionId }, 'claude: result received');
             }
           } catch {
-            logger.warn(
-              { line: trimmed.slice(0, 200) },
-              'claude: failed to parse stdout line'
-            );
+            // skip malformed lines
           }
         }
       });
@@ -193,12 +184,6 @@ export function prompt(
           { code, sessionId, stderrLength: stderr.length },
           'claude: process closed'
         );
-        if (stderr) {
-          logger.debug(
-            { stderr: stderr.slice(0, 500) },
-            'claude: stderr output'
-          );
-        }
         if (finished) {
           return;
         }
