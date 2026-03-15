@@ -1815,6 +1815,7 @@ __metadata:
     "@repo/domain": "*"
     "@repo/eslint-config": "*"
     "@repo/repository": "*"
+    "@repo/types": "*"
     "@repo/typescript-config": "*"
     commander: ^13.1.0
     eslint: ^9.39.1

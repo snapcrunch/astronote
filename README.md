@@ -7,7 +7,8 @@ Yet another note taking application[^1].
 ## Features
 
 - **Full-text search & instant creation** — Type in the omnibar to search existing notes or press Enter to create a new one.
-- **Markdown editing** — Write notes in Markdown with a live rendered preview, powered by CodeMirror.
+- **Markdown editing** — Write notes in Markdown with a live rendered preview, powered by CodeMirror. Syntax highlighting for code blocks in rendered mode.
+- **Rename notes** — Rename any note via the context menu or the keyboard shortcut ⌘⇧E.
 - **Collections** — Organize notes into collections and quickly switch between them.
 - **Tags** — Tag notes for flexible categorization and filter by tags in the sidebar.
 - **Pinned notes** — Pin important notes to the top of the list.
@@ -15,7 +16,7 @@ Yet another note taking application[^1].
 - **Import & export** — Import notes from ZIP archives and export all notes for backup.
 - **Mobile-friendly** — Responsive layout with touch-optimized interactions and home screen app support (iOS/Android).
 - **Self-hosted** — Runs as a single Docker container with an embedded SQLite database. Optional HTTP basic auth.
-- **Ask Claude** — Send prompts to Claude directly from the app (⌘⇧Z). Claude can read and modify your notes via the SQLite database. (Coming Soon)
+- **Ask Claude** — Chat with Claude directly from the app (⌘⇧Z). Claude can search, read, create, and edit your notes, manage tags and collections, and even browse the web — all through a streaming chat interface with session persistence. Authenticate via OAuth from the command palette.
 
 ## Quick Start
 
@@ -65,6 +66,7 @@ This project is structured as a [monorepo](https://monorepo.tools/) managed with
 
 - [apps/web-app](apps/web-app) - React-based UI.
 - [apps/api](apps/api) - REST API. This layer is intentionally minimal. It validates requests and forwards them to the `domain` package (see below).
+- [apps/cli](apps/cli) - Command-line interface for administrative tasks (user creation, seeding, etc.).
 
 ### Libraries
 
@@ -72,6 +74,7 @@ This project is structured as a [monorepo](https://monorepo.tools/) managed with
 - [packages/domain](packages/domain) - Business logic lives here.
 - [packages/repository](packages/repository) - Database code lives here.
 - [packages/types](packages/types) - Exports shared [Zod](https://zod.dev/) validation functions and inferred TypeScript types.
+- [packages/logger](packages/logger) - Shared logging utility.
 - [packages/eslint-config](packages/eslint-config) - Shared [ESLint](https://eslint.org/) config.
 - [packages/typescript-config](packages/typescript-config/) - Shared [TypeScript](https://www.typescriptlang.org/) config.
 
