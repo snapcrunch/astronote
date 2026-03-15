@@ -1,5 +1,9 @@
-import * as repository from "@repo/repository";
+import type { AuthUser } from '@repo/types';
+import * as repository from '@repo/repository';
 
-export async function list(collectionId?: number): Promise<{ tag: string; count: number }[]> {
-  return repository.getTags(collectionId);
+export async function list(
+  user: AuthUser,
+  collectionId?: number
+): Promise<{ tag: string; count: number }[]> {
+  return repository.getTags(user.id, collectionId);
 }

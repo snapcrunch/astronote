@@ -10,13 +10,16 @@
     }
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
   },
   "dependencies": {
     "zod": "^3.25.67"
   },
   "devDependencies": {
+    "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
+    "eslint": "^9.39.1",
     "typescript": "^5.9.2"
   }
 }

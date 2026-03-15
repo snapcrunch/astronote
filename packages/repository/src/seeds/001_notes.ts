@@ -1,319 +1,421 @@
-import { v4 as uuidv4 } from "uuid";
-import type { Knex } from "knex";
+import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcrypt';
+import type { Knex } from 'knex';
+import { DEFAULT_SETTINGS } from '@repo/types';
 
 const collections = [
-  { name: "Personal" },
-  { name: "Work" },
-  { name: "Research" },
+  { name: 'Personal' },
+  { name: 'Work' },
+  { name: 'Research' },
+  { name: 'Study' },
 ];
 
-const seedNotes: { collection_id: number; title: string; content: string; tags: string[]; pinned?: boolean }[] = [
+const seedNotes: {
+  collection_id: number;
+  title: string;
+  content: string;
+  tags: string[];
+  pinned?: boolean;
+}[] = [
   {
     collection_id: 1,
     pinned: true,
-    title: "Getting Started with Astronote",
-    content: "## Keyboard Shortcuts\n\n- ⌘⇧K - Focus the Omnibar\n- ⌘⇧P - Open the Command Palette\n- ⌘⇧C - Open the Collection Palette\n- ⌘⇧S - Open the Settings Page\n- ⌘⇧D - Delete the Selected Note",
-    tags: ["astronote", "reference"],
+    title: 'Getting Started with Astronote',
+    content:
+      '## Keyboard Shortcuts\n\n- ⌘⇧K - Focus the Omnibar\n- ⌘⇧P - Open the Command Palette\n- ⌘⇧C - Open the Collection Palette\n- ⌘⇧S - Open the Settings Page\n- ⌘⇧D - Delete the Selected Note',
+    tags: ['astronote', 'reference'],
   },
   {
     collection_id: 1,
-    title: "Getting Started with Zettelkasten",
-    content: "# Getting Started with Zettelkasten\n\nThe **Zettelkasten** method is a personal knowledge management system developed by German sociologist *Niklas Luhmann*.\n\n## Core Principles\n\n1. **Atomicity** — Each note should contain one idea\n2. **Connectivity** — Notes should link to other notes\n3. **Use your own words** — Restate ideas rather than copying\n\n## Why It Works\n\nBy forcing yourself to express ideas in your own words and connect them to existing knowledge, you create a *web of understanding* that grows over time.\n\n> \"I don't think everything on my own. It happens mainly within the Zettelkasten.\" — Niklas Luhmann\n\nSee also: [Zettelkasten.de](https://zettelkasten.de/introduction/)",
-    tags: ["learning", "notetaking", "productivity"],
+    title: 'Getting Started with Zettelkasten',
+    content:
+      '# Getting Started with Zettelkasten\n\nThe **Zettelkasten** method is a personal knowledge management system developed by German sociologist *Niklas Luhmann*.\n\n## Core Principles\n\n1. **Atomicity** — Each note should contain one idea\n2. **Connectivity** — Notes should link to other notes\n3. **Use your own words** — Restate ideas rather than copying\n\n## Why It Works\n\nBy forcing yourself to express ideas in your own words and connect them to existing knowledge, you create a *web of understanding* that grows over time.\n\n> "I don\'t think everything on my own. It happens mainly within the Zettelkasten." — Niklas Luhmann\n\nSee also: [Zettelkasten.de](https://zettelkasten.de/introduction/)',
+    tags: ['learning', 'notetaking', 'productivity'],
   },
   {
     collection_id: 2,
-    title: "Weekly Grocery List",
-    content: "- Eggs\n- Whole milk\n- Sourdough bread\n- Avocados (x3)\n- Chicken thighs\n- Garlic\n- Olive oil\n- Spinach",
-    tags: ["groceries", "personal"],
+    title: 'Weekly Grocery List',
+    content:
+      '- Eggs\n- Whole milk\n- Sourdough bread\n- Avocados (x3)\n- Chicken thighs\n- Garlic\n- Olive oil\n- Spinach',
+    tags: ['groceries', 'personal'],
   },
   {
     collection_id: 1,
-    title: "React useEffect Cleanup",
-    content: "# useEffect Cleanup Functions\n\nAlways return a cleanup function from `useEffect` when setting up subscriptions or timers.\n\n```tsx\nuseEffect(() => {\n  const id = setInterval(() => {\n    console.log('tick');\n  }, 1000);\n\n  return () => clearInterval(id);\n}, []);\n```\n\n**Common mistake:** forgetting cleanup leads to memory leaks, especially with WebSocket connections and event listeners.",
-    tags: ["javascript", "react", "webdev"],
+    title: 'React useEffect Cleanup',
+    content:
+      "# useEffect Cleanup Functions\n\nAlways return a cleanup function from `useEffect` when setting up subscriptions or timers.\n\n```tsx\nuseEffect(() => {\n  const id = setInterval(() => {\n    console.log('tick');\n  }, 1000);\n\n  return () => clearInterval(id);\n}, []);\n```\n\n**Common mistake:** forgetting cleanup leads to memory leaks, especially with WebSocket connections and event listeners.",
+    tags: ['javascript', 'react', 'webdev'],
   },
   {
     collection_id: 1,
-    title: "Morning Routine",
-    content: "1. Wake at 6:00 AM\n2. Glass of water\n3. 20 min meditation\n4. 30 min exercise\n5. Shower\n6. Breakfast\n7. Journal for 10 min",
-    tags: ["health", "personal", "productivity"],
+    title: 'Morning Routine',
+    content:
+      '1. Wake at 6:00 AM\n2. Glass of water\n3. 20 min meditation\n4. 30 min exercise\n5. Shower\n6. Breakfast\n7. Journal for 10 min',
+    tags: ['health', 'personal', 'productivity'],
   },
   {
     collection_id: 2,
-    title: "Book Notes: Deep Work by Cal Newport",
-    content: "# Deep Work — Cal Newport\n\n## Key Thesis\n\n**Deep work** is the ability to focus without distraction on a cognitively demanding task. It is both *increasingly rare* and *increasingly valuable* in the modern economy.\n\n## The Four Rules\n\n### Rule 1: Work Deeply\n\nDecide on a **depth philosophy**:\n\n| Philosophy | Description | Example |\n|---|---|---|\n| Monastic | Eliminate all shallow work | Donald Knuth |\n| Bimodal | Dedicate defined stretches to deep work | Carl Jung |\n| Rhythmic | Build a daily habit | Chain method |\n| Journalistic | Fit deep work wherever you can | Walter Isaacson |\n\n### Rule 2: Embrace Boredom\n\nDon't use the internet for entertainment. Schedule breaks *from focus*, not breaks *from distraction*.\n\n### Rule 3: Quit Social Media\n\nApply the **craftsman approach** to tool selection: adopt a tool only if its positive impacts substantially outweigh its negative impacts.\n\n### Rule 4: Drain the Shallows\n\n- Schedule every minute of your day\n- Quantify the depth of every activity\n- Ask: *\"How long would it take to train a smart recent college graduate to do this task?\"*\n\n## Favorite Quotes\n\n> \"Who you are, what you think, feel, and do, what you love — is the sum of what you focus on.\"\n\n> \"Clarity about what matters provides clarity about what does not.\"\n\n## My Takeaway\n\nI need to **protect 3–4 hours** of uninterrupted work each morning. No Slack, no email. Phone in another room.",
-    tags: ["books", "learning", "productivity"],
+    title: 'Book Notes: Deep Work by Cal Newport',
+    content:
+      '# Deep Work — Cal Newport\n\n## Key Thesis\n\n**Deep work** is the ability to focus without distraction on a cognitively demanding task. It is both *increasingly rare* and *increasingly valuable* in the modern economy.\n\n## The Four Rules\n\n### Rule 1: Work Deeply\n\nDecide on a **depth philosophy**:\n\n| Philosophy | Description | Example |\n|---|---|---|\n| Monastic | Eliminate all shallow work | Donald Knuth |\n| Bimodal | Dedicate defined stretches to deep work | Carl Jung |\n| Rhythmic | Build a daily habit | Chain method |\n| Journalistic | Fit deep work wherever you can | Walter Isaacson |\n\n### Rule 2: Embrace Boredom\n\nDon\'t use the internet for entertainment. Schedule breaks *from focus*, not breaks *from distraction*.\n\n### Rule 3: Quit Social Media\n\nApply the **craftsman approach** to tool selection: adopt a tool only if its positive impacts substantially outweigh its negative impacts.\n\n### Rule 4: Drain the Shallows\n\n- Schedule every minute of your day\n- Quantify the depth of every activity\n- Ask: *"How long would it take to train a smart recent college graduate to do this task?"*\n\n## Favorite Quotes\n\n> "Who you are, what you think, feel, and do, what you love — is the sum of what you focus on."\n\n> "Clarity about what matters provides clarity about what does not."\n\n## My Takeaway\n\nI need to **protect 3–4 hours** of uninterrupted work each morning. No Slack, no email. Phone in another room.',
+    tags: ['books', 'learning', 'productivity'],
   },
   {
     collection_id: 2,
-    title: "Git Cheat Sheet",
-    content: "# Git Quick Reference\n\n## Branching\n\n```bash\ngit checkout -b feature/my-feature\ngit branch -d old-branch\ngit branch -a  # list all branches\n```\n\n## Stashing\n\n```bash\ngit stash\ngit stash pop\ngit stash list\n```\n\n## Undoing Things\n\n| Action | Command |\n|---|---|\n| Unstage a file | `git reset HEAD file.txt` |\n| Discard changes | `git checkout -- file.txt` |\n| Amend last commit | `git commit --amend` |\n| Revert a commit | `git revert <sha>` |",
-    tags: ["devtools", "git", "webdev"],
+    title: 'Git Cheat Sheet',
+    content:
+      '# Git Quick Reference\n\n## Branching\n\n```bash\ngit checkout -b feature/my-feature\ngit branch -d old-branch\ngit branch -a  # list all branches\n```\n\n## Stashing\n\n```bash\ngit stash\ngit stash pop\ngit stash list\n```\n\n## Undoing Things\n\n| Action | Command |\n|---|---|\n| Unstage a file | `git reset HEAD file.txt` |\n| Discard changes | `git checkout -- file.txt` |\n| Amend last commit | `git commit --amend` |\n| Revert a commit | `git revert <sha>` |',
+    tags: ['devtools', 'git', 'webdev'],
   },
   {
     collection_id: 1,
-    title: "Idea: Personal Dashboard",
-    content: "Build a personal dashboard that aggregates:\n\n- **Weather** for my location\n- **Calendar** events for today\n- **Task list** from Todoist API\n- **News headlines** from RSS feeds\n\nStack: React + Vite, deployed on Vercel. Could use [OpenWeather API](https://openweathermap.org/api) for weather data.",
-    tags: ["ideas", "react", "webdev"],
+    title: 'Idea: Personal Dashboard',
+    content:
+      'Build a personal dashboard that aggregates:\n\n- **Weather** for my location\n- **Calendar** events for today\n- **Task list** from Todoist API\n- **News headlines** from RSS feeds\n\nStack: React + Vite, deployed on Vercel. Could use [OpenWeather API](https://openweathermap.org/api) for weather data.',
+    tags: ['ideas', 'react', 'webdev'],
   },
   {
     collection_id: 2,
-    title: "Pasta Carbonara Recipe",
-    content: "# Pasta Carbonara\n\n**Serves:** 2 | **Time:** 20 min\n\n## Ingredients\n\n- 200g spaghetti\n- 100g guanciale (or pancetta), diced\n- 2 large egg yolks + 1 whole egg\n- 50g Pecorino Romano, finely grated\n- Freshly cracked black pepper\n\n## Instructions\n\n1. Boil pasta in well-salted water until *al dente*\n2. While pasta cooks, render guanciale in a cold pan over medium heat until crispy (~8 min)\n3. Whisk eggs, yolks, and cheese together in a bowl\n4. When pasta is done, **reserve 1 cup of pasta water** before draining\n5. Toss hot pasta into the guanciale pan (heat OFF)\n6. Quickly pour in egg mixture, tossing vigorously\n7. Add pasta water a splash at a time until silky\n8. Season generously with black pepper\n\n> **Tip:** Never add the egg mixture over direct heat — you'll get scrambled eggs instead of a sauce.",
-    tags: ["cooking", "recipe"],
+    title: 'Pasta Carbonara Recipe',
+    content:
+      "# Pasta Carbonara\n\n**Serves:** 2 | **Time:** 20 min\n\n## Ingredients\n\n- 200g spaghetti\n- 100g guanciale (or pancetta), diced\n- 2 large egg yolks + 1 whole egg\n- 50g Pecorino Romano, finely grated\n- Freshly cracked black pepper\n\n## Instructions\n\n1. Boil pasta in well-salted water until *al dente*\n2. While pasta cooks, render guanciale in a cold pan over medium heat until crispy (~8 min)\n3. Whisk eggs, yolks, and cheese together in a bowl\n4. When pasta is done, **reserve 1 cup of pasta water** before draining\n5. Toss hot pasta into the guanciale pan (heat OFF)\n6. Quickly pour in egg mixture, tossing vigorously\n7. Add pasta water a splash at a time until silky\n8. Season generously with black pepper\n\n> **Tip:** Never add the egg mixture over direct heat — you'll get scrambled eggs instead of a sauce.",
+    tags: ['cooking', 'recipe'],
   },
   {
     collection_id: 1,
-    title: "TypeScript Utility Types",
-    content: "# Useful TypeScript Utility Types\n\n- `Partial<T>` — makes all props optional\n- `Required<T>` — makes all props required\n- `Pick<T, K>` — select subset of props\n- `Omit<T, K>` — remove subset of props\n- `Record<K, V>` — object type with keys K and values V\n- `ReturnType<T>` — extract return type of a function\n\n```ts\ntype User = {\n  id: number;\n  name: string;\n  email: string;\n};\n\ntype UserPreview = Pick<User, 'id' | 'name'>;\n// { id: number; name: string }\n```",
-    tags: ["javascript", "typescript", "webdev"],
+    title: 'TypeScript Utility Types',
+    content:
+      "# Useful TypeScript Utility Types\n\n- `Partial<T>` — makes all props optional\n- `Required<T>` — makes all props required\n- `Pick<T, K>` — select subset of props\n- `Omit<T, K>` — remove subset of props\n- `Record<K, V>` — object type with keys K and values V\n- `ReturnType<T>` — extract return type of a function\n\n```ts\ntype User = {\n  id: number;\n  name: string;\n  email: string;\n};\n\ntype UserPreview = Pick<User, 'id' | 'name'>;\n// { id: number; name: string }\n```",
+    tags: ['javascript', 'typescript', 'webdev'],
   },
   {
     collection_id: 2,
-    title: "Meeting Notes: Q1 Planning",
-    content: "**Date:** 2026-01-10\n**Attendees:** Sarah, Mike, Priya, Jordan\n\n---\n\n## Agenda\n\n1. Review Q4 results\n2. Set Q1 OKRs\n3. Resource allocation\n\n## Key Decisions\n\n- **Objective 1:** Improve onboarding flow → target 30% reduction in drop-off\n- **Objective 2:** Launch mobile MVP by end of March\n- **Objective 3:** Reduce P95 API latency to < 200ms\n\n## Action Items\n\n- [ ] Sarah: Draft onboarding wireframes by 1/17\n- [ ] Mike: Set up performance monitoring dashboard\n- [ ] Priya: Scope mobile feature set\n- [ ] Jordan: Hire 2 backend engineers\n\n## Notes\n\nMike raised concerns about the current database architecture scaling. We may need to consider **read replicas** or moving to a different data store for the search index. Priya suggested evaluating *Elasticsearch*.",
-    tags: ["meetings", "work"],
+    title: 'Meeting Notes: Q1 Planning',
+    content:
+      '**Date:** 2026-01-10\n**Attendees:** Sarah, Mike, Priya, Jordan\n\n---\n\n## Agenda\n\n1. Review Q4 results\n2. Set Q1 OKRs\n3. Resource allocation\n\n## Key Decisions\n\n- **Objective 1:** Improve onboarding flow → target 30% reduction in drop-off\n- **Objective 2:** Launch mobile MVP by end of March\n- **Objective 3:** Reduce P95 API latency to < 200ms\n\n## Action Items\n\n- [ ] Sarah: Draft onboarding wireframes by 1/17\n- [ ] Mike: Set up performance monitoring dashboard\n- [ ] Priya: Scope mobile feature set\n- [ ] Jordan: Hire 2 backend engineers\n\n## Notes\n\nMike raised concerns about the current database architecture scaling. We may need to consider **read replicas** or moving to a different data store for the search index. Priya suggested evaluating *Elasticsearch*.',
+    tags: ['meetings', 'work'],
   },
   {
     collection_id: 2,
-    title: "Favorite Podcasts",
-    content: "- **Lex Fridman Podcast** — long-form interviews\n- **Huberman Lab** — neuroscience & health\n- **Syntax** — web dev\n- **The Changelog** — open source\n- **Philosophize This!** — philosophy",
-    tags: ["media", "personal"],
+    title: 'Favorite Podcasts',
+    content:
+      '- **Lex Fridman Podcast** — long-form interviews\n- **Huberman Lab** — neuroscience & health\n- **Syntax** — web dev\n- **The Changelog** — open source\n- **Philosophize This!** — philosophy',
+    tags: ['media', 'personal'],
   },
   {
     collection_id: 1,
-    title: "CSS Grid vs Flexbox",
-    content: "# When to Use Grid vs Flexbox\n\n## Flexbox\n\nBest for **one-dimensional** layouts (row OR column).\n\n```css\n.container {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n```\n\n## Grid\n\nBest for **two-dimensional** layouts (rows AND columns).\n\n```css\n.container {\n  display: grid;\n  grid-template-columns: 1fr 2fr 1fr;\n  gap: 16px;\n}\n```\n\n## Rule of Thumb\n\n| Scenario | Use |\n|---|---|\n| Navigation bar | Flexbox |\n| Card grid | Grid |\n| Centering one item | Flexbox |\n| Full page layout | Grid |\n| Sidebar + content | Grid |",
-    tags: ["css", "webdev"],
+    title: 'CSS Grid vs Flexbox',
+    content:
+      '# When to Use Grid vs Flexbox\n\n## Flexbox\n\nBest for **one-dimensional** layouts (row OR column).\n\n```css\n.container {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}\n```\n\n## Grid\n\nBest for **two-dimensional** layouts (rows AND columns).\n\n```css\n.container {\n  display: grid;\n  grid-template-columns: 1fr 2fr 1fr;\n  gap: 16px;\n}\n```\n\n## Rule of Thumb\n\n| Scenario | Use |\n|---|---|\n| Navigation bar | Flexbox |\n| Card grid | Grid |\n| Centering one item | Flexbox |\n| Full page layout | Grid |\n| Sidebar + content | Grid |',
+    tags: ['css', 'webdev'],
   },
   {
     collection_id: 2,
-    title: "Travel Packing Checklist",
-    content: "## Essentials\n\n- [ ] Passport\n- [ ] Wallet & cards\n- [ ] Phone & charger\n- [ ] Headphones\n\n## Clothing\n\n- [ ] 5 t-shirts\n- [ ] 2 pants\n- [ ] 7 underwear/socks\n- [ ] 1 jacket\n- [ ] Sleepwear\n\n## Toiletries\n\n- [ ] Toothbrush & toothpaste\n- [ ] Deodorant\n- [ ] Sunscreen\n- [ ] Medications",
+    title: 'Travel Packing Checklist',
+    content:
+      '## Essentials\n\n- [ ] Passport\n- [ ] Wallet & cards\n- [ ] Phone & charger\n- [ ] Headphones\n\n## Clothing\n\n- [ ] 5 t-shirts\n- [ ] 2 pants\n- [ ] 7 underwear/socks\n- [ ] 1 jacket\n- [ ] Sleepwear\n\n## Toiletries\n\n- [ ] Toothbrush & toothpaste\n- [ ] Deodorant\n- [ ] Sunscreen\n- [ ] Medications',
     tags: [],
   },
   {
     collection_id: 1,
-    title: "Understanding Promise.all vs Promise.allSettled",
-    content: "# Promise.all vs Promise.allSettled\n\n## Promise.all\n\n- Resolves when **all** promises resolve\n- **Rejects immediately** if any promise rejects\n- Use when all results are required\n\n## Promise.allSettled\n\n- Waits for **all** promises to settle (resolve or reject)\n- Never short-circuits\n- Use when you want results from all promises regardless of failures\n\n```js\nconst results = await Promise.allSettled([\n  fetch('/api/users'),\n  fetch('/api/posts'),\n  fetch('/api/comments'),\n]);\n\nconst succeeded = results.filter(r => r.status === 'fulfilled');\nconst failed = results.filter(r => r.status === 'rejected');\n```",
-    tags: ["javascript", "webdev"],
+    title: 'Understanding Promise.all vs Promise.allSettled',
+    content:
+      "# Promise.all vs Promise.allSettled\n\n## Promise.all\n\n- Resolves when **all** promises resolve\n- **Rejects immediately** if any promise rejects\n- Use when all results are required\n\n## Promise.allSettled\n\n- Waits for **all** promises to settle (resolve or reject)\n- Never short-circuits\n- Use when you want results from all promises regardless of failures\n\n```js\nconst results = await Promise.allSettled([\n  fetch('/api/users'),\n  fetch('/api/posts'),\n  fetch('/api/comments'),\n]);\n\nconst succeeded = results.filter(r => r.status === 'fulfilled');\nconst failed = results.filter(r => r.status === 'rejected');\n```",
+    tags: ['javascript', 'webdev'],
   },
   {
     collection_id: 1,
-    title: "Workout Plan: Push/Pull/Legs",
-    content: "# PPL Split\n\n## Push Day (Monday/Thursday)\n\n| Exercise | Sets x Reps |\n|---|---|\n| Bench Press | 4x8 |\n| Overhead Press | 3x10 |\n| Incline DB Press | 3x12 |\n| Lateral Raises | 3x15 |\n| Tricep Pushdowns | 3x12 |\n\n## Pull Day (Tuesday/Friday)\n\n| Exercise | Sets x Reps |\n|---|---|\n| Deadlift | 4x5 |\n| Barbell Rows | 4x8 |\n| Pull-ups | 3xAMRAP |\n| Face Pulls | 3x15 |\n| Barbell Curls | 3x12 |\n\n## Legs Day (Wednesday/Saturday)\n\n| Exercise | Sets x Reps |\n|---|---|\n| Squats | 4x8 |\n| Romanian Deadlift | 3x10 |\n| Leg Press | 3x12 |\n| Leg Curls | 3x12 |\n| Calf Raises | 4x15 |\n\n**Rest:** Sunday\n\n*Progressive overload: increase weight by 2.5kg when you can complete all sets with good form.*",
-    tags: ["fitness", "health"],
+    title: 'Workout Plan: Push/Pull/Legs',
+    content:
+      '# PPL Split\n\n## Push Day (Monday/Thursday)\n\n| Exercise | Sets x Reps |\n|---|---|\n| Bench Press | 4x8 |\n| Overhead Press | 3x10 |\n| Incline DB Press | 3x12 |\n| Lateral Raises | 3x15 |\n| Tricep Pushdowns | 3x12 |\n\n## Pull Day (Tuesday/Friday)\n\n| Exercise | Sets x Reps |\n|---|---|\n| Deadlift | 4x5 |\n| Barbell Rows | 4x8 |\n| Pull-ups | 3xAMRAP |\n| Face Pulls | 3x15 |\n| Barbell Curls | 3x12 |\n\n## Legs Day (Wednesday/Saturday)\n\n| Exercise | Sets x Reps |\n|---|---|\n| Squats | 4x8 |\n| Romanian Deadlift | 3x10 |\n| Leg Press | 3x12 |\n| Leg Curls | 3x12 |\n| Calf Raises | 4x15 |\n\n**Rest:** Sunday\n\n*Progressive overload: increase weight by 2.5kg when you can complete all sets with good form.*',
+    tags: ['fitness', 'health'],
   },
   {
     collection_id: 2,
-    title: "Vim Survival Guide",
-    content: "The basics to not get stuck:\n\n- `i` — insert mode\n- `Esc` — back to normal mode\n- `:w` — save\n- `:q` — quit\n- `:wq` — save and quit\n- `dd` — delete line\n- `yy` — copy line\n- `p` — paste\n- `/search` — find text\n- `u` — undo",
-    tags: ["devtools", "vim"],
+    title: 'Vim Survival Guide',
+    content:
+      'The basics to not get stuck:\n\n- `i` — insert mode\n- `Esc` — back to normal mode\n- `:w` — save\n- `:q` — quit\n- `:wq` — save and quit\n- `dd` — delete line\n- `yy` — copy line\n- `p` — paste\n- `/search` — find text\n- `u` — undo',
+    tags: ['devtools', 'vim'],
   },
   {
     collection_id: 1,
-    title: "Zustand Store Patterns",
-    content: "\n# Zustand Best Practices\n\n## Basic Store\n\n```ts\nimport { create } from 'zustand';\n\ninterface BearState {\n  bears: number;\n  increase: () => void;\n}\n\nconst useBearStore = create<BearState>((set) => ({\n  bears: 0,\n  increase: () => set((state) => ({ bears: state.bears + 1 })),\n}));\n```\n\n## Slices Pattern\n\nSplit large stores into **slices** for better organization:\n\n```ts\nconst createUserSlice = (set) => ({\n  user: null,\n  setUser: (user) => set({ user }),\n});\n\nconst createSettingsSlice = (set) => ({\n  theme: 'light',\n  toggleTheme: () =>\n    set((s) => ({ theme: s.theme === 'light' ? 'dark' : 'light' })),\n});\n```\n\n## Selectors\n\nAlways use **selectors** to avoid unnecessary re-renders:\n\n```ts\n// Bad — subscribes to entire store\nconst state = useBearStore();\n\n// Good — subscribes only to bears\nconst bears = useBearStore((s) => s.bears);\n```\n\n## Persist Middleware\n\n```ts\nimport { persist } from 'zustand/middleware';\n\nconst useStore = create(\n  persist(\n    (set) => ({ count: 0 }),\n    { name: 'my-store' }\n  )\n);\n```",
-    tags: ["javascript", "react", "zustand"],
+    title: 'Zustand Store Patterns',
+    content:
+      "\n# Zustand Best Practices\n\n## Basic Store\n\n```ts\nimport { create } from 'zustand';\n\ninterface BearState {\n  bears: number;\n  increase: () => void;\n}\n\nconst useBearStore = create<BearState>((set) => ({\n  bears: 0,\n  increase: () => set((state) => ({ bears: state.bears + 1 })),\n}));\n```\n\n## Slices Pattern\n\nSplit large stores into **slices** for better organization:\n\n```ts\nconst createUserSlice = (set) => ({\n  user: null,\n  setUser: (user) => set({ user }),\n});\n\nconst createSettingsSlice = (set) => ({\n  theme: 'light',\n  toggleTheme: () =>\n    set((s) => ({ theme: s.theme === 'light' ? 'dark' : 'light' })),\n});\n```\n\n## Selectors\n\nAlways use **selectors** to avoid unnecessary re-renders:\n\n```ts\n// Bad — subscribes to entire store\nconst state = useBearStore();\n\n// Good — subscribes only to bears\nconst bears = useBearStore((s) => s.bears);\n```\n\n## Persist Middleware\n\n```ts\nimport { persist } from 'zustand/middleware';\n\nconst useStore = create(\n  persist(\n    (set) => ({ count: 0 }),\n    { name: 'my-store' }\n  )\n);\n```",
+    tags: ['javascript', 'react', 'zustand'],
   },
   {
     collection_id: 2,
-    title: "Quick Note",
-    content: "Call dentist to reschedule appointment.",
-    tags: ["personal"],
+    title: 'Quick Note',
+    content: 'Call dentist to reschedule appointment.',
+    tags: ['personal'],
   },
   {
     collection_id: 1,
-    title: "HTTP Status Codes",
-    content: "# Common HTTP Status Codes\n\n| Code | Meaning |\n|---|---|\n| 200 | OK |\n| 201 | Created |\n| 204 | No Content |\n| 301 | Moved Permanently |\n| 304 | Not Modified |\n| 400 | Bad Request |\n| 401 | Unauthorized |\n| 403 | Forbidden |\n| 404 | Not Found |\n| 409 | Conflict |\n| 422 | Unprocessable Entity |\n| 429 | Too Many Requests |\n| 500 | Internal Server Error |\n| 502 | Bad Gateway |\n| 503 | Service Unavailable |",
-    tags: ["reference", "webdev"],
+    title: 'HTTP Status Codes',
+    content:
+      '# Common HTTP Status Codes\n\n| Code | Meaning |\n|---|---|\n| 200 | OK |\n| 201 | Created |\n| 204 | No Content |\n| 301 | Moved Permanently |\n| 304 | Not Modified |\n| 400 | Bad Request |\n| 401 | Unauthorized |\n| 403 | Forbidden |\n| 404 | Not Found |\n| 409 | Conflict |\n| 422 | Unprocessable Entity |\n| 429 | Too Many Requests |\n| 500 | Internal Server Error |\n| 502 | Bad Gateway |\n| 503 | Service Unavailable |',
+    tags: ['reference', 'webdev'],
   },
   {
     collection_id: 1,
-    title: "Philosophy: Stoicism Notes",
-    content: "# Stoicism\n\n## Key Figures\n\n- **Zeno of Citium** — founder\n- **Epictetus** — former slave, teacher\n- **Seneca** — Roman statesman & playwright\n- **Marcus Aurelius** — Roman emperor\n\n## Core Ideas\n\n### The Dichotomy of Control\n\nSome things are **up to us** (our opinions, desires, actions) and some things are **not up to us** (our body, reputation, external events).\n\n> \"Make the best use of what is in your power, and take the rest as it happens.\" — *Epictetus*\n\n### Virtue as the Sole Good\n\nThe Stoics held that **virtue** (wisdom, courage, justice, temperance) is the only true good. Everything else — wealth, health, reputation — is *preferred* but not necessary for a good life.\n\n### Amor Fati\n\nLove of fate. Accept and embrace everything that happens.\n\n> \"The impediment to action advances action. What stands in the way becomes the way.\" — *Marcus Aurelius*\n## Practical Exercises\n\n1. **Negative visualization** — Imagine losing what you have to increase gratitude\n2. **Voluntary discomfort** — Periodically practice hardship (cold showers, fasting)\n3. **Evening review** — Reflect on the day: What went well? What could improve?\n4. **View from above** — Zoom out and see your problems in the context of the cosmos",
-    tags: ["learning", "philosophy", "stoicism"],
+    title: 'Philosophy: Stoicism Notes',
+    content:
+      '# Stoicism\n\n## Key Figures\n\n- **Zeno of Citium** — founder\n- **Epictetus** — former slave, teacher\n- **Seneca** — Roman statesman & playwright\n- **Marcus Aurelius** — Roman emperor\n\n## Core Ideas\n\n### The Dichotomy of Control\n\nSome things are **up to us** (our opinions, desires, actions) and some things are **not up to us** (our body, reputation, external events).\n\n> "Make the best use of what is in your power, and take the rest as it happens." — *Epictetus*\n\n### Virtue as the Sole Good\n\nThe Stoics held that **virtue** (wisdom, courage, justice, temperance) is the only true good. Everything else — wealth, health, reputation — is *preferred* but not necessary for a good life.\n\n### Amor Fati\n\nLove of fate. Accept and embrace everything that happens.\n\n> "The impediment to action advances action. What stands in the way becomes the way." — *Marcus Aurelius*\n## Practical Exercises\n\n1. **Negative visualization** — Imagine losing what you have to increase gratitude\n2. **Voluntary discomfort** — Periodically practice hardship (cold showers, fasting)\n3. **Evening review** — Reflect on the day: What went well? What could improve?\n4. **View from above** — Zoom out and see your problems in the context of the cosmos',
+    tags: ['learning', 'philosophy', 'stoicism'],
   },
   {
     collection_id: 2,
-    title: "Docker Compose Basics",
-    content: "# Docker Compose\n\n```yaml\nversion: '3.8'\nservices:\n  app:\n    build: .\n    ports:\n      - '3000:3000'\n    volumes:\n      - .:/app\n    depends_on:\n      - db\n  db:\n    image: postgres:15\n    environment:\n      POSTGRES_PASSWORD: secret\n      POSTGRES_DB: myapp\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n\nvolumes:\n  pgdata:\n```\n\nUseful commands:\n\n- `docker compose up -d` — start in background\n- `docker compose down` — stop and remove\n- `docker compose logs -f app` — follow logs\n- `docker compose exec app sh` — shell into container",
-    tags: ["devops", "devtools", "docker"],
+    title: 'Docker Compose Basics',
+    content:
+      "# Docker Compose\n\n```yaml\nversion: '3.8'\nservices:\n  app:\n    build: .\n    ports:\n      - '3000:3000'\n    volumes:\n      - .:/app\n    depends_on:\n      - db\n  db:\n    image: postgres:15\n    environment:\n      POSTGRES_PASSWORD: secret\n      POSTGRES_DB: myapp\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n\nvolumes:\n  pgdata:\n```\n\nUseful commands:\n\n- `docker compose up -d` — start in background\n- `docker compose down` — stop and remove\n- `docker compose logs -f app` — follow logs\n- `docker compose exec app sh` — shell into container",
+    tags: ['devops', 'devtools', 'docker'],
   },
   {
     collection_id: 2,
-    title: "Interesting Words",
-    content: "- **Sonder** — the realization that each passerby has a life as vivid as your own\n- **Petrichor** — the smell of earth after rain\n- **Saudade** — a deep emotional state of melancholic longing (Portuguese)\n- **Hygge** — a quality of coziness and comfort (Danish)\n- **Tsundoku** — acquiring books and letting them pile up unread (Japanese)",
+    title: 'Interesting Words',
+    content:
+      '- **Sonder** — the realization that each passerby has a life as vivid as your own\n- **Petrichor** — the smell of earth after rain\n- **Saudade** — a deep emotional state of melancholic longing (Portuguese)\n- **Hygge** — a quality of coziness and comfort (Danish)\n- **Tsundoku** — acquiring books and letting them pile up unread (Japanese)',
     tags: [],
   },
   {
     collection_id: 3,
-    title: "Database Indexing Strategy",
-    content: "# Database Indexing Notes\n\n## When to Add an Index\n\n- Columns frequently used in `WHERE` clauses\n- Columns used in `JOIN` conditions\n- Columns used in `ORDER BY`\n- High-cardinality columns (many unique values)\n\n## When NOT to Index\n\n- Small tables (full scan is cheap)\n- Columns with low cardinality (e.g., boolean flags)\n- Tables with heavy write traffic (indexes slow down inserts)\n\n## Types\n\n| Type | Use Case |\n|---|---|\n| B-tree | Default, general purpose |\n| Hash | Equality comparisons only |\n| GIN | Full-text search, JSONB |\n| GiST | Geometric data, range queries |\n| BRIN | Very large, naturally ordered tables |\n\n## Composite Indexes\n\nOrder matters! Put the most selective column **first**.\n\n```sql\n-- Good: filters on status first, then date\nCREATE INDEX idx_orders ON orders (status, created_at);\n```\n\n> **Rule of thumb:** If a query is slow, check `EXPLAIN ANALYZE` before blindly adding indexes.",
-    tags: ["databases", "performance", "sql"],
+    title: 'Database Indexing Strategy',
+    content:
+      '# Database Indexing Notes\n\n## When to Add an Index\n\n- Columns frequently used in `WHERE` clauses\n- Columns used in `JOIN` conditions\n- Columns used in `ORDER BY`\n- High-cardinality columns (many unique values)\n\n## When NOT to Index\n\n- Small tables (full scan is cheap)\n- Columns with low cardinality (e.g., boolean flags)\n- Tables with heavy write traffic (indexes slow down inserts)\n\n## Types\n\n| Type | Use Case |\n|---|---|\n| B-tree | Default, general purpose |\n| Hash | Equality comparisons only |\n| GIN | Full-text search, JSONB |\n| GiST | Geometric data, range queries |\n| BRIN | Very large, naturally ordered tables |\n\n## Composite Indexes\n\nOrder matters! Put the most selective column **first**.\n\n```sql\n-- Good: filters on status first, then date\nCREATE INDEX idx_orders ON orders (status, created_at);\n```\n\n> **Rule of thumb:** If a query is slow, check `EXPLAIN ANALYZE` before blindly adding indexes.',
+    tags: ['databases', 'performance', 'sql'],
   },
   {
     collection_id: 2,
-    title: "Reminder: Renew Domain",
-    content: "Renew `mywebsite.dev` before **March 15, 2026**. Registrar: Namecheap.",
-    tags: ["personal", "reminder"],
+    title: 'Reminder: Renew Domain',
+    content:
+      'Renew `mywebsite.dev` before **March 15, 2026**. Registrar: Namecheap.',
+    tags: ['personal', 'reminder'],
   },
   {
     collection_id: 3,
-    title: "The Feynman Technique",
-    content: "# The Feynman Technique\n\nA method for learning anything deeply:\n\n1. **Choose a concept** you want to understand\n2. **Explain it as if teaching a 12-year-old** — use simple language, no jargon\n3. **Identify gaps** — where you struggle to explain simply, you don't truly understand\n4. **Go back to the source material** and fill in the gaps\n5. **Simplify and use analogies**\n\n> \"If you can't explain it simply, you don't understand it well enough.\"\n\nThis works because *teaching forces active recall* and exposes shallow understanding.",
-    tags: ["learning", "productivity"],
+    title: 'The Feynman Technique',
+    content:
+      "# The Feynman Technique\n\nA method for learning anything deeply:\n\n1. **Choose a concept** you want to understand\n2. **Explain it as if teaching a 12-year-old** — use simple language, no jargon\n3. **Identify gaps** — where you struggle to explain simply, you don't truly understand\n4. **Go back to the source material** and fill in the gaps\n5. **Simplify and use analogies**\n\n> \"If you can't explain it simply, you don't understand it well enough.\"\n\nThis works because *teaching forces active recall* and exposes shallow understanding.",
+    tags: ['learning', 'productivity'],
   },
   {
     collection_id: 2,
-    title: "Espresso Dial-In Notes",
-    content: "# Dialing In Espresso\n\n**Bean:** Ethiopia Yirgacheffe (light roast)\n**Grinder:** Niche Zero\n\n| Attempt | Dose | Yield | Time | Notes |\n|---|---|---|---|---|\n| 1 | 18g | 36g | 22s | Too fast, sour. Grind finer. |\n| 2 | 18g | 36g | 28s | Better. Slight sourness remains. |\n| 3 | 18g | 38g | 30s | Sweet, fruity, balanced. **Keep this.** |\n| 4 | 18g | 40g | 30s | Slightly watery. Back to 38g. |\n\n**Final recipe:** 18g in → 38g out → 30 seconds\n\nWater temp: 200°F. Pre-infusion: 5 seconds.",
-    tags: ["coffee", "personal"],
+    title: 'Espresso Dial-In Notes',
+    content:
+      '# Dialing In Espresso\n\n**Bean:** Ethiopia Yirgacheffe (light roast)\n**Grinder:** Niche Zero\n\n| Attempt | Dose | Yield | Time | Notes |\n|---|---|---|---|---|\n| 1 | 18g | 36g | 22s | Too fast, sour. Grind finer. |\n| 2 | 18g | 36g | 28s | Better. Slight sourness remains. |\n| 3 | 18g | 38g | 30s | Sweet, fruity, balanced. **Keep this.** |\n| 4 | 18g | 40g | 30s | Slightly watery. Back to 38g. |\n\n**Final recipe:** 18g in → 38g out → 30 seconds\n\nWater temp: 200°F. Pre-infusion: 5 seconds.',
+    tags: ['coffee', 'personal'],
   },
   {
     collection_id: 2,
-    title: "REST API Design Principles",
-    content: "# REST API Design\n\n## URL Structure\n\n- Use **nouns**, not verbs: `/users` not `/getUsers`\n- Use **plural** names: `/users` not `/user`\n- Nest for relationships: `/users/123/posts`\n\n## HTTP Methods\n\n| Method | Purpose | Idempotent |\n|---|---|---|\n| GET | Read | Yes |\n| POST | Create | No |\n| PUT | Replace | Yes |\n| PATCH | Partial update | Yes |\n| DELETE | Remove | Yes |\n\n## Response Codes\n\n- **200** for successful GET/PUT/PATCH\n- **201** for successful POST (include `Location` header)\n- **204** for successful DELETE\n- **400** for validation errors\n- **404** for not found\n\n## Pagination\n\n```\nGET /api/posts?page=2&limit=20\n```\n\nReturn metadata:\n\n```json\n{\n  \"data\": [...],\n  \"meta\": {\n    \"page\": 2,\n    \"limit\": 20,\n    \"total\": 145\n  }\n}\n```",
-    tags: ["api", "reference", "webdev"],
+    title: 'REST API Design Principles',
+    content:
+      '# REST API Design\n\n## URL Structure\n\n- Use **nouns**, not verbs: `/users` not `/getUsers`\n- Use **plural** names: `/users` not `/user`\n- Nest for relationships: `/users/123/posts`\n\n## HTTP Methods\n\n| Method | Purpose | Idempotent |\n|---|---|---|\n| GET | Read | Yes |\n| POST | Create | No |\n| PUT | Replace | Yes |\n| PATCH | Partial update | Yes |\n| DELETE | Remove | Yes |\n\n## Response Codes\n\n- **200** for successful GET/PUT/PATCH\n- **201** for successful POST (include `Location` header)\n- **204** for successful DELETE\n- **400** for validation errors\n- **404** for not found\n\n## Pagination\n\n```\nGET /api/posts?page=2&limit=20\n```\n\nReturn metadata:\n\n```json\n{\n  "data": [...],\n  "meta": {\n    "page": 2,\n    "limit": 20,\n    "total": 145\n  }\n}\n```',
+    tags: ['api', 'reference', 'webdev'],
   },
   {
     collection_id: 1,
-    title: "Movie Watchlist",
-    content: "- [ ] *Oppenheimer* (2023)\n- [ ] *Past Lives* (2023)\n- [x] *The Holdovers* (2023)\n- [ ] *Perfect Days* (2023)\n- [x] *Dune: Part Two* (2024)\n- [ ] *All We Imagine as Light* (2024)\n- [ ] *The Brutalist* (2024)",
+    title: 'Movie Watchlist',
+    content:
+      '- [ ] *Oppenheimer* (2023)\n- [ ] *Past Lives* (2023)\n- [x] *The Holdovers* (2023)\n- [ ] *Perfect Days* (2023)\n- [x] *Dune: Part Two* (2024)\n- [ ] *All We Imagine as Light* (2024)\n- [ ] *The Brutalist* (2024)',
     tags: [],
   },
   {
     collection_id: 1,
-    title: "SSH Key Setup",
-    content: "```bash\n# Generate a new ED25519 key\nssh-keygen -t ed25519 -C \"me@example.com\"\n\n# Start the agent\neval \"$(ssh-agent -s)\"\n\n# Add the key\nssh-add ~/.ssh/id_ed25519\n\n# Copy public key to clipboard (macOS)\npbcopy < ~/.ssh/id_ed25519.pub\n```\n\nThen paste into GitHub → Settings → SSH Keys.",
-    tags: ["devtools", "git"],
+    title: 'SSH Key Setup',
+    content:
+      '```bash\n# Generate a new ED25519 key\nssh-keygen -t ed25519 -C "me@example.com"\n\n# Start the agent\neval "$(ssh-agent -s)"\n\n# Add the key\nssh-add ~/.ssh/id_ed25519\n\n# Copy public key to clipboard (macOS)\npbcopy < ~/.ssh/id_ed25519.pub\n```\n\nThen paste into GitHub → Settings → SSH Keys.',
+    tags: ['devtools', 'git'],
   },
   {
     collection_id: 3,
-    title: "Cognitive Biases to Watch For",
-    content: "# Cognitive Biases\n\n## Decision Making\n\n- **Confirmation bias** — Seeking info that confirms existing beliefs\n- **Anchoring** — Over-relying on the first piece of information\n- **Sunk cost fallacy** — Continuing because of past investment\n- **Availability heuristic** — Judging likelihood by how easily examples come to mind\n\n## Social\n\n- **Bandwagon effect** — Doing something because others do\n- **Dunning-Kruger effect** — Overestimating competence in areas of low skill\n- **Halo effect** — Letting one positive trait influence overall judgment\n\n## Memory\n\n- **Hindsight bias** — \"I knew it all along\"\n- **Peak-end rule** — Judging experiences by their peak and end, not the average\n- **Recency bias** — Giving more weight to recent events\n\n> Awareness doesn't eliminate biases, but it helps you **build systems** to counteract them (checklists, devil's advocates, pre-mortems).",
-    tags: ["learning", "psychology"],
+    title: 'Cognitive Biases to Watch For',
+    content:
+      '# Cognitive Biases\n\n## Decision Making\n\n- **Confirmation bias** — Seeking info that confirms existing beliefs\n- **Anchoring** — Over-relying on the first piece of information\n- **Sunk cost fallacy** — Continuing because of past investment\n- **Availability heuristic** — Judging likelihood by how easily examples come to mind\n\n## Social\n\n- **Bandwagon effect** — Doing something because others do\n- **Dunning-Kruger effect** — Overestimating competence in areas of low skill\n- **Halo effect** — Letting one positive trait influence overall judgment\n\n## Memory\n\n- **Hindsight bias** — "I knew it all along"\n- **Peak-end rule** — Judging experiences by their peak and end, not the average\n- **Recency bias** — Giving more weight to recent events\n\n> Awareness doesn\'t eliminate biases, but it helps you **build systems** to counteract them (checklists, devil\'s advocates, pre-mortems).',
+    tags: ['learning', 'psychology'],
   },
   {
     collection_id: 1,
-    title: "npm vs pnpm vs yarn",
-    content: "| Feature | npm | pnpm | yarn |\n|---|---|---|---|\n| Disk usage | High (copies) | Low (hard links) | Medium |\n| Speed | Moderate | Fast | Fast |\n| Monorepo support | Workspaces | Excellent | Workspaces |\n| Lock file | package-lock.json | pnpm-lock.yaml | yarn.lock |\n| Strictness | Hoists by default | Strict by default | Hoists by default |\n\n**My preference:** pnpm for monorepos, npm for simple projects.",
-    tags: ["devtools", "javascript"],
+    title: 'npm vs pnpm vs yarn',
+    content:
+      '| Feature | npm | pnpm | yarn |\n|---|---|---|---|\n| Disk usage | High (copies) | Low (hard links) | Medium |\n| Speed | Moderate | Fast | Fast |\n| Monorepo support | Workspaces | Excellent | Workspaces |\n| Lock file | package-lock.json | pnpm-lock.yaml | yarn.lock |\n| Strictness | Hoists by default | Strict by default | Hoists by default |\n\n**My preference:** pnpm for monorepos, npm for simple projects.',
+    tags: ['devtools', 'javascript'],
   },
   {
     collection_id: 2,
-    title: "Gratitude Log — February 2026",
-    content: "\n**Feb 1** — Great coffee and a productive morning.\n\n**Feb 5** — Long walk in the park with clear skies.\n\n**Feb 12** — Finished the book I've been reading for months.\n\n**Feb 14** — Cooked dinner for friends. Good conversations.\n\n**Feb 20** — Finally fixed that bug that's been haunting me for a week.\n\n**Feb 27** — Quiet evening at home. Sometimes that's all you need.",
-    tags: ["journal", "personal"],
+    title: 'Gratitude Log — February 2026',
+    content:
+      "\n**Feb 1** — Great coffee and a productive morning.\n\n**Feb 5** — Long walk in the park with clear skies.\n\n**Feb 12** — Finished the book I've been reading for months.\n\n**Feb 14** — Cooked dinner for friends. Good conversations.\n\n**Feb 20** — Finally fixed that bug that's been haunting me for a week.\n\n**Feb 27** — Quiet evening at home. Sometimes that's all you need.",
+    tags: ['journal', 'personal'],
   },
   {
     collection_id: 3,
-    title: "Regex Quick Reference",
-    content: "# Regular Expressions\n\n## Character Classes\n\n- `.` — any character\n- `\\d` — digit\n- `\\w` — word character (letter, digit, underscore)\n- `\\s` — whitespace\n- `[abc]` — a, b, or c\n- `[^abc]` — not a, b, or c\n\n## Quantifiers\n\n- `*` — 0 or more\n- `+` — 1 or more\n- `?` — 0 or 1\n- `{3}` — exactly 3\n- `{2,5}` — between 2 and 5\n\n## Anchors\n\n- `^` — start of string\n- `$` — end of string\n- `\\b` — word boundary\n\n## Common Patterns\n\n```\nEmail:  ^[\\w.-]+@[\\w.-]+\\.\\w{2,}$\nURL:    https?://[\\w.-]+(/[\\w.-]*)*\nIP:     \\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\n```",
+    title: 'Regex Quick Reference',
+    content:
+      '# Regular Expressions\n\n## Character Classes\n\n- `.` — any character\n- `\\d` — digit\n- `\\w` — word character (letter, digit, underscore)\n- `\\s` — whitespace\n- `[abc]` — a, b, or c\n- `[^abc]` — not a, b, or c\n\n## Quantifiers\n\n- `*` — 0 or more\n- `+` — 1 or more\n- `?` — 0 or 1\n- `{3}` — exactly 3\n- `{2,5}` — between 2 and 5\n\n## Anchors\n\n- `^` — start of string\n- `$` — end of string\n- `\\b` — word boundary\n\n## Common Patterns\n\n```\nEmail:  ^[\\w.-]+@[\\w.-]+\\.\\w{2,}$\nURL:    https?://[\\w.-]+(/[\\w.-]*)*\nIP:     \\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\n```',
     tags: [],
   },
   {
     collection_id: 1,
-    title: "Home Office Ergonomics",
-    content: "## Monitor\n\n- Top of screen at or slightly below **eye level**\n- About an **arm's length** away\n- Slight downward gaze (~15–20°)\n\n## Chair\n\n- Feet flat on the floor\n- Knees at ~90° angle\n- Lumbar support in the curve of your lower back\n\n## Keyboard & Mouse\n\n- Elbows at ~90°, close to body\n- Wrists **neutral** (not angled up or down)\n- Consider a split keyboard for better posture\n\n**Take a break every 30 minutes.** Stand, stretch, look at something 20 feet away for 20 seconds.",
+    title: 'Home Office Ergonomics',
+    content:
+      "## Monitor\n\n- Top of screen at or slightly below **eye level**\n- About an **arm's length** away\n- Slight downward gaze (~15–20°)\n\n## Chair\n\n- Feet flat on the floor\n- Knees at ~90° angle\n- Lumbar support in the curve of your lower back\n\n## Keyboard & Mouse\n\n- Elbows at ~90°, close to body\n- Wrists **neutral** (not angled up or down)\n- Consider a split keyboard for better posture\n\n**Take a break every 30 minutes.** Stand, stretch, look at something 20 feet away for 20 seconds.",
     tags: [],
   },
   {
     collection_id: 3,
-    title: "Zustand vs Redux vs Context",
-    content: "\n# State Management Comparison\n\n## React Context\n\n**Pros:** Built-in, no extra deps\n**Cons:** Re-renders all consumers on any change. Not suitable for frequent updates.\n\n## Redux Toolkit\n\n**Pros:** Mature ecosystem, devtools, middleware\n**Cons:** Verbose boilerplate, steep learning curve\n\n## Zustand\n\n**Pros:** Minimal API, no providers needed, selective subscriptions\n**Cons:** Smaller ecosystem, less opinionated\n\n---\n\n**Verdict:** For this project, **Zustand** is the right choice. We have moderate state complexity and want minimal boilerplate. Redux would be overkill. Context would cause performance issues with frequent note updates.",
-    tags: ["javascript", "react", "zustand"],
+    title: 'Zustand vs Redux vs Context',
+    content:
+      '\n# State Management Comparison\n\n## React Context\n\n**Pros:** Built-in, no extra deps\n**Cons:** Re-renders all consumers on any change. Not suitable for frequent updates.\n\n## Redux Toolkit\n\n**Pros:** Mature ecosystem, devtools, middleware\n**Cons:** Verbose boilerplate, steep learning curve\n\n## Zustand\n\n**Pros:** Minimal API, no providers needed, selective subscriptions\n**Cons:** Smaller ecosystem, less opinionated\n\n---\n\n**Verdict:** For this project, **Zustand** is the right choice. We have moderate state complexity and want minimal boilerplate. Redux would be overkill. Context would cause performance issues with frequent note updates.',
+    tags: ['javascript', 'react', 'zustand'],
   },
   {
     collection_id: 2,
-    title: "Birthday Gift Ideas",
-    content: "### For Mom (April 2)\n- Ceramic plant pot from that shop downtown\n- Cookbook: *Salt Fat Acid Heat*\n\n### For Jake (May 18)\n- Mechanical keyboard (he mentioned wanting one)\n- Board game: *Wingspan*",
+    title: 'Birthday Gift Ideas',
+    content:
+      '### For Mom (April 2)\n- Ceramic plant pot from that shop downtown\n- Cookbook: *Salt Fat Acid Heat*\n\n### For Jake (May 18)\n- Mechanical keyboard (he mentioned wanting one)\n- Board game: *Wingspan*',
     tags: [],
   },
   {
     collection_id: 3,
-    title: "PostgreSQL JSON Queries",
-    content: "\n# Working with JSONB in PostgreSQL\n\n## Operators\n\n| Operator | Description | Example |\n|---|---|---|\n| `->` | Get JSON element (as JSON) | `data->'name'` |\n| `->>` | Get JSON element (as text) | `data->>'name'` |\n| `@>` | Contains | `data @> '{\"active\": true}'` |\n| `?` | Key exists | `data ? 'name'` |\n\n## Examples\n\n```sql\n-- Find users with a specific tag\nSELECT * FROM users\nWHERE tags @> '[\"admin\"]';\n\n-- Index for fast JSONB lookups\nCREATE INDEX idx_users_tags ON users USING GIN (tags);\n\n-- Extract nested value\nSELECT data->'address'->>'city' AS city\nFROM users;\n```",
-    tags: ["databases", "postgresql", "sql"],
+    title: 'PostgreSQL JSON Queries',
+    content:
+      "\n# Working with JSONB in PostgreSQL\n\n## Operators\n\n| Operator | Description | Example |\n|---|---|---|\n| `->` | Get JSON element (as JSON) | `data->'name'` |\n| `->>` | Get JSON element (as text) | `data->>'name'` |\n| `@>` | Contains | `data @> '{\"active\": true}'` |\n| `?` | Key exists | `data ? 'name'` |\n\n## Examples\n\n```sql\n-- Find users with a specific tag\nSELECT * FROM users\nWHERE tags @> '[\"admin\"]';\n\n-- Index for fast JSONB lookups\nCREATE INDEX idx_users_tags ON users USING GIN (tags);\n\n-- Extract nested value\nSELECT data->'address'->>'city' AS city\nFROM users;\n```",
+    tags: ['databases', 'postgresql', 'sql'],
   },
   {
     collection_id: 2,
-    title: "Breathing Exercises",
-    content: "## Box Breathing (4-4-4-4)\n\n1. Inhale for **4 seconds**\n2. Hold for **4 seconds**\n3. Exhale for **4 seconds**\n4. Hold for **4 seconds**\n\nRepeat 4 times. Used by Navy SEALs for stress management.\n\n## 4-7-8 Technique\n\n1. Inhale for **4 seconds**\n2. Hold for **7 seconds**\n3. Exhale for **8 seconds**\n\nGood for falling asleep.",
-    tags: ["health", "wellness"],
+    title: 'Breathing Exercises',
+    content:
+      '## Box Breathing (4-4-4-4)\n\n1. Inhale for **4 seconds**\n2. Hold for **4 seconds**\n3. Exhale for **4 seconds**\n4. Hold for **4 seconds**\n\nRepeat 4 times. Used by Navy SEALs for stress management.\n\n## 4-7-8 Technique\n\n1. Inhale for **4 seconds**\n2. Hold for **7 seconds**\n3. Exhale for **8 seconds**\n\nGood for falling asleep.',
+    tags: ['health', 'wellness'],
   },
   {
     collection_id: 3,
-    title: "Material UI Theme Customization",
-    content: "# MUI Theme Setup\n\n```tsx\nimport { createTheme, ThemeProvider } from '@mui/material/styles';\n\nconst theme = createTheme({\n  palette: {\n    primary: {\n      main: '#1976d2',\n    },\n    secondary: {\n      main: '#dc004e',\n    },\n    background: {\n      default: '#f5f5f5',\n      paper: '#ffffff',\n    },\n  },\n  typography: {\n    fontFamily: '\"Roboto\", \"Helvetica\", \"Arial\", sans-serif',\n    h1: {\n      fontSize: '2.5rem',\n      fontWeight: 500,\n    },\n  },\n  components: {\n    MuiButton: {\n      styleOverrides: {\n        root: {\n          textTransform: 'none',\n          borderRadius: 8,\n        },\n      },\n    },\n  },\n});\n```\n\nWrap your app with `<ThemeProvider theme={theme}>` and use `useTheme()` hook to access values.",
-    tags: ["css", "react", "webdev"],
+    title: 'Material UI Theme Customization',
+    content:
+      "# MUI Theme Setup\n\n```tsx\nimport { createTheme, ThemeProvider } from '@mui/material/styles';\n\nconst theme = createTheme({\n  palette: {\n    primary: {\n      main: '#1976d2',\n    },\n    secondary: {\n      main: '#dc004e',\n    },\n    background: {\n      default: '#f5f5f5',\n      paper: '#ffffff',\n    },\n  },\n  typography: {\n    fontFamily: '\"Roboto\", \"Helvetica\", \"Arial\", sans-serif',\n    h1: {\n      fontSize: '2.5rem',\n      fontWeight: 500,\n    },\n  },\n  components: {\n    MuiButton: {\n      styleOverrides: {\n        root: {\n          textTransform: 'none',\n          borderRadius: 8,\n        },\n      },\n    },\n  },\n});\n```\n\nWrap your app with `<ThemeProvider theme={theme}>` and use `useTheme()` hook to access values.",
+    tags: ['css', 'react', 'webdev'],
   },
   {
     collection_id: 1,
-    title: "Ideas for Blog Posts",
-    content: "1. Why every developer should keep a Zettelkasten\n2. Migrating from Create React App to Vite\n3. The case for boring technology\n4. How I organize my notes (and why it matters)\n5. Understanding database indexes without the jargon",
-    tags: ["ideas", "writing"],
+    title: 'Ideas for Blog Posts',
+    content:
+      '1. Why every developer should keep a Zettelkasten\n2. Migrating from Create React App to Vite\n3. The case for boring technology\n4. How I organize my notes (and why it matters)\n5. Understanding database indexes without the jargon',
+    tags: ['ideas', 'writing'],
   },
   {
     collection_id: 3,
-    title: "JavaScript Event Loop Explained",
-    content: "# The Event Loop\n\n## Execution Order\n\n1. **Call stack** — synchronous code runs first\n2. **Microtask queue** — `Promise.then`, `queueMicrotask`, `MutationObserver`\n3. **Macrotask queue** — `setTimeout`, `setInterval`, I/O, UI rendering\n\n## Key Rule\n\n> All microtasks are processed **before** the next macrotask.\n\n## Example\n\n```js\nconsole.log('1');              // sync\n\nsetTimeout(() => {\n  console.log('2');            // macrotask\n}, 0);\n\nPromise.resolve().then(() => {\n  console.log('3');            // microtask\n});\n\nconsole.log('4');              // sync\n\n// Output: 1, 4, 3, 2\n```\n\nThis is why `setTimeout(fn, 0)` doesn't mean \"run immediately\" — it means \"run after the current call stack and all microtasks are done.\"",
-    tags: ["javascript", "webdev"],
+    title: 'JavaScript Event Loop Explained',
+    content:
+      "# The Event Loop\n\n## Execution Order\n\n1. **Call stack** — synchronous code runs first\n2. **Microtask queue** — `Promise.then`, `queueMicrotask`, `MutationObserver`\n3. **Macrotask queue** — `setTimeout`, `setInterval`, I/O, UI rendering\n\n## Key Rule\n\n> All microtasks are processed **before** the next macrotask.\n\n## Example\n\n```js\nconsole.log('1');              // sync\n\nsetTimeout(() => {\n  console.log('2');            // macrotask\n}, 0);\n\nPromise.resolve().then(() => {\n  console.log('3');            // microtask\n});\n\nconsole.log('4');              // sync\n\n// Output: 1, 4, 3, 2\n```\n\nThis is why `setTimeout(fn, 0)` doesn't mean \"run immediately\" — it means \"run after the current call stack and all microtasks are done.\"",
+    tags: ['javascript', 'webdev'],
   },
   {
     collection_id: 2,
-    title: "Apartment Maintenance Log",
-    content: "| Date | Issue | Status |\n|---|---|---|\n| 2025-10-01 | Leaky kitchen faucet | Fixed 10/5 |\n| 2025-11-15 | Heater not working | Fixed 11/18 |\n| 2026-01-20 | Bathroom tile cracked | Waiting on landlord |\n| 2026-02-28 | Smoke detector beeping | Replaced battery |",
+    title: 'Apartment Maintenance Log',
+    content:
+      '| Date | Issue | Status |\n|---|---|---|\n| 2025-10-01 | Leaky kitchen faucet | Fixed 10/5 |\n| 2025-11-15 | Heater not working | Fixed 11/18 |\n| 2026-01-20 | Bathroom tile cracked | Waiting on landlord |\n| 2026-02-28 | Smoke detector beeping | Replaced battery |',
     tags: [],
   },
   {
     collection_id: 3,
-    title: "Functional Programming Concepts",
-    content: "\n# FP Core Concepts\n\n## Pure Functions\n\nA function is **pure** if:\n- Same input always gives same output\n- No side effects\n\n```js\n// Pure\nconst add = (a, b) => a + b;\n\n// Impure\nlet count = 0;\nconst increment = () => ++count;\n```\n\n## Immutability\n\nNever mutate data. Create new copies instead.\n\n```js\n// Bad\narr.push(item);\n\n// Good\nconst newArr = [...arr, item];\n```\n\n## Higher-Order Functions\n\nFunctions that take or return other functions: `map`, `filter`, `reduce`.\n\n## Composition\n\n```js\nconst compose = (f, g) => (x) => f(g(x));\nconst toUpper = (s) => s.toUpperCase();\nconst exclaim = (s) => s + '!';\nconst shout = compose(exclaim, toUpper);\nshout('hello'); // 'HELLO!'\n```",
-    tags: ["javascript", "learning", "programming"],
+    title: 'Functional Programming Concepts',
+    content:
+      "\n# FP Core Concepts\n\n## Pure Functions\n\nA function is **pure** if:\n- Same input always gives same output\n- No side effects\n\n```js\n// Pure\nconst add = (a, b) => a + b;\n\n// Impure\nlet count = 0;\nconst increment = () => ++count;\n```\n\n## Immutability\n\nNever mutate data. Create new copies instead.\n\n```js\n// Bad\narr.push(item);\n\n// Good\nconst newArr = [...arr, item];\n```\n\n## Higher-Order Functions\n\nFunctions that take or return other functions: `map`, `filter`, `reduce`.\n\n## Composition\n\n```js\nconst compose = (f, g) => (x) => f(g(x));\nconst toUpper = (s) => s.toUpperCase();\nconst exclaim = (s) => s + '!';\nconst shout = compose(exclaim, toUpper);\nshout('hello'); // 'HELLO!'\n```",
+    tags: ['javascript', 'learning', 'programming'],
   },
   {
     collection_id: 2,
-    title: "2026 Goals",
-    content: "\n## Professional\n\n- [ ] Ship the Astronote MVP\n- [ ] Learn Rust basics\n- [ ] Give a talk at a local meetup\n- [ ] Read 12 technical books\n\n## Personal\n\n- [ ] Run a half marathon\n- [ ] Meditate daily for 6 months straight\n- [ ] Visit Japan\n- [ ] Learn to cook 10 new recipes\n\n## Financial\n\n- [ ] Max out retirement contributions\n- [ ] Build 6-month emergency fund\n- [ ] Start investing in index funds",
-    tags: ["goals", "personal"],
+    title: '2026 Goals',
+    content:
+      '\n## Professional\n\n- [ ] Ship the Astronote MVP\n- [ ] Learn Rust basics\n- [ ] Give a talk at a local meetup\n- [ ] Read 12 technical books\n\n## Personal\n\n- [ ] Run a half marathon\n- [ ] Meditate daily for 6 months straight\n- [ ] Visit Japan\n- [ ] Learn to cook 10 new recipes\n\n## Financial\n\n- [ ] Max out retirement contributions\n- [ ] Build 6-month emergency fund\n- [ ] Start investing in index funds',
+    tags: ['goals', 'personal'],
   },
   {
     collection_id: 1,
-    title: "Keyboard Shortcuts I Always Forget",
-    content: "### VS Code\n\n- `Cmd+Shift+P` — Command palette\n- `Cmd+P` — Quick open file\n- `Cmd+D` — Select next occurrence\n- `Opt+Shift+F` — Format document\n- `Cmd+Shift+L` — Select all occurrences\n\n### macOS\n\n- `Cmd+Opt+Esc` — Force quit\n- `Cmd+Shift+.` — Show hidden files in Finder\n- `Ctrl+Cmd+Space` — Emoji picker",
-    tags: ["devtools", "reference"],
+    title: 'Keyboard Shortcuts I Always Forget',
+    content:
+      '### VS Code\n\n- `Cmd+Shift+P` — Command palette\n- `Cmd+P` — Quick open file\n- `Cmd+D` — Select next occurrence\n- `Opt+Shift+F` — Format document\n- `Cmd+Shift+L` — Select all occurrences\n\n### macOS\n\n- `Cmd+Opt+Esc` — Force quit\n- `Cmd+Shift+.` — Show hidden files in Finder\n- `Ctrl+Cmd+Space` — Emoji picker',
+    tags: ['devtools', 'reference'],
   },
   {
     collection_id: 1,
-    title: "Color Palette for Astronote",
-    content: "# Astronote Color System\n\n## Primary\n\n- **Background:** `#1a1a2e` (deep navy)\n- **Surface:** `#16213e` (dark blue)\n- **Primary accent:** `#0f3460` (medium blue)\n- **Secondary accent:** `#e94560` (coral red)\n\n## Text\n\n- **Primary text:** `#eaeaea`\n- **Secondary text:** `#a0a0b0`\n- **Muted:** `#6c6c80`\n\n## Semantic\n\n- **Success:** `#4caf50`\n- **Warning:** `#ff9800`\n- **Error:** `#f44336`\n\n---\n\n*Inspired by the night sky theme. Should feel calm and focused.*",
-    tags: ["astronote", "design"],
+    title: 'Color Palette for Astronote',
+    content:
+      '# Astronote Color System\n\n## Primary\n\n- **Background:** `#1a1a2e` (deep navy)\n- **Surface:** `#16213e` (dark blue)\n- **Primary accent:** `#0f3460` (medium blue)\n- **Secondary accent:** `#e94560` (coral red)\n\n## Text\n\n- **Primary text:** `#eaeaea`\n- **Secondary text:** `#a0a0b0`\n- **Muted:** `#6c6c80`\n\n## Semantic\n\n- **Success:** `#4caf50`\n- **Warning:** `#ff9800`\n- **Error:** `#f44336`\n\n---\n\n*Inspired by the night sky theme. Should feel calm and focused.*',
+    tags: ['astronote', 'design'],
   },
   {
     collection_id: 3,
-    title: "Learning Rust — Day 1",
-    content: "# Rust: First Impressions\n\n## What I Learned\n\n- Variables are **immutable by default** (use `mut` for mutability)\n- No null — uses `Option<T>` instead\n- **Ownership** system replaces garbage collection\n- Pattern matching with `match` is powerful\n\n```rust\nfn main() {\n    let name = String::from(\"world\");\n    greet(&name); // borrowing\n    println!(\"Still have: {}\", name);\n}\n\nfn greet(name: &str) {\n    println!(\"Hello, {}!\", name);\n}\n```\n\n## Ownership Rules\n\n1. Each value has exactly **one owner**\n2. When the owner goes out of scope, the value is **dropped**\n3. You can **borrow** references (`&T`) without taking ownership\n\nThis is going to take some getting used to, but I can already see how it prevents entire categories of bugs.",
-    tags: ["learning", "programming", "rust"],
+    title: 'Learning Rust — Day 1',
+    content:
+      '# Rust: First Impressions\n\n## What I Learned\n\n- Variables are **immutable by default** (use `mut` for mutability)\n- No null — uses `Option<T>` instead\n- **Ownership** system replaces garbage collection\n- Pattern matching with `match` is powerful\n\n```rust\nfn main() {\n    let name = String::from("world");\n    greet(&name); // borrowing\n    println!("Still have: {}", name);\n}\n\nfn greet(name: &str) {\n    println!("Hello, {}!", name);\n}\n```\n\n## Ownership Rules\n\n1. Each value has exactly **one owner**\n2. When the owner goes out of scope, the value is **dropped**\n3. You can **borrow** references (`&T`) without taking ownership\n\nThis is going to take some getting used to, but I can already see how it prevents entire categories of bugs.',
+    tags: ['learning', 'programming', 'rust'],
   },
   {
     collection_id: 2,
-    title: "Sourdough Starter Schedule",
-    content: "**Daily feeding (room temp):**\n\n1. Discard all but 50g of starter\n2. Add 50g whole wheat flour\n3. Add 50g water (room temp)\n4. Mix well\n5. Cover loosely, wait 12-24 hours\n\nStarter should double in size within 4-6 hours when ready to bake.\n\n*If storing in fridge, feed once per week.*",
-    tags: ["cooking", "recipe"],
+    title: 'Sourdough Starter Schedule',
+    content:
+      '**Daily feeding (room temp):**\n\n1. Discard all but 50g of starter\n2. Add 50g whole wheat flour\n3. Add 50g water (room temp)\n4. Mix well\n5. Cover loosely, wait 12-24 hours\n\nStarter should double in size within 4-6 hours when ready to bake.\n\n*If storing in fridge, feed once per week.*',
+    tags: ['cooking', 'recipe'],
   },
   {
     collection_id: 3,
-    title: "Debugging React Performance",
-    content: "# React Performance Debugging\n\n## Step 1: Identify the Problem\n\nUse **React DevTools Profiler** to find components that re-render too often.\n\n## Step 2: Common Fixes\n\n### Memoize expensive computations\n\n```tsx\nconst sortedItems = useMemo(\n  () => items.sort((a, b) => a.name.localeCompare(b.name)),\n  [items]\n);\n```\n\n### Prevent unnecessary re-renders\n\n```tsx\nconst MemoizedChild = React.memo(({ data }) => {\n  return <ExpensiveComponent data={data} />;\n});\n```\n\n### Stabilize callbacks\n\n```tsx\nconst handleClick = useCallback(() => {\n  doSomething(id);\n}, [id]);\n```\n\n## Step 3: Check for Anti-patterns\n\n- Creating objects/arrays inline in JSX props\n- Using index as key in dynamic lists\n- Putting too much in a single context provider\n\n> **Remember:** Don't optimize prematurely. Measure first, then optimize the actual bottleneck.",
-    tags: ["performance", "react", "webdev"],
+    title: 'Debugging React Performance',
+    content:
+      "# React Performance Debugging\n\n## Step 1: Identify the Problem\n\nUse **React DevTools Profiler** to find components that re-render too often.\n\n## Step 2: Common Fixes\n\n### Memoize expensive computations\n\n```tsx\nconst sortedItems = useMemo(\n  () => items.sort((a, b) => a.name.localeCompare(b.name)),\n  [items]\n);\n```\n\n### Prevent unnecessary re-renders\n\n```tsx\nconst MemoizedChild = React.memo(({ data }) => {\n  return <ExpensiveComponent data={data} />;\n});\n```\n\n### Stabilize callbacks\n\n```tsx\nconst handleClick = useCallback(() => {\n  doSomething(id);\n}, [id]);\n```\n\n## Step 3: Check for Anti-patterns\n\n- Creating objects/arrays inline in JSX props\n- Using index as key in dynamic lists\n- Putting too much in a single context provider\n\n> **Remember:** Don't optimize prematurely. Measure first, then optimize the actual bottleneck.",
+    tags: ['performance', 'react', 'webdev'],
   },
   {
     collection_id: 2,
-    title: "Favorite Quotes",
-    content: "> \"We are what we repeatedly do. Excellence, then, is not an act, but a habit.\" — *Will Durant*\n\n> \"The best time to plant a tree was 20 years ago. The second best time is now.\" — *Chinese proverb*\n\n> \"Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away.\" — *Antoine de Saint-Exupéry*\n\n> \"The map is not the territory.\" — *Alfred Korzybski*\n\n> \"Strong opinions, weakly held.\" — *Paul Saffo*",
+    title: 'Favorite Quotes',
+    content:
+      '> "We are what we repeatedly do. Excellence, then, is not an act, but a habit." — *Will Durant*\n\n> "The best time to plant a tree was 20 years ago. The second best time is now." — *Chinese proverb*\n\n> "Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away." — *Antoine de Saint-Exupéry*\n\n> "The map is not the territory." — *Alfred Korzybski*\n\n> "Strong opinions, weakly held." — *Paul Saffo*',
     tags: [],
+  },
+  {
+    collection_id: 4,
+    pinned: true,
+    title: 'Linear Algebra Cheat Sheet',
+    content:
+      '# Linear Algebra Quick Reference\n\n## Vectors\n\n- **Dot product:** a · b = |a||b|cos(θ)\n- **Cross product:** a × b = |a||b|sin(θ)n̂\n- **Magnitude:** |v| = √(v₁² + v₂² + v₃²)\n\n## Matrices\n\n- **Identity:** AI = IA = A\n- **Inverse:** AA⁻¹ = A⁻¹A = I\n- **Transpose:** (AB)ᵀ = BᵀAᵀ\n- **Determinant:** det(AB) = det(A)det(B)\n\n## Eigenvalues & Eigenvectors\n\nAv = λv where:\n- λ = eigenvalue\n- v = eigenvector\n\nFind eigenvalues by solving: det(A - λI) = 0\n\n## Key Transformations\n\n| Matrix | Effect |\n|---|---|\n| Rotation | Preserves lengths |\n| Scaling | Stretches/shrinks |\n| Shear | Slants along axis |\n| Projection | Drops a dimension |',
+    tags: ['math', 'reference'],
+  },
+  {
+    collection_id: 4,
+    title: 'Probability Fundamentals',
+    content:
+      "# Probability Notes\n\n## Basic Rules\n\n- P(A or B) = P(A) + P(B) - P(A and B)\n- P(A and B) = P(A) × P(B|A)\n- P(A|B) = P(B|A)P(A) / P(B) ← **Bayes' Theorem**\n\n## Distributions\n\n### Discrete\n- **Bernoulli:** single yes/no trial\n- **Binomial:** n independent Bernoulli trials\n- **Poisson:** events per unit time\n\n### Continuous\n- **Uniform:** equal probability across range\n- **Normal:** bell curve, defined by μ and σ\n- **Exponential:** time between Poisson events\n\n## Central Limit Theorem\n\nThe mean of sufficiently large samples from *any* distribution approximates a normal distribution.\n\nThis is why the normal distribution shows up everywhere.",
+    tags: ['math', 'statistics'],
+  },
+  {
+    collection_id: 4,
+    title: 'Python Data Science Stack',
+    content:
+      '# Python for Data Science\n\n## Core Libraries\n\n| Library | Purpose |\n|---|---|\n| NumPy | Numerical computing, arrays |\n| Pandas | Data manipulation, DataFrames |\n| Matplotlib | Basic plotting |\n| Seaborn | Statistical visualization |\n| Scikit-learn | Machine learning |\n| Jupyter | Interactive notebooks |\n\n## Quick Pandas Reference\n\n```python\nimport pandas as pd\n\ndf = pd.read_csv("data.csv")\ndf.head()                    # first 5 rows\ndf.describe()                # summary stats\ndf.groupby("col").mean()     # group and aggregate\ndf[df["age"] > 30]           # filter rows\ndf.sort_values("col", ascending=False)\n```\n\n## Plotting\n\n```python\nimport matplotlib.pyplot as plt\nimport seaborn as sns\n\nsns.histplot(df["age"], bins=20)\nplt.title("Age Distribution")\nplt.show()\n```',
+    tags: ['python', 'data-science', 'reference'],
+  },
+  {
+    collection_id: 4,
+    title: 'Machine Learning Glossary',
+    content:
+      '# ML Terminology\n\n- **Supervised learning:** labeled training data (classification, regression)\n- **Unsupervised learning:** no labels (clustering, dimensionality reduction)\n- **Overfitting:** model memorizes training data, fails on new data\n- **Underfitting:** model too simple to capture patterns\n- **Bias-variance tradeoff:** simpler models = more bias, less variance\n- **Cross-validation:** split data into k folds, train/test on each\n- **Feature engineering:** creating useful inputs from raw data\n- **Regularization:** penalizing model complexity (L1/L2)\n- **Gradient descent:** iteratively minimize loss function\n- **Epoch:** one full pass through the training data\n- **Batch size:** number of samples per gradient update\n- **Learning rate:** step size for gradient descent — too high = diverge, too low = slow',
+    tags: ['machine-learning', 'reference'],
+  },
+  {
+    collection_id: 4,
+    title: 'SQL Window Functions',
+    content:
+      '# Window Functions in SQL\n\n## Syntax\n\n```sql\nfunction() OVER (\n  PARTITION BY col\n  ORDER BY col\n  ROWS BETWEEN ... AND ...\n)\n```\n\n## Common Functions\n\n| Function | Description |\n|---|---|\n| ROW_NUMBER() | Unique row number |\n| RANK() | Rank with gaps |\n| DENSE_RANK() | Rank without gaps |\n| LAG(col, n) | Value n rows before |\n| LEAD(col, n) | Value n rows after |\n| SUM() OVER | Running total |\n| AVG() OVER | Moving average |\n\n## Example: Running Total\n\n```sql\nSELECT\n  date,\n  amount,\n  SUM(amount) OVER (ORDER BY date) AS running_total\nFROM transactions;\n```\n\n## Example: Rank Within Groups\n\n```sql\nSELECT\n  department,\n  name,\n  salary,\n  RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_rank\nFROM employees;\n```',
+    tags: ['sql', 'databases', 'reference'],
+  },
+  {
+    collection_id: 4,
+    title: 'Git Internals',
+    content:
+      '# How Git Works Under the Hood\n\n## Object Types\n\n| Type | Description |\n|---|---|\n| blob | File contents |\n| tree | Directory listing |\n| commit | Snapshot + metadata |\n| tag | Named reference to a commit |\n\n## Everything is a Hash\n\nGit stores everything as SHA-1 hashed objects in `.git/objects/`.\n\n```bash\n# See what a hash points to\ngit cat-file -t abc123\ngit cat-file -p abc123\n```\n\n## Refs\n\nBranches are just pointers (files in `.git/refs/heads/`) that store a commit hash. HEAD points to the current branch.\n\n## The Index (Staging Area)\n\nThe index (`.git/index`) is a binary file that represents the next commit. `git add` updates the index, `git commit` writes it as a tree object.',
+    tags: ['git', 'reference'],
   },
 ];
 
@@ -321,478 +423,2187 @@ const seedNotes: { collection_id: number; title: string; content: string; tags: 
 // Generated notes to reach 500 total
 // ---------------------------------------------------------------------------
 
-const generatedTitles: { title: string; tags: string[]; collection_id: number }[] = [
+const generatedTitles: {
+  title: string;
+  tags: string[];
+  collection_id: number;
+}[] = [
   // Research (collection 3) — technical deep dives
-  { title: "CAP Theorem Explained", tags: ["databases", "distributed-systems"], collection_id: 3 },
-  { title: "Consensus Algorithms: Raft vs Paxos", tags: ["distributed-systems", "algorithms"], collection_id: 3 },
-  { title: "Write-Ahead Logging in Databases", tags: ["databases", "performance"], collection_id: 3 },
-  { title: "Understanding B-Trees", tags: ["algorithms", "databases"], collection_id: 3 },
-  { title: "LSM Trees vs B-Trees", tags: ["databases", "performance"], collection_id: 3 },
-  { title: "Bloom Filters: When and Why", tags: ["algorithms", "data-structures"], collection_id: 3 },
-  { title: "CRDTs for Collaborative Editing", tags: ["distributed-systems", "algorithms"], collection_id: 3 },
-  { title: "Merkle Trees in Practice", tags: ["algorithms", "cryptography"], collection_id: 3 },
-  { title: "Vector Clocks and Causality", tags: ["distributed-systems"], collection_id: 3 },
-  { title: "Consistent Hashing Explained", tags: ["distributed-systems", "algorithms"], collection_id: 3 },
-  { title: "The Log: What Every Engineer Should Know", tags: ["databases", "architecture"], collection_id: 3 },
-  { title: "Event Sourcing Patterns", tags: ["architecture", "databases"], collection_id: 3 },
-  { title: "CQRS: Command Query Responsibility Segregation", tags: ["architecture"], collection_id: 3 },
-  { title: "Understanding TCP Congestion Control", tags: ["networking"], collection_id: 3 },
-  { title: "TLS Handshake Step by Step", tags: ["networking", "security"], collection_id: 3 },
-  { title: "DNS Resolution Deep Dive", tags: ["networking"], collection_id: 3 },
-  { title: "How HTTP/2 Multiplexing Works", tags: ["networking", "webdev"], collection_id: 3 },
-  { title: "WebSocket Protocol Internals", tags: ["networking", "webdev"], collection_id: 3 },
-  { title: "gRPC vs REST: When to Use Which", tags: ["api", "architecture"], collection_id: 3 },
-  { title: "GraphQL Schema Design Patterns", tags: ["api", "graphql"], collection_id: 3 },
-  { title: "OAuth 2.0 Flow Comparison", tags: ["security", "api"], collection_id: 3 },
-  { title: "JWT Best Practices", tags: ["security", "webdev"], collection_id: 3 },
-  { title: "CORS Explained Simply", tags: ["security", "webdev"], collection_id: 3 },
-  { title: "Content Security Policy Headers", tags: ["security", "webdev"], collection_id: 3 },
-  { title: "Rate Limiting Strategies", tags: ["api", "performance"], collection_id: 3 },
-  { title: "Circuit Breaker Pattern", tags: ["architecture", "reliability"], collection_id: 3 },
-  { title: "Backpressure in Streaming Systems", tags: ["architecture", "performance"], collection_id: 3 },
-  { title: "Idempotency in API Design", tags: ["api", "architecture"], collection_id: 3 },
-  { title: "Database Sharding Strategies", tags: ["databases", "scaling"], collection_id: 3 },
-  { title: "Read Replicas: Pros and Cons", tags: ["databases", "scaling"], collection_id: 3 },
-  { title: "Connection Pooling Deep Dive", tags: ["databases", "performance"], collection_id: 3 },
-  { title: "Understanding Database Vacuuming", tags: ["databases", "postgresql"], collection_id: 3 },
-  { title: "Query Planner Internals", tags: ["databases", "performance"], collection_id: 3 },
-  { title: "Materialized Views in Practice", tags: ["databases", "sql"], collection_id: 3 },
-  { title: "Window Functions in SQL", tags: ["sql", "databases"], collection_id: 3 },
-  { title: "Common Table Expressions (CTEs)", tags: ["sql", "databases"], collection_id: 3 },
-  { title: "Recursive Queries in SQL", tags: ["sql", "databases"], collection_id: 3 },
-  { title: "Full-Text Search with PostgreSQL", tags: ["postgresql", "databases"], collection_id: 3 },
-  { title: "Time-Series Data Modeling", tags: ["databases", "architecture"], collection_id: 3 },
-  { title: "Columnar vs Row-Based Storage", tags: ["databases", "performance"], collection_id: 3 },
-  { title: "Understanding Memory Allocation", tags: ["systems", "performance"], collection_id: 3 },
-  { title: "Garbage Collection Algorithms", tags: ["systems", "programming"], collection_id: 3 },
-  { title: "CPU Cache and Performance", tags: ["systems", "performance"], collection_id: 3 },
-  { title: "How Containers Work Under the Hood", tags: ["devops", "systems"], collection_id: 3 },
-  { title: "Linux Namespaces and cgroups", tags: ["devops", "systems"], collection_id: 3 },
-  { title: "eBPF: Programmable Kernel", tags: ["systems", "linux"], collection_id: 3 },
-  { title: "io_uring and Async I/O", tags: ["systems", "performance"], collection_id: 3 },
-  { title: "Understanding Epoll", tags: ["systems", "networking"], collection_id: 3 },
-  { title: "Virtual Memory Explained", tags: ["systems"], collection_id: 3 },
-  { title: "Compiler Optimization Passes", tags: ["systems", "programming"], collection_id: 3 },
-  { title: "LLVM Architecture Overview", tags: ["systems", "programming"], collection_id: 3 },
-  { title: "WebAssembly: Current State", tags: ["webdev", "programming"], collection_id: 3 },
-  { title: "Service Mesh with Istio", tags: ["devops", "architecture"], collection_id: 3 },
-  { title: "Kubernetes Networking Model", tags: ["devops", "networking"], collection_id: 3 },
-  { title: "GitOps Principles", tags: ["devops", "git"], collection_id: 3 },
-  { title: "Infrastructure as Code Patterns", tags: ["devops", "architecture"], collection_id: 3 },
-  { title: "Observability: Logs, Metrics, Traces", tags: ["devops", "reliability"], collection_id: 3 },
-  { title: "SLOs, SLIs, and Error Budgets", tags: ["reliability", "devops"], collection_id: 3 },
-  { title: "Chaos Engineering Principles", tags: ["reliability", "testing"], collection_id: 3 },
-  { title: "Property-Based Testing", tags: ["testing", "programming"], collection_id: 3 },
-  { title: "Mutation Testing Explained", tags: ["testing", "programming"], collection_id: 3 },
-  { title: "Snapshot Testing Pros and Cons", tags: ["testing", "react"], collection_id: 3 },
-  { title: "Contract Testing with Pact", tags: ["testing", "api"], collection_id: 3 },
-  { title: "Load Testing with k6", tags: ["testing", "performance"], collection_id: 3 },
-  { title: "Fuzzing for Security", tags: ["security", "testing"], collection_id: 3 },
-  { title: "Zero-Knowledge Proofs Intro", tags: ["cryptography", "security"], collection_id: 3 },
-  { title: "Homomorphic Encryption Overview", tags: ["cryptography", "security"], collection_id: 3 },
-  { title: "Differential Privacy Basics", tags: ["privacy", "algorithms"], collection_id: 3 },
-  { title: "Federated Learning Architecture", tags: ["machine-learning", "privacy"], collection_id: 3 },
-  { title: "Transformer Architecture Explained", tags: ["machine-learning", "ai"], collection_id: 3 },
-  { title: "Attention Is All You Need — Summary", tags: ["machine-learning", "ai"], collection_id: 3 },
-  { title: "Embedding Spaces and Similarity", tags: ["machine-learning", "ai"], collection_id: 3 },
-  { title: "RAG: Retrieval Augmented Generation", tags: ["ai", "architecture"], collection_id: 3 },
-  { title: "Vector Databases Comparison", tags: ["databases", "ai"], collection_id: 3 },
-  { title: "Prompt Engineering Patterns", tags: ["ai", "productivity"], collection_id: 3 },
-  { title: "LLM Evaluation Frameworks", tags: ["ai", "testing"], collection_id: 3 },
-  { title: "Fine-Tuning vs Few-Shot Learning", tags: ["machine-learning", "ai"], collection_id: 3 },
-  { title: "Rust Ownership Deep Dive", tags: ["rust", "programming"], collection_id: 3 },
-  { title: "Rust Lifetimes Explained", tags: ["rust", "programming"], collection_id: 3 },
-  { title: "Async Rust with Tokio", tags: ["rust", "programming"], collection_id: 3 },
-  { title: "Error Handling in Rust", tags: ["rust", "programming"], collection_id: 3 },
-  { title: "Go Concurrency Patterns", tags: ["go", "programming"], collection_id: 3 },
-  { title: "Go Interfaces and Composition", tags: ["go", "programming"], collection_id: 3 },
-  { title: "Zig: A Modern Systems Language", tags: ["systems", "programming"], collection_id: 3 },
-  { title: "Effect Systems in Programming", tags: ["programming", "type-theory"], collection_id: 3 },
-  { title: "Algebraic Data Types", tags: ["programming", "type-theory"], collection_id: 3 },
-  { title: "Category Theory for Programmers", tags: ["programming", "math"], collection_id: 3 },
-  { title: "Lambda Calculus Basics", tags: ["programming", "math"], collection_id: 3 },
-  { title: "Formal Verification Overview", tags: ["programming", "testing"], collection_id: 3 },
+  {
+    title: 'CAP Theorem Explained',
+    tags: ['databases', 'distributed-systems'],
+    collection_id: 3,
+  },
+  {
+    title: 'Consensus Algorithms: Raft vs Paxos',
+    tags: ['distributed-systems', 'algorithms'],
+    collection_id: 3,
+  },
+  {
+    title: 'Write-Ahead Logging in Databases',
+    tags: ['databases', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Understanding B-Trees',
+    tags: ['algorithms', 'databases'],
+    collection_id: 3,
+  },
+  {
+    title: 'LSM Trees vs B-Trees',
+    tags: ['databases', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Bloom Filters: When and Why',
+    tags: ['algorithms', 'data-structures'],
+    collection_id: 3,
+  },
+  {
+    title: 'CRDTs for Collaborative Editing',
+    tags: ['distributed-systems', 'algorithms'],
+    collection_id: 3,
+  },
+  {
+    title: 'Merkle Trees in Practice',
+    tags: ['algorithms', 'cryptography'],
+    collection_id: 3,
+  },
+  {
+    title: 'Vector Clocks and Causality',
+    tags: ['distributed-systems'],
+    collection_id: 3,
+  },
+  {
+    title: 'Consistent Hashing Explained',
+    tags: ['distributed-systems', 'algorithms'],
+    collection_id: 3,
+  },
+  {
+    title: 'The Log: What Every Engineer Should Know',
+    tags: ['databases', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'Event Sourcing Patterns',
+    tags: ['architecture', 'databases'],
+    collection_id: 3,
+  },
+  {
+    title: 'CQRS: Command Query Responsibility Segregation',
+    tags: ['architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'Understanding TCP Congestion Control',
+    tags: ['networking'],
+    collection_id: 3,
+  },
+  {
+    title: 'TLS Handshake Step by Step',
+    tags: ['networking', 'security'],
+    collection_id: 3,
+  },
+  { title: 'DNS Resolution Deep Dive', tags: ['networking'], collection_id: 3 },
+  {
+    title: 'How HTTP/2 Multiplexing Works',
+    tags: ['networking', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'WebSocket Protocol Internals',
+    tags: ['networking', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'gRPC vs REST: When to Use Which',
+    tags: ['api', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'GraphQL Schema Design Patterns',
+    tags: ['api', 'graphql'],
+    collection_id: 3,
+  },
+  {
+    title: 'OAuth 2.0 Flow Comparison',
+    tags: ['security', 'api'],
+    collection_id: 3,
+  },
+  {
+    title: 'JWT Best Practices',
+    tags: ['security', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'CORS Explained Simply',
+    tags: ['security', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Content Security Policy Headers',
+    tags: ['security', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Rate Limiting Strategies',
+    tags: ['api', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Circuit Breaker Pattern',
+    tags: ['architecture', 'reliability'],
+    collection_id: 3,
+  },
+  {
+    title: 'Backpressure in Streaming Systems',
+    tags: ['architecture', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Idempotency in API Design',
+    tags: ['api', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'Database Sharding Strategies',
+    tags: ['databases', 'scaling'],
+    collection_id: 3,
+  },
+  {
+    title: 'Read Replicas: Pros and Cons',
+    tags: ['databases', 'scaling'],
+    collection_id: 3,
+  },
+  {
+    title: 'Connection Pooling Deep Dive',
+    tags: ['databases', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Understanding Database Vacuuming',
+    tags: ['databases', 'postgresql'],
+    collection_id: 3,
+  },
+  {
+    title: 'Query Planner Internals',
+    tags: ['databases', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Materialized Views in Practice',
+    tags: ['databases', 'sql'],
+    collection_id: 3,
+  },
+  {
+    title: 'Window Functions in SQL',
+    tags: ['sql', 'databases'],
+    collection_id: 3,
+  },
+  {
+    title: 'Common Table Expressions (CTEs)',
+    tags: ['sql', 'databases'],
+    collection_id: 3,
+  },
+  {
+    title: 'Recursive Queries in SQL',
+    tags: ['sql', 'databases'],
+    collection_id: 3,
+  },
+  {
+    title: 'Full-Text Search with PostgreSQL',
+    tags: ['postgresql', 'databases'],
+    collection_id: 3,
+  },
+  {
+    title: 'Time-Series Data Modeling',
+    tags: ['databases', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'Columnar vs Row-Based Storage',
+    tags: ['databases', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Understanding Memory Allocation',
+    tags: ['systems', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Garbage Collection Algorithms',
+    tags: ['systems', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'CPU Cache and Performance',
+    tags: ['systems', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'How Containers Work Under the Hood',
+    tags: ['devops', 'systems'],
+    collection_id: 3,
+  },
+  {
+    title: 'Linux Namespaces and cgroups',
+    tags: ['devops', 'systems'],
+    collection_id: 3,
+  },
+  {
+    title: 'eBPF: Programmable Kernel',
+    tags: ['systems', 'linux'],
+    collection_id: 3,
+  },
+  {
+    title: 'io_uring and Async I/O',
+    tags: ['systems', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Understanding Epoll',
+    tags: ['systems', 'networking'],
+    collection_id: 3,
+  },
+  { title: 'Virtual Memory Explained', tags: ['systems'], collection_id: 3 },
+  {
+    title: 'Compiler Optimization Passes',
+    tags: ['systems', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'LLVM Architecture Overview',
+    tags: ['systems', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'WebAssembly: Current State',
+    tags: ['webdev', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Service Mesh with Istio',
+    tags: ['devops', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'Kubernetes Networking Model',
+    tags: ['devops', 'networking'],
+    collection_id: 3,
+  },
+  { title: 'GitOps Principles', tags: ['devops', 'git'], collection_id: 3 },
+  {
+    title: 'Infrastructure as Code Patterns',
+    tags: ['devops', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'Observability: Logs, Metrics, Traces',
+    tags: ['devops', 'reliability'],
+    collection_id: 3,
+  },
+  {
+    title: 'SLOs, SLIs, and Error Budgets',
+    tags: ['reliability', 'devops'],
+    collection_id: 3,
+  },
+  {
+    title: 'Chaos Engineering Principles',
+    tags: ['reliability', 'testing'],
+    collection_id: 3,
+  },
+  {
+    title: 'Property-Based Testing',
+    tags: ['testing', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Mutation Testing Explained',
+    tags: ['testing', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Snapshot Testing Pros and Cons',
+    tags: ['testing', 'react'],
+    collection_id: 3,
+  },
+  {
+    title: 'Contract Testing with Pact',
+    tags: ['testing', 'api'],
+    collection_id: 3,
+  },
+  {
+    title: 'Load Testing with k6',
+    tags: ['testing', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Fuzzing for Security',
+    tags: ['security', 'testing'],
+    collection_id: 3,
+  },
+  {
+    title: 'Zero-Knowledge Proofs Intro',
+    tags: ['cryptography', 'security'],
+    collection_id: 3,
+  },
+  {
+    title: 'Homomorphic Encryption Overview',
+    tags: ['cryptography', 'security'],
+    collection_id: 3,
+  },
+  {
+    title: 'Differential Privacy Basics',
+    tags: ['privacy', 'algorithms'],
+    collection_id: 3,
+  },
+  {
+    title: 'Federated Learning Architecture',
+    tags: ['machine-learning', 'privacy'],
+    collection_id: 3,
+  },
+  {
+    title: 'Transformer Architecture Explained',
+    tags: ['machine-learning', 'ai'],
+    collection_id: 3,
+  },
+  {
+    title: 'Attention Is All You Need — Summary',
+    tags: ['machine-learning', 'ai'],
+    collection_id: 3,
+  },
+  {
+    title: 'Embedding Spaces and Similarity',
+    tags: ['machine-learning', 'ai'],
+    collection_id: 3,
+  },
+  {
+    title: 'RAG: Retrieval Augmented Generation',
+    tags: ['ai', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'Vector Databases Comparison',
+    tags: ['databases', 'ai'],
+    collection_id: 3,
+  },
+  {
+    title: 'Prompt Engineering Patterns',
+    tags: ['ai', 'productivity'],
+    collection_id: 3,
+  },
+  {
+    title: 'LLM Evaluation Frameworks',
+    tags: ['ai', 'testing'],
+    collection_id: 3,
+  },
+  {
+    title: 'Fine-Tuning vs Few-Shot Learning',
+    tags: ['machine-learning', 'ai'],
+    collection_id: 3,
+  },
+  {
+    title: 'Rust Ownership Deep Dive',
+    tags: ['rust', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Rust Lifetimes Explained',
+    tags: ['rust', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Async Rust with Tokio',
+    tags: ['rust', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Error Handling in Rust',
+    tags: ['rust', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Go Concurrency Patterns',
+    tags: ['go', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Go Interfaces and Composition',
+    tags: ['go', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Zig: A Modern Systems Language',
+    tags: ['systems', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Effect Systems in Programming',
+    tags: ['programming', 'type-theory'],
+    collection_id: 3,
+  },
+  {
+    title: 'Algebraic Data Types',
+    tags: ['programming', 'type-theory'],
+    collection_id: 3,
+  },
+  {
+    title: 'Category Theory for Programmers',
+    tags: ['programming', 'math'],
+    collection_id: 3,
+  },
+  {
+    title: 'Lambda Calculus Basics',
+    tags: ['programming', 'math'],
+    collection_id: 3,
+  },
+  {
+    title: 'Formal Verification Overview',
+    tags: ['programming', 'testing'],
+    collection_id: 3,
+  },
 
   // Work (collection 2) — professional notes
-  { title: "Sprint Retrospective — Week 10", tags: ["meetings", "agile"], collection_id: 2 },
-  { title: "Sprint Retrospective — Week 11", tags: ["meetings", "agile"], collection_id: 2 },
-  { title: "Sprint Retrospective — Week 12", tags: ["meetings", "agile"], collection_id: 2 },
-  { title: "Sprint Retrospective — Week 13", tags: ["meetings", "agile"], collection_id: 2 },
-  { title: "Sprint Retrospective — Week 14", tags: ["meetings", "agile"], collection_id: 2 },
-  { title: "1:1 Notes — Sarah (Jan)", tags: ["meetings", "management"], collection_id: 2 },
-  { title: "1:1 Notes — Sarah (Feb)", tags: ["meetings", "management"], collection_id: 2 },
-  { title: "1:1 Notes — Mike (Jan)", tags: ["meetings", "management"], collection_id: 2 },
-  { title: "1:1 Notes — Mike (Feb)", tags: ["meetings", "management"], collection_id: 2 },
-  { title: "1:1 Notes — Priya (Jan)", tags: ["meetings", "management"], collection_id: 2 },
-  { title: "1:1 Notes — Priya (Feb)", tags: ["meetings", "management"], collection_id: 2 },
-  { title: "Architecture Decision Record: Auth System", tags: ["architecture", "adr"], collection_id: 2 },
-  { title: "Architecture Decision Record: Message Queue", tags: ["architecture", "adr"], collection_id: 2 },
-  { title: "Architecture Decision Record: Database Choice", tags: ["architecture", "adr"], collection_id: 2 },
-  { title: "Architecture Decision Record: Caching Layer", tags: ["architecture", "adr"], collection_id: 2 },
-  { title: "Architecture Decision Record: Monorepo Structure", tags: ["architecture", "adr"], collection_id: 2 },
-  { title: "Onboarding Checklist — New Hires", tags: ["work", "management"], collection_id: 2 },
-  { title: "Code Review Guidelines", tags: ["work", "best-practices"], collection_id: 2 },
-  { title: "Incident Postmortem: API Outage Jan 15", tags: ["incidents", "reliability"], collection_id: 2 },
-  { title: "Incident Postmortem: DB Migration Failure", tags: ["incidents", "reliability"], collection_id: 2 },
-  { title: "Incident Postmortem: Memory Leak in Worker", tags: ["incidents", "reliability"], collection_id: 2 },
-  { title: "Q2 OKR Draft", tags: ["work", "planning"], collection_id: 2 },
-  { title: "Q1 Performance Self-Review", tags: ["work", "career"], collection_id: 2 },
-  { title: "Conference Talk Proposal: State Management", tags: ["career", "speaking"], collection_id: 2 },
-  { title: "Team Standup Format", tags: ["work", "agile"], collection_id: 2 },
-  { title: "Feature Flag Strategy", tags: ["work", "architecture"], collection_id: 2 },
-  { title: "Release Process Checklist", tags: ["work", "devops"], collection_id: 2 },
-  { title: "Staging Environment Setup", tags: ["devops", "work"], collection_id: 2 },
-  { title: "CI/CD Pipeline Design", tags: ["devops", "work"], collection_id: 2 },
-  { title: "Monitoring Dashboard Layout", tags: ["devops", "observability"], collection_id: 2 },
-  { title: "Error Tracking with Sentry", tags: ["devops", "work"], collection_id: 2 },
-  { title: "API Versioning Strategy", tags: ["api", "architecture"], collection_id: 2 },
-  { title: "Database Migration Workflow", tags: ["databases", "work"], collection_id: 2 },
-  { title: "Webpack to Vite Migration Plan", tags: ["webdev", "work"], collection_id: 2 },
-  { title: "TypeScript Strict Mode Migration", tags: ["typescript", "work"], collection_id: 2 },
-  { title: "Testing Strategy Document", tags: ["testing", "work"], collection_id: 2 },
-  { title: "E2E Test Plan for Checkout Flow", tags: ["testing", "work"], collection_id: 2 },
-  { title: "Accessibility Audit Results", tags: ["a11y", "webdev"], collection_id: 2 },
-  { title: "Performance Budget Proposal", tags: ["performance", "webdev"], collection_id: 2 },
-  { title: "Component Library RFC", tags: ["react", "architecture"], collection_id: 2 },
-  { title: "Design System Tokens", tags: ["design", "css"], collection_id: 2 },
-  { title: "User Research: Search Feature", tags: ["ux", "research"], collection_id: 2 },
-  { title: "User Research: Onboarding Flow", tags: ["ux", "research"], collection_id: 2 },
-  { title: "Competitor Analysis: Notion", tags: ["research", "product"], collection_id: 2 },
-  { title: "Competitor Analysis: Obsidian", tags: ["research", "product"], collection_id: 2 },
-  { title: "Competitor Analysis: Bear", tags: ["research", "product"], collection_id: 2 },
-  { title: "Product Roadmap Q2 2026", tags: ["product", "planning"], collection_id: 2 },
-  { title: "Tech Debt Inventory", tags: ["work", "maintenance"], collection_id: 2 },
-  { title: "Dependency Upgrade Plan", tags: ["maintenance", "security"], collection_id: 2 },
-  { title: "Security Audit Findings", tags: ["security", "work"], collection_id: 2 },
-  { title: "GDPR Compliance Checklist", tags: ["compliance", "security"], collection_id: 2 },
-  { title: "Analytics Event Taxonomy", tags: ["analytics", "product"], collection_id: 2 },
-  { title: "A/B Test Results: New Header", tags: ["analytics", "ux"], collection_id: 2 },
-  { title: "A/B Test Results: Pricing Page", tags: ["analytics", "product"], collection_id: 2 },
-  { title: "Customer Support FAQ Draft", tags: ["work", "product"], collection_id: 2 },
-  { title: "API Rate Limit Configuration", tags: ["api", "performance"], collection_id: 2 },
-  { title: "Slack Bot for Deploy Notifications", tags: ["devops", "automation"], collection_id: 2 },
-  { title: "GitHub Actions Workflow Templates", tags: ["devops", "git"], collection_id: 2 },
-  { title: "Terraform Module Structure", tags: ["devops", "infrastructure"], collection_id: 2 },
-  { title: "AWS Cost Optimization Notes", tags: ["infrastructure", "work"], collection_id: 2 },
-  { title: "CloudFront CDN Configuration", tags: ["infrastructure", "performance"], collection_id: 2 },
-  { title: "S3 Bucket Policy Reference", tags: ["infrastructure", "security"], collection_id: 2 },
-  { title: "RDS Instance Sizing Guide", tags: ["databases", "infrastructure"], collection_id: 2 },
-  { title: "Lambda Cold Start Optimization", tags: ["performance", "infrastructure"], collection_id: 2 },
-  { title: "Interview Questions: Frontend", tags: ["hiring", "work"], collection_id: 2 },
-  { title: "Interview Questions: Backend", tags: ["hiring", "work"], collection_id: 2 },
-  { title: "Interview Questions: System Design", tags: ["hiring", "work"], collection_id: 2 },
-  { title: "Salary Negotiation Research", tags: ["career"], collection_id: 2 },
-  { title: "Professional Development Goals", tags: ["career", "learning"], collection_id: 2 },
-  { title: "Conference Notes: React Conf 2026", tags: ["conferences", "react"], collection_id: 2 },
-  { title: "Conference Notes: Node Congress", tags: ["conferences", "javascript"], collection_id: 2 },
-  { title: "Team Offsite Agenda — March", tags: ["meetings", "work"], collection_id: 2 },
+  {
+    title: 'Sprint Retrospective — Week 10',
+    tags: ['meetings', 'agile'],
+    collection_id: 2,
+  },
+  {
+    title: 'Sprint Retrospective — Week 11',
+    tags: ['meetings', 'agile'],
+    collection_id: 2,
+  },
+  {
+    title: 'Sprint Retrospective — Week 12',
+    tags: ['meetings', 'agile'],
+    collection_id: 2,
+  },
+  {
+    title: 'Sprint Retrospective — Week 13',
+    tags: ['meetings', 'agile'],
+    collection_id: 2,
+  },
+  {
+    title: 'Sprint Retrospective — Week 14',
+    tags: ['meetings', 'agile'],
+    collection_id: 2,
+  },
+  {
+    title: '1:1 Notes — Sarah (Jan)',
+    tags: ['meetings', 'management'],
+    collection_id: 2,
+  },
+  {
+    title: '1:1 Notes — Sarah (Feb)',
+    tags: ['meetings', 'management'],
+    collection_id: 2,
+  },
+  {
+    title: '1:1 Notes — Mike (Jan)',
+    tags: ['meetings', 'management'],
+    collection_id: 2,
+  },
+  {
+    title: '1:1 Notes — Mike (Feb)',
+    tags: ['meetings', 'management'],
+    collection_id: 2,
+  },
+  {
+    title: '1:1 Notes — Priya (Jan)',
+    tags: ['meetings', 'management'],
+    collection_id: 2,
+  },
+  {
+    title: '1:1 Notes — Priya (Feb)',
+    tags: ['meetings', 'management'],
+    collection_id: 2,
+  },
+  {
+    title: 'Architecture Decision Record: Auth System',
+    tags: ['architecture', 'adr'],
+    collection_id: 2,
+  },
+  {
+    title: 'Architecture Decision Record: Message Queue',
+    tags: ['architecture', 'adr'],
+    collection_id: 2,
+  },
+  {
+    title: 'Architecture Decision Record: Database Choice',
+    tags: ['architecture', 'adr'],
+    collection_id: 2,
+  },
+  {
+    title: 'Architecture Decision Record: Caching Layer',
+    tags: ['architecture', 'adr'],
+    collection_id: 2,
+  },
+  {
+    title: 'Architecture Decision Record: Monorepo Structure',
+    tags: ['architecture', 'adr'],
+    collection_id: 2,
+  },
+  {
+    title: 'Onboarding Checklist — New Hires',
+    tags: ['work', 'management'],
+    collection_id: 2,
+  },
+  {
+    title: 'Code Review Guidelines',
+    tags: ['work', 'best-practices'],
+    collection_id: 2,
+  },
+  {
+    title: 'Incident Postmortem: API Outage Jan 15',
+    tags: ['incidents', 'reliability'],
+    collection_id: 2,
+  },
+  {
+    title: 'Incident Postmortem: DB Migration Failure',
+    tags: ['incidents', 'reliability'],
+    collection_id: 2,
+  },
+  {
+    title: 'Incident Postmortem: Memory Leak in Worker',
+    tags: ['incidents', 'reliability'],
+    collection_id: 2,
+  },
+  { title: 'Q2 OKR Draft', tags: ['work', 'planning'], collection_id: 2 },
+  {
+    title: 'Q1 Performance Self-Review',
+    tags: ['work', 'career'],
+    collection_id: 2,
+  },
+  {
+    title: 'Conference Talk Proposal: State Management',
+    tags: ['career', 'speaking'],
+    collection_id: 2,
+  },
+  { title: 'Team Standup Format', tags: ['work', 'agile'], collection_id: 2 },
+  {
+    title: 'Feature Flag Strategy',
+    tags: ['work', 'architecture'],
+    collection_id: 2,
+  },
+  {
+    title: 'Release Process Checklist',
+    tags: ['work', 'devops'],
+    collection_id: 2,
+  },
+  {
+    title: 'Staging Environment Setup',
+    tags: ['devops', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'CI/CD Pipeline Design',
+    tags: ['devops', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Monitoring Dashboard Layout',
+    tags: ['devops', 'observability'],
+    collection_id: 2,
+  },
+  {
+    title: 'Error Tracking with Sentry',
+    tags: ['devops', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'API Versioning Strategy',
+    tags: ['api', 'architecture'],
+    collection_id: 2,
+  },
+  {
+    title: 'Database Migration Workflow',
+    tags: ['databases', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Webpack to Vite Migration Plan',
+    tags: ['webdev', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'TypeScript Strict Mode Migration',
+    tags: ['typescript', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Testing Strategy Document',
+    tags: ['testing', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'E2E Test Plan for Checkout Flow',
+    tags: ['testing', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Accessibility Audit Results',
+    tags: ['a11y', 'webdev'],
+    collection_id: 2,
+  },
+  {
+    title: 'Performance Budget Proposal',
+    tags: ['performance', 'webdev'],
+    collection_id: 2,
+  },
+  {
+    title: 'Component Library RFC',
+    tags: ['react', 'architecture'],
+    collection_id: 2,
+  },
+  { title: 'Design System Tokens', tags: ['design', 'css'], collection_id: 2 },
+  {
+    title: 'User Research: Search Feature',
+    tags: ['ux', 'research'],
+    collection_id: 2,
+  },
+  {
+    title: 'User Research: Onboarding Flow',
+    tags: ['ux', 'research'],
+    collection_id: 2,
+  },
+  {
+    title: 'Competitor Analysis: Notion',
+    tags: ['research', 'product'],
+    collection_id: 2,
+  },
+  {
+    title: 'Competitor Analysis: Obsidian',
+    tags: ['research', 'product'],
+    collection_id: 2,
+  },
+  {
+    title: 'Competitor Analysis: Bear',
+    tags: ['research', 'product'],
+    collection_id: 2,
+  },
+  {
+    title: 'Product Roadmap Q2 2026',
+    tags: ['product', 'planning'],
+    collection_id: 2,
+  },
+  {
+    title: 'Tech Debt Inventory',
+    tags: ['work', 'maintenance'],
+    collection_id: 2,
+  },
+  {
+    title: 'Dependency Upgrade Plan',
+    tags: ['maintenance', 'security'],
+    collection_id: 2,
+  },
+  {
+    title: 'Security Audit Findings',
+    tags: ['security', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'GDPR Compliance Checklist',
+    tags: ['compliance', 'security'],
+    collection_id: 2,
+  },
+  {
+    title: 'Analytics Event Taxonomy',
+    tags: ['analytics', 'product'],
+    collection_id: 2,
+  },
+  {
+    title: 'A/B Test Results: New Header',
+    tags: ['analytics', 'ux'],
+    collection_id: 2,
+  },
+  {
+    title: 'A/B Test Results: Pricing Page',
+    tags: ['analytics', 'product'],
+    collection_id: 2,
+  },
+  {
+    title: 'Customer Support FAQ Draft',
+    tags: ['work', 'product'],
+    collection_id: 2,
+  },
+  {
+    title: 'API Rate Limit Configuration',
+    tags: ['api', 'performance'],
+    collection_id: 2,
+  },
+  {
+    title: 'Slack Bot for Deploy Notifications',
+    tags: ['devops', 'automation'],
+    collection_id: 2,
+  },
+  {
+    title: 'GitHub Actions Workflow Templates',
+    tags: ['devops', 'git'],
+    collection_id: 2,
+  },
+  {
+    title: 'Terraform Module Structure',
+    tags: ['devops', 'infrastructure'],
+    collection_id: 2,
+  },
+  {
+    title: 'AWS Cost Optimization Notes',
+    tags: ['infrastructure', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'CloudFront CDN Configuration',
+    tags: ['infrastructure', 'performance'],
+    collection_id: 2,
+  },
+  {
+    title: 'S3 Bucket Policy Reference',
+    tags: ['infrastructure', 'security'],
+    collection_id: 2,
+  },
+  {
+    title: 'RDS Instance Sizing Guide',
+    tags: ['databases', 'infrastructure'],
+    collection_id: 2,
+  },
+  {
+    title: 'Lambda Cold Start Optimization',
+    tags: ['performance', 'infrastructure'],
+    collection_id: 2,
+  },
+  {
+    title: 'Interview Questions: Frontend',
+    tags: ['hiring', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Interview Questions: Backend',
+    tags: ['hiring', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Interview Questions: System Design',
+    tags: ['hiring', 'work'],
+    collection_id: 2,
+  },
+  { title: 'Salary Negotiation Research', tags: ['career'], collection_id: 2 },
+  {
+    title: 'Professional Development Goals',
+    tags: ['career', 'learning'],
+    collection_id: 2,
+  },
+  {
+    title: 'Conference Notes: React Conf 2026',
+    tags: ['conferences', 'react'],
+    collection_id: 2,
+  },
+  {
+    title: 'Conference Notes: Node Congress',
+    tags: ['conferences', 'javascript'],
+    collection_id: 2,
+  },
+  {
+    title: 'Team Offsite Agenda — March',
+    tags: ['meetings', 'work'],
+    collection_id: 2,
+  },
 
   // Personal (collection 1) — life notes
-  { title: "Reading List 2026", tags: ["books", "personal"], collection_id: 1 },
-  { title: "Book Notes: Atomic Habits", tags: ["books", "productivity"], collection_id: 1 },
-  { title: "Book Notes: The Pragmatic Programmer", tags: ["books", "programming"], collection_id: 1 },
-  { title: "Book Notes: Designing Data-Intensive Applications", tags: ["books", "databases"], collection_id: 1 },
-  { title: "Book Notes: Clean Code", tags: ["books", "programming"], collection_id: 1 },
-  { title: "Book Notes: Staff Engineer", tags: ["books", "career"], collection_id: 1 },
-  { title: "Book Notes: A Philosophy of Software Design", tags: ["books", "programming"], collection_id: 1 },
-  { title: "Book Notes: Thinking, Fast and Slow", tags: ["books", "psychology"], collection_id: 1 },
-  { title: "Book Notes: The Art of PostgreSQL", tags: ["books", "databases"], collection_id: 1 },
-  { title: "Book Notes: Zero to One", tags: ["books", "business"], collection_id: 1 },
-  { title: "Book Notes: Shape Up", tags: ["books", "product"], collection_id: 1 },
-  { title: "Weekly Meal Prep — Week 1", tags: ["cooking", "personal"], collection_id: 1 },
-  { title: "Weekly Meal Prep — Week 2", tags: ["cooking", "personal"], collection_id: 1 },
-  { title: "Weekly Meal Prep — Week 3", tags: ["cooking", "personal"], collection_id: 1 },
-  { title: "Thai Green Curry Recipe", tags: ["cooking", "recipe"], collection_id: 1 },
-  { title: "Homemade Pizza Dough", tags: ["cooking", "recipe"], collection_id: 1 },
-  { title: "French Onion Soup Recipe", tags: ["cooking", "recipe"], collection_id: 1 },
-  { title: "Shakshuka Recipe", tags: ["cooking", "recipe"], collection_id: 1 },
-  { title: "Banana Bread Recipe", tags: ["cooking", "recipe"], collection_id: 1 },
-  { title: "Cold Brew Coffee Method", tags: ["coffee", "recipe"], collection_id: 1 },
-  { title: "Pour Over Technique Notes", tags: ["coffee"], collection_id: 1 },
-  { title: "Gratitude Log — January 2026", tags: ["journal", "personal"], collection_id: 1 },
-  { title: "Gratitude Log — March 2026", tags: ["journal", "personal"], collection_id: 1 },
-  { title: "Journal: Reflections on Q1", tags: ["journal", "personal"], collection_id: 1 },
-  { title: "Journal: Mid-Year Check-In", tags: ["journal", "personal"], collection_id: 1 },
-  { title: "Dream Log — February", tags: ["journal", "personal"], collection_id: 1 },
-  { title: "Half Marathon Training Plan", tags: ["fitness", "health"], collection_id: 1 },
-  { title: "Running Log — January", tags: ["fitness", "health"], collection_id: 1 },
-  { title: "Running Log — February", tags: ["fitness", "health"], collection_id: 1 },
-  { title: "Running Log — March", tags: ["fitness", "health"], collection_id: 1 },
-  { title: "Yoga Routine — Morning Flow", tags: ["fitness", "health"], collection_id: 1 },
-  { title: "Stretching Routine for Desk Workers", tags: ["health", "personal"], collection_id: 1 },
-  { title: "Sleep Optimization Research", tags: ["health", "research"], collection_id: 1 },
-  { title: "Supplement Stack Notes", tags: ["health"], collection_id: 1 },
-  { title: "Meditation Progress — January", tags: ["health", "journal"], collection_id: 1 },
-  { title: "Meditation Progress — February", tags: ["health", "journal"], collection_id: 1 },
-  { title: "Japan Trip Itinerary Draft", tags: ["travel", "personal"], collection_id: 1 },
-  { title: "Japan: Tokyo Restaurants to Try", tags: ["travel", "food"], collection_id: 1 },
-  { title: "Japan: Kyoto Day Plan", tags: ["travel", "personal"], collection_id: 1 },
-  { title: "Japan: Budget Estimate", tags: ["travel", "finance"], collection_id: 1 },
-  { title: "Photography Gear Wishlist", tags: ["photography", "personal"], collection_id: 1 },
-  { title: "Photography: Composition Rules", tags: ["photography", "learning"], collection_id: 1 },
-  { title: "Photography: Lightroom Presets", tags: ["photography"], collection_id: 1 },
-  { title: "Home Improvement Ideas", tags: ["home", "personal"], collection_id: 1 },
-  { title: "Standing Desk Research", tags: ["home", "health"], collection_id: 1 },
-  { title: "Indoor Plants Care Guide", tags: ["home", "personal"], collection_id: 1 },
-  { title: "Mechanical Keyboard Build Guide", tags: ["hobbies", "personal"], collection_id: 1 },
-  { title: "Keycap Profiles Comparison", tags: ["hobbies", "personal"], collection_id: 1 },
-  { title: "Switch Comparison: Linear vs Tactile", tags: ["hobbies", "personal"], collection_id: 1 },
-  { title: "Budget Tracker — January", tags: ["finance", "personal"], collection_id: 1 },
-  { title: "Budget Tracker — February", tags: ["finance", "personal"], collection_id: 1 },
-  { title: "Investment Portfolio Review", tags: ["finance", "personal"], collection_id: 1 },
-  { title: "Tax Prep Checklist 2025", tags: ["finance", "personal"], collection_id: 1 },
-  { title: "Insurance Policy Summary", tags: ["finance", "personal"], collection_id: 1 },
-  { title: "Car Maintenance Schedule", tags: ["personal"], collection_id: 1 },
-  { title: "Dentist Appointment Notes", tags: ["health", "personal"], collection_id: 1 },
-  { title: "Spotify Playlist: Focus", tags: ["music", "personal"], collection_id: 1 },
-  { title: "Spotify Playlist: Running", tags: ["music", "fitness"], collection_id: 1 },
-  { title: "Spotify Playlist: Cooking", tags: ["music", "personal"], collection_id: 1 },
-  { title: "Podcast Notes: Huberman on Sleep", tags: ["podcast", "health"], collection_id: 1 },
-  { title: "Podcast Notes: Lex Fridman #400", tags: ["podcast", "learning"], collection_id: 1 },
-  { title: "Podcast Notes: Syntax on TypeScript 5", tags: ["podcast", "typescript"], collection_id: 1 },
-  { title: "TV Shows to Watch", tags: ["media", "personal"], collection_id: 1 },
-  { title: "Video Game Backlog", tags: ["media", "personal"], collection_id: 1 },
-  { title: "Board Games Collection", tags: ["hobbies", "personal"], collection_id: 1 },
-  { title: "Gift Ideas for Jake's Wedding", tags: ["personal"], collection_id: 1 },
-  { title: "Weekend Project: Build a Bookshelf", tags: ["home", "hobbies"], collection_id: 1 },
-  { title: "Garden Plan — Spring 2026", tags: ["home", "personal"], collection_id: 1 },
-  { title: "Camping Gear Checklist", tags: ["outdoors", "personal"], collection_id: 1 },
-  { title: "Hiking Trails Near Home", tags: ["outdoors", "fitness"], collection_id: 1 },
-  { title: "Bike Maintenance Notes", tags: ["outdoors", "personal"], collection_id: 1 },
-  { title: "Spanish Learning Resources", tags: ["learning", "languages"], collection_id: 1 },
-  { title: "Spanish Vocabulary — Week 1", tags: ["learning", "languages"], collection_id: 1 },
-  { title: "Spanish Vocabulary — Week 2", tags: ["learning", "languages"], collection_id: 1 },
-  { title: "Piano Practice Log", tags: ["music", "hobbies"], collection_id: 1 },
-  { title: "Music Theory: Chord Progressions", tags: ["music", "learning"], collection_id: 1 },
-  { title: "Daily Habit Tracker Template", tags: ["productivity", "personal"], collection_id: 1 },
-  { title: "Weekly Review Template", tags: ["productivity", "personal"], collection_id: 1 },
-  { title: "Monthly Review — January", tags: ["journal", "productivity"], collection_id: 1 },
-  { title: "Monthly Review — February", tags: ["journal", "productivity"], collection_id: 1 },
-  { title: "Side Project Ideas Brainstorm", tags: ["ideas", "personal"], collection_id: 1 },
-  { title: "CLI Tool Ideas", tags: ["ideas", "programming"], collection_id: 1 },
-  { title: "Idea: Recipe Manager App", tags: ["ideas", "react"], collection_id: 1 },
-  { title: "Idea: Habit Tracking App", tags: ["ideas", "react"], collection_id: 1 },
-  { title: "Idea: Markdown Blog Engine", tags: ["ideas", "webdev"], collection_id: 1 },
-  { title: "Idea: Local-First Notes App", tags: ["ideas", "architecture"], collection_id: 1 },
-  { title: "Learning Path: Systems Programming", tags: ["learning", "programming"], collection_id: 1 },
-  { title: "Learning Path: Machine Learning", tags: ["learning", "machine-learning"], collection_id: 1 },
-  { title: "Learning Path: iOS Development", tags: ["learning", "mobile"], collection_id: 1 },
-  { title: "Interesting Articles — January", tags: ["reading", "personal"], collection_id: 1 },
-  { title: "Interesting Articles — February", tags: ["reading", "personal"], collection_id: 1 },
-  { title: "Interesting Articles — March", tags: ["reading", "personal"], collection_id: 1 },
-  { title: "Philosophy: Existentialism Notes", tags: ["philosophy", "learning"], collection_id: 1 },
-  { title: "Philosophy: Pragmatism Overview", tags: ["philosophy", "learning"], collection_id: 1 },
-  { title: "Philosophy: Ethics Frameworks", tags: ["philosophy", "learning"], collection_id: 1 },
-  { title: "Astronomy: Notable Sky Events 2026", tags: ["science", "personal"], collection_id: 1 },
-  { title: "Physics: Quantum Computing Basics", tags: ["science", "learning"], collection_id: 1 },
-  { title: "Biology: How mRNA Vaccines Work", tags: ["science", "health"], collection_id: 1 },
+  { title: 'Reading List 2026', tags: ['books', 'personal'], collection_id: 1 },
+  {
+    title: 'Book Notes: Atomic Habits',
+    tags: ['books', 'productivity'],
+    collection_id: 1,
+  },
+  {
+    title: 'Book Notes: The Pragmatic Programmer',
+    tags: ['books', 'programming'],
+    collection_id: 1,
+  },
+  {
+    title: 'Book Notes: Designing Data-Intensive Applications',
+    tags: ['books', 'databases'],
+    collection_id: 1,
+  },
+  {
+    title: 'Book Notes: Clean Code',
+    tags: ['books', 'programming'],
+    collection_id: 1,
+  },
+  {
+    title: 'Book Notes: Staff Engineer',
+    tags: ['books', 'career'],
+    collection_id: 1,
+  },
+  {
+    title: 'Book Notes: A Philosophy of Software Design',
+    tags: ['books', 'programming'],
+    collection_id: 1,
+  },
+  {
+    title: 'Book Notes: Thinking, Fast and Slow',
+    tags: ['books', 'psychology'],
+    collection_id: 1,
+  },
+  {
+    title: 'Book Notes: The Art of PostgreSQL',
+    tags: ['books', 'databases'],
+    collection_id: 1,
+  },
+  {
+    title: 'Book Notes: Zero to One',
+    tags: ['books', 'business'],
+    collection_id: 1,
+  },
+  {
+    title: 'Book Notes: Shape Up',
+    tags: ['books', 'product'],
+    collection_id: 1,
+  },
+  {
+    title: 'Weekly Meal Prep — Week 1',
+    tags: ['cooking', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Weekly Meal Prep — Week 2',
+    tags: ['cooking', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Weekly Meal Prep — Week 3',
+    tags: ['cooking', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Thai Green Curry Recipe',
+    tags: ['cooking', 'recipe'],
+    collection_id: 1,
+  },
+  {
+    title: 'Homemade Pizza Dough',
+    tags: ['cooking', 'recipe'],
+    collection_id: 1,
+  },
+  {
+    title: 'French Onion Soup Recipe',
+    tags: ['cooking', 'recipe'],
+    collection_id: 1,
+  },
+  { title: 'Shakshuka Recipe', tags: ['cooking', 'recipe'], collection_id: 1 },
+  {
+    title: 'Banana Bread Recipe',
+    tags: ['cooking', 'recipe'],
+    collection_id: 1,
+  },
+  {
+    title: 'Cold Brew Coffee Method',
+    tags: ['coffee', 'recipe'],
+    collection_id: 1,
+  },
+  { title: 'Pour Over Technique Notes', tags: ['coffee'], collection_id: 1 },
+  {
+    title: 'Gratitude Log — January 2026',
+    tags: ['journal', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Gratitude Log — March 2026',
+    tags: ['journal', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Journal: Reflections on Q1',
+    tags: ['journal', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Journal: Mid-Year Check-In',
+    tags: ['journal', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Dream Log — February',
+    tags: ['journal', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Half Marathon Training Plan',
+    tags: ['fitness', 'health'],
+    collection_id: 1,
+  },
+  {
+    title: 'Running Log — January',
+    tags: ['fitness', 'health'],
+    collection_id: 1,
+  },
+  {
+    title: 'Running Log — February',
+    tags: ['fitness', 'health'],
+    collection_id: 1,
+  },
+  {
+    title: 'Running Log — March',
+    tags: ['fitness', 'health'],
+    collection_id: 1,
+  },
+  {
+    title: 'Yoga Routine — Morning Flow',
+    tags: ['fitness', 'health'],
+    collection_id: 1,
+  },
+  {
+    title: 'Stretching Routine for Desk Workers',
+    tags: ['health', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Sleep Optimization Research',
+    tags: ['health', 'research'],
+    collection_id: 1,
+  },
+  { title: 'Supplement Stack Notes', tags: ['health'], collection_id: 1 },
+  {
+    title: 'Meditation Progress — January',
+    tags: ['health', 'journal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Meditation Progress — February',
+    tags: ['health', 'journal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Japan Trip Itinerary Draft',
+    tags: ['travel', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Japan: Tokyo Restaurants to Try',
+    tags: ['travel', 'food'],
+    collection_id: 1,
+  },
+  {
+    title: 'Japan: Kyoto Day Plan',
+    tags: ['travel', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Japan: Budget Estimate',
+    tags: ['travel', 'finance'],
+    collection_id: 1,
+  },
+  {
+    title: 'Photography Gear Wishlist',
+    tags: ['photography', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Photography: Composition Rules',
+    tags: ['photography', 'learning'],
+    collection_id: 1,
+  },
+  {
+    title: 'Photography: Lightroom Presets',
+    tags: ['photography'],
+    collection_id: 1,
+  },
+  {
+    title: 'Home Improvement Ideas',
+    tags: ['home', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Standing Desk Research',
+    tags: ['home', 'health'],
+    collection_id: 1,
+  },
+  {
+    title: 'Indoor Plants Care Guide',
+    tags: ['home', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Mechanical Keyboard Build Guide',
+    tags: ['hobbies', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Keycap Profiles Comparison',
+    tags: ['hobbies', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Switch Comparison: Linear vs Tactile',
+    tags: ['hobbies', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Budget Tracker — January',
+    tags: ['finance', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Budget Tracker — February',
+    tags: ['finance', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Investment Portfolio Review',
+    tags: ['finance', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Tax Prep Checklist 2025',
+    tags: ['finance', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Insurance Policy Summary',
+    tags: ['finance', 'personal'],
+    collection_id: 1,
+  },
+  { title: 'Car Maintenance Schedule', tags: ['personal'], collection_id: 1 },
+  {
+    title: 'Dentist Appointment Notes',
+    tags: ['health', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Spotify Playlist: Focus',
+    tags: ['music', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Spotify Playlist: Running',
+    tags: ['music', 'fitness'],
+    collection_id: 1,
+  },
+  {
+    title: 'Spotify Playlist: Cooking',
+    tags: ['music', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Podcast Notes: Huberman on Sleep',
+    tags: ['podcast', 'health'],
+    collection_id: 1,
+  },
+  {
+    title: 'Podcast Notes: Lex Fridman #400',
+    tags: ['podcast', 'learning'],
+    collection_id: 1,
+  },
+  {
+    title: 'Podcast Notes: Syntax on TypeScript 5',
+    tags: ['podcast', 'typescript'],
+    collection_id: 1,
+  },
+  { title: 'TV Shows to Watch', tags: ['media', 'personal'], collection_id: 1 },
+  {
+    title: 'Video Game Backlog',
+    tags: ['media', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Board Games Collection',
+    tags: ['hobbies', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: "Gift Ideas for Jake's Wedding",
+    tags: ['personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Weekend Project: Build a Bookshelf',
+    tags: ['home', 'hobbies'],
+    collection_id: 1,
+  },
+  {
+    title: 'Garden Plan — Spring 2026',
+    tags: ['home', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Camping Gear Checklist',
+    tags: ['outdoors', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Hiking Trails Near Home',
+    tags: ['outdoors', 'fitness'],
+    collection_id: 1,
+  },
+  {
+    title: 'Bike Maintenance Notes',
+    tags: ['outdoors', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Spanish Learning Resources',
+    tags: ['learning', 'languages'],
+    collection_id: 1,
+  },
+  {
+    title: 'Spanish Vocabulary — Week 1',
+    tags: ['learning', 'languages'],
+    collection_id: 1,
+  },
+  {
+    title: 'Spanish Vocabulary — Week 2',
+    tags: ['learning', 'languages'],
+    collection_id: 1,
+  },
+  { title: 'Piano Practice Log', tags: ['music', 'hobbies'], collection_id: 1 },
+  {
+    title: 'Music Theory: Chord Progressions',
+    tags: ['music', 'learning'],
+    collection_id: 1,
+  },
+  {
+    title: 'Daily Habit Tracker Template',
+    tags: ['productivity', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Weekly Review Template',
+    tags: ['productivity', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Monthly Review — January',
+    tags: ['journal', 'productivity'],
+    collection_id: 1,
+  },
+  {
+    title: 'Monthly Review — February',
+    tags: ['journal', 'productivity'],
+    collection_id: 1,
+  },
+  {
+    title: 'Side Project Ideas Brainstorm',
+    tags: ['ideas', 'personal'],
+    collection_id: 1,
+  },
+  { title: 'CLI Tool Ideas', tags: ['ideas', 'programming'], collection_id: 1 },
+  {
+    title: 'Idea: Recipe Manager App',
+    tags: ['ideas', 'react'],
+    collection_id: 1,
+  },
+  {
+    title: 'Idea: Habit Tracking App',
+    tags: ['ideas', 'react'],
+    collection_id: 1,
+  },
+  {
+    title: 'Idea: Markdown Blog Engine',
+    tags: ['ideas', 'webdev'],
+    collection_id: 1,
+  },
+  {
+    title: 'Idea: Local-First Notes App',
+    tags: ['ideas', 'architecture'],
+    collection_id: 1,
+  },
+  {
+    title: 'Learning Path: Systems Programming',
+    tags: ['learning', 'programming'],
+    collection_id: 1,
+  },
+  {
+    title: 'Learning Path: Machine Learning',
+    tags: ['learning', 'machine-learning'],
+    collection_id: 1,
+  },
+  {
+    title: 'Learning Path: iOS Development',
+    tags: ['learning', 'mobile'],
+    collection_id: 1,
+  },
+  {
+    title: 'Interesting Articles — January',
+    tags: ['reading', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Interesting Articles — February',
+    tags: ['reading', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Interesting Articles — March',
+    tags: ['reading', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Philosophy: Existentialism Notes',
+    tags: ['philosophy', 'learning'],
+    collection_id: 1,
+  },
+  {
+    title: 'Philosophy: Pragmatism Overview',
+    tags: ['philosophy', 'learning'],
+    collection_id: 1,
+  },
+  {
+    title: 'Philosophy: Ethics Frameworks',
+    tags: ['philosophy', 'learning'],
+    collection_id: 1,
+  },
+  {
+    title: 'Astronomy: Notable Sky Events 2026',
+    tags: ['science', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Physics: Quantum Computing Basics',
+    tags: ['science', 'learning'],
+    collection_id: 1,
+  },
+  {
+    title: 'Biology: How mRNA Vaccines Work',
+    tags: ['science', 'health'],
+    collection_id: 1,
+  },
 
   // More Work notes
-  { title: "Meeting Notes: Design Review — Feb 3", tags: ["meetings", "design"], collection_id: 2 },
-  { title: "Meeting Notes: Design Review — Feb 17", tags: ["meetings", "design"], collection_id: 2 },
-  { title: "Meeting Notes: Design Review — Mar 3", tags: ["meetings", "design"], collection_id: 2 },
-  { title: "Meeting Notes: All-Hands — January", tags: ["meetings", "work"], collection_id: 2 },
-  { title: "Meeting Notes: All-Hands — February", tags: ["meetings", "work"], collection_id: 2 },
-  { title: "Meeting Notes: All-Hands — March", tags: ["meetings", "work"], collection_id: 2 },
-  { title: "Sprint Planning — Week 15", tags: ["meetings", "agile"], collection_id: 2 },
-  { title: "Sprint Planning — Week 16", tags: ["meetings", "agile"], collection_id: 2 },
-  { title: "Sprint Planning — Week 17", tags: ["meetings", "agile"], collection_id: 2 },
-  { title: "Sprint Planning — Week 18", tags: ["meetings", "agile"], collection_id: 2 },
-  { title: "Runbook: Deploy to Production", tags: ["devops", "work"], collection_id: 2 },
-  { title: "Runbook: Database Rollback", tags: ["databases", "devops"], collection_id: 2 },
-  { title: "Runbook: Scale Up Workers", tags: ["devops", "infrastructure"], collection_id: 2 },
-  { title: "Runbook: Rotate API Keys", tags: ["security", "devops"], collection_id: 2 },
-  { title: "Runbook: SSL Certificate Renewal", tags: ["security", "devops"], collection_id: 2 },
-  { title: "Style Guide: Error Messages", tags: ["ux", "work"], collection_id: 2 },
-  { title: "Style Guide: Loading States", tags: ["ux", "react"], collection_id: 2 },
-  { title: "Style Guide: Form Validation", tags: ["ux", "react"], collection_id: 2 },
-  { title: "Vendor Evaluation: Datadog vs Grafana", tags: ["devops", "research"], collection_id: 2 },
-  { title: "Vendor Evaluation: Auth0 vs Clerk", tags: ["security", "research"], collection_id: 2 },
-  { title: "Vendor Evaluation: Vercel vs AWS", tags: ["infrastructure", "research"], collection_id: 2 },
-  { title: "API Documentation Standards", tags: ["api", "best-practices"], collection_id: 2 },
-  { title: "Storybook Component Inventory", tags: ["react", "design"], collection_id: 2 },
-  { title: "Dark Mode Implementation Plan", tags: ["design", "react"], collection_id: 2 },
-  { title: "Internationalization (i18n) Setup", tags: ["webdev", "work"], collection_id: 2 },
-  { title: "Email Template System", tags: ["work", "design"], collection_id: 2 },
-  { title: "Notification System Design", tags: ["architecture", "work"], collection_id: 2 },
-  { title: "Search Indexing Strategy", tags: ["architecture", "performance"], collection_id: 2 },
-  { title: "File Upload Architecture", tags: ["architecture", "work"], collection_id: 2 },
-  { title: "WebSocket Event Schema", tags: ["api", "architecture"], collection_id: 2 },
-  { title: "Cron Job Inventory", tags: ["devops", "work"], collection_id: 2 },
-  { title: "Background Job Processing", tags: ["architecture", "work"], collection_id: 2 },
-  { title: "Data Export Feature Spec", tags: ["product", "work"], collection_id: 2 },
-  { title: "Import/Migration Tool Spec", tags: ["product", "work"], collection_id: 2 },
-  { title: "Keyboard Shortcuts Spec", tags: ["product", "ux"], collection_id: 2 },
+  {
+    title: 'Meeting Notes: Design Review — Feb 3',
+    tags: ['meetings', 'design'],
+    collection_id: 2,
+  },
+  {
+    title: 'Meeting Notes: Design Review — Feb 17',
+    tags: ['meetings', 'design'],
+    collection_id: 2,
+  },
+  {
+    title: 'Meeting Notes: Design Review — Mar 3',
+    tags: ['meetings', 'design'],
+    collection_id: 2,
+  },
+  {
+    title: 'Meeting Notes: All-Hands — January',
+    tags: ['meetings', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Meeting Notes: All-Hands — February',
+    tags: ['meetings', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Meeting Notes: All-Hands — March',
+    tags: ['meetings', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Sprint Planning — Week 15',
+    tags: ['meetings', 'agile'],
+    collection_id: 2,
+  },
+  {
+    title: 'Sprint Planning — Week 16',
+    tags: ['meetings', 'agile'],
+    collection_id: 2,
+  },
+  {
+    title: 'Sprint Planning — Week 17',
+    tags: ['meetings', 'agile'],
+    collection_id: 2,
+  },
+  {
+    title: 'Sprint Planning — Week 18',
+    tags: ['meetings', 'agile'],
+    collection_id: 2,
+  },
+  {
+    title: 'Runbook: Deploy to Production',
+    tags: ['devops', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Runbook: Database Rollback',
+    tags: ['databases', 'devops'],
+    collection_id: 2,
+  },
+  {
+    title: 'Runbook: Scale Up Workers',
+    tags: ['devops', 'infrastructure'],
+    collection_id: 2,
+  },
+  {
+    title: 'Runbook: Rotate API Keys',
+    tags: ['security', 'devops'],
+    collection_id: 2,
+  },
+  {
+    title: 'Runbook: SSL Certificate Renewal',
+    tags: ['security', 'devops'],
+    collection_id: 2,
+  },
+  {
+    title: 'Style Guide: Error Messages',
+    tags: ['ux', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Style Guide: Loading States',
+    tags: ['ux', 'react'],
+    collection_id: 2,
+  },
+  {
+    title: 'Style Guide: Form Validation',
+    tags: ['ux', 'react'],
+    collection_id: 2,
+  },
+  {
+    title: 'Vendor Evaluation: Datadog vs Grafana',
+    tags: ['devops', 'research'],
+    collection_id: 2,
+  },
+  {
+    title: 'Vendor Evaluation: Auth0 vs Clerk',
+    tags: ['security', 'research'],
+    collection_id: 2,
+  },
+  {
+    title: 'Vendor Evaluation: Vercel vs AWS',
+    tags: ['infrastructure', 'research'],
+    collection_id: 2,
+  },
+  {
+    title: 'API Documentation Standards',
+    tags: ['api', 'best-practices'],
+    collection_id: 2,
+  },
+  {
+    title: 'Storybook Component Inventory',
+    tags: ['react', 'design'],
+    collection_id: 2,
+  },
+  {
+    title: 'Dark Mode Implementation Plan',
+    tags: ['design', 'react'],
+    collection_id: 2,
+  },
+  {
+    title: 'Internationalization (i18n) Setup',
+    tags: ['webdev', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Email Template System',
+    tags: ['work', 'design'],
+    collection_id: 2,
+  },
+  {
+    title: 'Notification System Design',
+    tags: ['architecture', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Search Indexing Strategy',
+    tags: ['architecture', 'performance'],
+    collection_id: 2,
+  },
+  {
+    title: 'File Upload Architecture',
+    tags: ['architecture', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'WebSocket Event Schema',
+    tags: ['api', 'architecture'],
+    collection_id: 2,
+  },
+  { title: 'Cron Job Inventory', tags: ['devops', 'work'], collection_id: 2 },
+  {
+    title: 'Background Job Processing',
+    tags: ['architecture', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Data Export Feature Spec',
+    tags: ['product', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Import/Migration Tool Spec',
+    tags: ['product', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Keyboard Shortcuts Spec',
+    tags: ['product', 'ux'],
+    collection_id: 2,
+  },
 
   // More Research notes
-  { title: "React Server Components Deep Dive", tags: ["react", "webdev"], collection_id: 3 },
-  { title: "Signals vs State: The New Reactivity", tags: ["webdev", "architecture"], collection_id: 3 },
-  { title: "Islands Architecture Pattern", tags: ["webdev", "architecture"], collection_id: 3 },
-  { title: "Edge Computing vs Serverless", tags: ["infrastructure", "architecture"], collection_id: 3 },
-  { title: "SQLite as an Application Database", tags: ["databases", "architecture"], collection_id: 3 },
-  { title: "Local-First Software Principles", tags: ["architecture", "distributed-systems"], collection_id: 3 },
-  { title: "Operational Transform vs CRDTs", tags: ["distributed-systems", "algorithms"], collection_id: 3 },
-  { title: "Automerge Library Overview", tags: ["distributed-systems", "javascript"], collection_id: 3 },
-  { title: "Y.js for Real-Time Collaboration", tags: ["distributed-systems", "javascript"], collection_id: 3 },
-  { title: "ProseMirror Architecture", tags: ["javascript", "architecture"], collection_id: 3 },
-  { title: "CodeMirror 6 Extension System", tags: ["javascript", "webdev"], collection_id: 3 },
-  { title: "Monaco Editor Customization", tags: ["javascript", "webdev"], collection_id: 3 },
-  { title: "Accessibility in Rich Text Editors", tags: ["a11y", "webdev"], collection_id: 3 },
-  { title: "ARIA Patterns Cheat Sheet", tags: ["a11y", "reference"], collection_id: 3 },
-  { title: "Color Contrast Algorithms", tags: ["a11y", "design"], collection_id: 3 },
-  { title: "Web Performance Core Vitals", tags: ["performance", "webdev"], collection_id: 3 },
-  { title: "Image Optimization Strategies", tags: ["performance", "webdev"], collection_id: 3 },
-  { title: "Font Loading Best Practices", tags: ["performance", "css"], collection_id: 3 },
-  { title: "Critical Rendering Path", tags: ["performance", "webdev"], collection_id: 3 },
-  { title: "Tree Shaking Deep Dive", tags: ["performance", "javascript"], collection_id: 3 },
-  { title: "Module Federation in Webpack 5", tags: ["javascript", "architecture"], collection_id: 3 },
-  { title: "Monorepo Tools: Nx vs Turborepo", tags: ["devtools", "architecture"], collection_id: 3 },
-  { title: "Bun Runtime Overview", tags: ["javascript", "devtools"], collection_id: 3 },
-  { title: "Deno 2.0 Features", tags: ["javascript", "devtools"], collection_id: 3 },
-  { title: "Node.js Streams API", tags: ["javascript", "performance"], collection_id: 3 },
-  { title: "Worker Threads in Node.js", tags: ["javascript", "performance"], collection_id: 3 },
-  { title: "TypeScript 5.x New Features", tags: ["typescript", "javascript"], collection_id: 3 },
-  { title: "TypeScript Compiler API", tags: ["typescript", "programming"], collection_id: 3 },
-  { title: "TypeScript Decorators Stage 3", tags: ["typescript", "javascript"], collection_id: 3 },
-  { title: "CSS Container Queries", tags: ["css", "webdev"], collection_id: 3 },
-  { title: "CSS Nesting — Native Support", tags: ["css", "webdev"], collection_id: 3 },
-  { title: "CSS Scroll-Driven Animations", tags: ["css", "webdev"], collection_id: 3 },
-  { title: "View Transitions API", tags: ["webdev", "css"], collection_id: 3 },
-  { title: "Popover API and Anchor Positioning", tags: ["webdev", "css"], collection_id: 3 },
-  { title: "Web Components: Current Status", tags: ["webdev"], collection_id: 3 },
-  { title: "Temporal API for Dates", tags: ["javascript", "webdev"], collection_id: 3 },
-  { title: "Structured Clone Algorithm", tags: ["javascript", "webdev"], collection_id: 3 },
-  { title: "AbortController Patterns", tags: ["javascript", "webdev"], collection_id: 3 },
-  { title: "Compression Algorithms Comparison", tags: ["algorithms", "performance"], collection_id: 3 },
-  { title: "Hash Functions: SHA vs Blake3", tags: ["cryptography", "algorithms"], collection_id: 3 },
+  {
+    title: 'React Server Components Deep Dive',
+    tags: ['react', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Signals vs State: The New Reactivity',
+    tags: ['webdev', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'Islands Architecture Pattern',
+    tags: ['webdev', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'Edge Computing vs Serverless',
+    tags: ['infrastructure', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'SQLite as an Application Database',
+    tags: ['databases', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'Local-First Software Principles',
+    tags: ['architecture', 'distributed-systems'],
+    collection_id: 3,
+  },
+  {
+    title: 'Operational Transform vs CRDTs',
+    tags: ['distributed-systems', 'algorithms'],
+    collection_id: 3,
+  },
+  {
+    title: 'Automerge Library Overview',
+    tags: ['distributed-systems', 'javascript'],
+    collection_id: 3,
+  },
+  {
+    title: 'Y.js for Real-Time Collaboration',
+    tags: ['distributed-systems', 'javascript'],
+    collection_id: 3,
+  },
+  {
+    title: 'ProseMirror Architecture',
+    tags: ['javascript', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'CodeMirror 6 Extension System',
+    tags: ['javascript', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Monaco Editor Customization',
+    tags: ['javascript', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Accessibility in Rich Text Editors',
+    tags: ['a11y', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'ARIA Patterns Cheat Sheet',
+    tags: ['a11y', 'reference'],
+    collection_id: 3,
+  },
+  {
+    title: 'Color Contrast Algorithms',
+    tags: ['a11y', 'design'],
+    collection_id: 3,
+  },
+  {
+    title: 'Web Performance Core Vitals',
+    tags: ['performance', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Image Optimization Strategies',
+    tags: ['performance', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Font Loading Best Practices',
+    tags: ['performance', 'css'],
+    collection_id: 3,
+  },
+  {
+    title: 'Critical Rendering Path',
+    tags: ['performance', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Tree Shaking Deep Dive',
+    tags: ['performance', 'javascript'],
+    collection_id: 3,
+  },
+  {
+    title: 'Module Federation in Webpack 5',
+    tags: ['javascript', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'Monorepo Tools: Nx vs Turborepo',
+    tags: ['devtools', 'architecture'],
+    collection_id: 3,
+  },
+  {
+    title: 'Bun Runtime Overview',
+    tags: ['javascript', 'devtools'],
+    collection_id: 3,
+  },
+  {
+    title: 'Deno 2.0 Features',
+    tags: ['javascript', 'devtools'],
+    collection_id: 3,
+  },
+  {
+    title: 'Node.js Streams API',
+    tags: ['javascript', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Worker Threads in Node.js',
+    tags: ['javascript', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'TypeScript 5.x New Features',
+    tags: ['typescript', 'javascript'],
+    collection_id: 3,
+  },
+  {
+    title: 'TypeScript Compiler API',
+    tags: ['typescript', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'TypeScript Decorators Stage 3',
+    tags: ['typescript', 'javascript'],
+    collection_id: 3,
+  },
+  { title: 'CSS Container Queries', tags: ['css', 'webdev'], collection_id: 3 },
+  {
+    title: 'CSS Nesting — Native Support',
+    tags: ['css', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'CSS Scroll-Driven Animations',
+    tags: ['css', 'webdev'],
+    collection_id: 3,
+  },
+  { title: 'View Transitions API', tags: ['webdev', 'css'], collection_id: 3 },
+  {
+    title: 'Popover API and Anchor Positioning',
+    tags: ['webdev', 'css'],
+    collection_id: 3,
+  },
+  {
+    title: 'Web Components: Current Status',
+    tags: ['webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Temporal API for Dates',
+    tags: ['javascript', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Structured Clone Algorithm',
+    tags: ['javascript', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'AbortController Patterns',
+    tags: ['javascript', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Compression Algorithms Comparison',
+    tags: ['algorithms', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Hash Functions: SHA vs Blake3',
+    tags: ['cryptography', 'algorithms'],
+    collection_id: 3,
+  },
 
   // Additional Personal notes
-  { title: "Smoothie Recipes Collection", tags: ["cooking", "health"], collection_id: 1 },
-  { title: "Fermentation: Kimchi Notes", tags: ["cooking", "recipe"], collection_id: 1 },
-  { title: "Fermentation: Kombucha Log", tags: ["cooking", "recipe"], collection_id: 1 },
-  { title: "Wine Tasting Notes — January", tags: ["food", "journal"], collection_id: 1 },
-  { title: "Wine Tasting Notes — February", tags: ["food", "journal"], collection_id: 1 },
-  { title: "Cheese Pairing Guide", tags: ["food", "reference"], collection_id: 1 },
-  { title: "Bookshelf Organization System", tags: ["home", "personal"], collection_id: 1 },
-  { title: "Morning Pages — Week 1", tags: ["journal", "writing"], collection_id: 1 },
-  { title: "Morning Pages — Week 2", tags: ["journal", "writing"], collection_id: 1 },
-  { title: "Morning Pages — Week 3", tags: ["journal", "writing"], collection_id: 1 },
-  { title: "Morning Pages — Week 4", tags: ["journal", "writing"], collection_id: 1 },
-  { title: "Wardrobe Capsule Plan", tags: ["personal"], collection_id: 1 },
-  { title: "Minimalism: Things to Declutter", tags: ["personal", "home"], collection_id: 1 },
-  { title: "Digital Declutter Plan", tags: ["personal", "productivity"], collection_id: 1 },
-  { title: "Password Manager Setup Notes", tags: ["security", "personal"], collection_id: 1 },
-  { title: "Backup Strategy: 3-2-1 Rule", tags: ["personal", "devtools"], collection_id: 1 },
-  { title: "NAS Setup Research", tags: ["home", "personal"], collection_id: 1 },
-  { title: "Home Network Diagram", tags: ["home", "networking"], collection_id: 1 },
-  { title: "Router Configuration Notes", tags: ["home", "networking"], collection_id: 1 },
-  { title: "Smart Home: HomeKit Devices", tags: ["home", "personal"], collection_id: 1 },
-  { title: "Energy Saving Tips", tags: ["home", "finance"], collection_id: 1 },
-  { title: "Electricity Usage Tracking", tags: ["home", "finance"], collection_id: 1 },
-  { title: "Renter's Insurance Comparison", tags: ["finance", "personal"], collection_id: 1 },
-  { title: "Credit Card Rewards Strategy", tags: ["finance", "personal"], collection_id: 1 },
-  { title: "Emergency Contact List", tags: ["personal", "reference"], collection_id: 1 },
-  { title: "Important Documents Checklist", tags: ["personal", "reference"], collection_id: 1 },
-  { title: "Birthday Calendar", tags: ["personal", "reference"], collection_id: 1 },
-  { title: "Anniversary Dates to Remember", tags: ["personal"], collection_id: 1 },
-  { title: "Local Restaurants to Try", tags: ["food", "personal"], collection_id: 1 },
-  { title: "Coffee Shops with Good WiFi", tags: ["coffee", "personal"], collection_id: 1 },
-  { title: "Barber Shop Notes", tags: ["personal"], collection_id: 1 },
-  { title: "Tailor Measurements", tags: ["personal", "reference"], collection_id: 1 },
-  { title: "Shoe Size Conversion Chart", tags: ["personal", "reference"], collection_id: 1 },
-  { title: "Packing Light: One-Bag Travel", tags: ["travel", "personal"], collection_id: 1 },
-  { title: "Airport Lounge Access Options", tags: ["travel", "finance"], collection_id: 1 },
-  { title: "Language Learning: Spaced Repetition", tags: ["learning", "productivity"], collection_id: 1 },
-  { title: "Drawing Practice Log", tags: ["hobbies", "learning"], collection_id: 1 },
-  { title: "Sketching: Basic Shapes Exercise", tags: ["hobbies", "learning"], collection_id: 1 },
-  { title: "Watercolor Supplies List", tags: ["hobbies", "personal"], collection_id: 1 },
+  {
+    title: 'Smoothie Recipes Collection',
+    tags: ['cooking', 'health'],
+    collection_id: 1,
+  },
+  {
+    title: 'Fermentation: Kimchi Notes',
+    tags: ['cooking', 'recipe'],
+    collection_id: 1,
+  },
+  {
+    title: 'Fermentation: Kombucha Log',
+    tags: ['cooking', 'recipe'],
+    collection_id: 1,
+  },
+  {
+    title: 'Wine Tasting Notes — January',
+    tags: ['food', 'journal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Wine Tasting Notes — February',
+    tags: ['food', 'journal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Cheese Pairing Guide',
+    tags: ['food', 'reference'],
+    collection_id: 1,
+  },
+  {
+    title: 'Bookshelf Organization System',
+    tags: ['home', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Morning Pages — Week 1',
+    tags: ['journal', 'writing'],
+    collection_id: 1,
+  },
+  {
+    title: 'Morning Pages — Week 2',
+    tags: ['journal', 'writing'],
+    collection_id: 1,
+  },
+  {
+    title: 'Morning Pages — Week 3',
+    tags: ['journal', 'writing'],
+    collection_id: 1,
+  },
+  {
+    title: 'Morning Pages — Week 4',
+    tags: ['journal', 'writing'],
+    collection_id: 1,
+  },
+  { title: 'Wardrobe Capsule Plan', tags: ['personal'], collection_id: 1 },
+  {
+    title: 'Minimalism: Things to Declutter',
+    tags: ['personal', 'home'],
+    collection_id: 1,
+  },
+  {
+    title: 'Digital Declutter Plan',
+    tags: ['personal', 'productivity'],
+    collection_id: 1,
+  },
+  {
+    title: 'Password Manager Setup Notes',
+    tags: ['security', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Backup Strategy: 3-2-1 Rule',
+    tags: ['personal', 'devtools'],
+    collection_id: 1,
+  },
+  { title: 'NAS Setup Research', tags: ['home', 'personal'], collection_id: 1 },
+  {
+    title: 'Home Network Diagram',
+    tags: ['home', 'networking'],
+    collection_id: 1,
+  },
+  {
+    title: 'Router Configuration Notes',
+    tags: ['home', 'networking'],
+    collection_id: 1,
+  },
+  {
+    title: 'Smart Home: HomeKit Devices',
+    tags: ['home', 'personal'],
+    collection_id: 1,
+  },
+  { title: 'Energy Saving Tips', tags: ['home', 'finance'], collection_id: 1 },
+  {
+    title: 'Electricity Usage Tracking',
+    tags: ['home', 'finance'],
+    collection_id: 1,
+  },
+  {
+    title: "Renter's Insurance Comparison",
+    tags: ['finance', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Credit Card Rewards Strategy',
+    tags: ['finance', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Emergency Contact List',
+    tags: ['personal', 'reference'],
+    collection_id: 1,
+  },
+  {
+    title: 'Important Documents Checklist',
+    tags: ['personal', 'reference'],
+    collection_id: 1,
+  },
+  {
+    title: 'Birthday Calendar',
+    tags: ['personal', 'reference'],
+    collection_id: 1,
+  },
+  {
+    title: 'Anniversary Dates to Remember',
+    tags: ['personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Local Restaurants to Try',
+    tags: ['food', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Coffee Shops with Good WiFi',
+    tags: ['coffee', 'personal'],
+    collection_id: 1,
+  },
+  { title: 'Barber Shop Notes', tags: ['personal'], collection_id: 1 },
+  {
+    title: 'Tailor Measurements',
+    tags: ['personal', 'reference'],
+    collection_id: 1,
+  },
+  {
+    title: 'Shoe Size Conversion Chart',
+    tags: ['personal', 'reference'],
+    collection_id: 1,
+  },
+  {
+    title: 'Packing Light: One-Bag Travel',
+    tags: ['travel', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Airport Lounge Access Options',
+    tags: ['travel', 'finance'],
+    collection_id: 1,
+  },
+  {
+    title: 'Language Learning: Spaced Repetition',
+    tags: ['learning', 'productivity'],
+    collection_id: 1,
+  },
+  {
+    title: 'Drawing Practice Log',
+    tags: ['hobbies', 'learning'],
+    collection_id: 1,
+  },
+  {
+    title: 'Sketching: Basic Shapes Exercise',
+    tags: ['hobbies', 'learning'],
+    collection_id: 1,
+  },
+  {
+    title: 'Watercolor Supplies List',
+    tags: ['hobbies', 'personal'],
+    collection_id: 1,
+  },
 
   // Additional Work notes
-  { title: "Meeting Notes: Product Sync — Jan 20", tags: ["meetings", "product"], collection_id: 2 },
-  { title: "Meeting Notes: Product Sync — Feb 3", tags: ["meetings", "product"], collection_id: 2 },
-  { title: "Meeting Notes: Product Sync — Feb 17", tags: ["meetings", "product"], collection_id: 2 },
-  { title: "Meeting Notes: Product Sync — Mar 3", tags: ["meetings", "product"], collection_id: 2 },
-  { title: "Meeting Notes: Eng Leads — January", tags: ["meetings", "work"], collection_id: 2 },
-  { title: "Meeting Notes: Eng Leads — February", tags: ["meetings", "work"], collection_id: 2 },
-  { title: "Meeting Notes: Eng Leads — March", tags: ["meetings", "work"], collection_id: 2 },
-  { title: "RFC: Real-Time Collaboration", tags: ["architecture", "work"], collection_id: 2 },
-  { title: "RFC: Offline Support", tags: ["architecture", "work"], collection_id: 2 },
-  { title: "RFC: Plugin System", tags: ["architecture", "work"], collection_id: 2 },
-  { title: "RFC: Multi-Tenant Architecture", tags: ["architecture", "work"], collection_id: 2 },
-  { title: "Team Retro Actions — January", tags: ["agile", "work"], collection_id: 2 },
-  { title: "Team Retro Actions — February", tags: ["agile", "work"], collection_id: 2 },
-  { title: "Team Retro Actions — March", tags: ["agile", "work"], collection_id: 2 },
-  { title: "Bug Triage Process", tags: ["work", "best-practices"], collection_id: 2 },
-  { title: "On-Call Rotation Schedule", tags: ["work", "devops"], collection_id: 2 },
-  { title: "On-Call Runbook: High CPU Alert", tags: ["devops", "reliability"], collection_id: 2 },
-  { title: "On-Call Runbook: Memory Alert", tags: ["devops", "reliability"], collection_id: 2 },
-  { title: "On-Call Runbook: 5xx Spike", tags: ["devops", "reliability"], collection_id: 2 },
-  { title: "On-Call Runbook: Queue Backlog", tags: ["devops", "reliability"], collection_id: 2 },
-  { title: "Cross-Browser Testing Matrix", tags: ["testing", "webdev"], collection_id: 2 },
-  { title: "Lighthouse Score Targets", tags: ["performance", "webdev"], collection_id: 2 },
-  { title: "Bundle Size Analysis Results", tags: ["performance", "webdev"], collection_id: 2 },
-  { title: "Third-Party Script Audit", tags: ["performance", "security"], collection_id: 2 },
-  { title: "Content Delivery Strategy", tags: ["performance", "infrastructure"], collection_id: 2 },
-  { title: "Database Query Performance Log", tags: ["databases", "performance"], collection_id: 2 },
-  { title: "Slow Query Investigation — Feb 15", tags: ["databases", "performance"], collection_id: 2 },
-  { title: "Cache Hit Rate Analysis", tags: ["performance", "infrastructure"], collection_id: 2 },
-  { title: "Feature Spec: Markdown Editor", tags: ["product", "work"], collection_id: 2 },
-  { title: "Feature Spec: Tag Management", tags: ["product", "work"], collection_id: 2 },
-  { title: "Feature Spec: Note Sharing", tags: ["product", "work"], collection_id: 2 },
-  { title: "Feature Spec: Version History", tags: ["product", "work"], collection_id: 2 },
-  { title: "Feature Spec: Full-Text Search", tags: ["product", "work"], collection_id: 2 },
+  {
+    title: 'Meeting Notes: Product Sync — Jan 20',
+    tags: ['meetings', 'product'],
+    collection_id: 2,
+  },
+  {
+    title: 'Meeting Notes: Product Sync — Feb 3',
+    tags: ['meetings', 'product'],
+    collection_id: 2,
+  },
+  {
+    title: 'Meeting Notes: Product Sync — Feb 17',
+    tags: ['meetings', 'product'],
+    collection_id: 2,
+  },
+  {
+    title: 'Meeting Notes: Product Sync — Mar 3',
+    tags: ['meetings', 'product'],
+    collection_id: 2,
+  },
+  {
+    title: 'Meeting Notes: Eng Leads — January',
+    tags: ['meetings', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Meeting Notes: Eng Leads — February',
+    tags: ['meetings', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Meeting Notes: Eng Leads — March',
+    tags: ['meetings', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'RFC: Real-Time Collaboration',
+    tags: ['architecture', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'RFC: Offline Support',
+    tags: ['architecture', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'RFC: Plugin System',
+    tags: ['architecture', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'RFC: Multi-Tenant Architecture',
+    tags: ['architecture', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Team Retro Actions — January',
+    tags: ['agile', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Team Retro Actions — February',
+    tags: ['agile', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Team Retro Actions — March',
+    tags: ['agile', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Bug Triage Process',
+    tags: ['work', 'best-practices'],
+    collection_id: 2,
+  },
+  {
+    title: 'On-Call Rotation Schedule',
+    tags: ['work', 'devops'],
+    collection_id: 2,
+  },
+  {
+    title: 'On-Call Runbook: High CPU Alert',
+    tags: ['devops', 'reliability'],
+    collection_id: 2,
+  },
+  {
+    title: 'On-Call Runbook: Memory Alert',
+    tags: ['devops', 'reliability'],
+    collection_id: 2,
+  },
+  {
+    title: 'On-Call Runbook: 5xx Spike',
+    tags: ['devops', 'reliability'],
+    collection_id: 2,
+  },
+  {
+    title: 'On-Call Runbook: Queue Backlog',
+    tags: ['devops', 'reliability'],
+    collection_id: 2,
+  },
+  {
+    title: 'Cross-Browser Testing Matrix',
+    tags: ['testing', 'webdev'],
+    collection_id: 2,
+  },
+  {
+    title: 'Lighthouse Score Targets',
+    tags: ['performance', 'webdev'],
+    collection_id: 2,
+  },
+  {
+    title: 'Bundle Size Analysis Results',
+    tags: ['performance', 'webdev'],
+    collection_id: 2,
+  },
+  {
+    title: 'Third-Party Script Audit',
+    tags: ['performance', 'security'],
+    collection_id: 2,
+  },
+  {
+    title: 'Content Delivery Strategy',
+    tags: ['performance', 'infrastructure'],
+    collection_id: 2,
+  },
+  {
+    title: 'Database Query Performance Log',
+    tags: ['databases', 'performance'],
+    collection_id: 2,
+  },
+  {
+    title: 'Slow Query Investigation — Feb 15',
+    tags: ['databases', 'performance'],
+    collection_id: 2,
+  },
+  {
+    title: 'Cache Hit Rate Analysis',
+    tags: ['performance', 'infrastructure'],
+    collection_id: 2,
+  },
+  {
+    title: 'Feature Spec: Markdown Editor',
+    tags: ['product', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Feature Spec: Tag Management',
+    tags: ['product', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Feature Spec: Note Sharing',
+    tags: ['product', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Feature Spec: Version History',
+    tags: ['product', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Feature Spec: Full-Text Search',
+    tags: ['product', 'work'],
+    collection_id: 2,
+  },
 
   // Additional Research notes
-  { title: "Skip Lists: Probabilistic Data Structure", tags: ["algorithms", "data-structures"], collection_id: 3 },
-  { title: "Trie Data Structure and Applications", tags: ["algorithms", "data-structures"], collection_id: 3 },
-  { title: "Red-Black Trees Explained", tags: ["algorithms", "data-structures"], collection_id: 3 },
-  { title: "Persistent Data Structures", tags: ["algorithms", "programming"], collection_id: 3 },
-  { title: "Rope Data Structure for Text Editing", tags: ["algorithms", "data-structures"], collection_id: 3 },
-  { title: "Piece Table Implementation", tags: ["algorithms", "data-structures"], collection_id: 3 },
-  { title: "Gap Buffer for Text Editors", tags: ["algorithms", "data-structures"], collection_id: 3 },
-  { title: "Unicode: UTF-8 Encoding Details", tags: ["reference", "programming"], collection_id: 3 },
-  { title: "Unicode Normalization Forms", tags: ["reference", "programming"], collection_id: 3 },
-  { title: "Text Rendering on the Web", tags: ["webdev", "performance"], collection_id: 3 },
-  { title: "Variable Fonts Deep Dive", tags: ["css", "design"], collection_id: 3 },
-  { title: "Color Spaces: sRGB vs P3", tags: ["design", "css"], collection_id: 3 },
-  { title: "HDR on the Web", tags: ["webdev", "design"], collection_id: 3 },
-  { title: "SVG Animation Techniques", tags: ["css", "webdev"], collection_id: 3 },
-  { title: "Canvas API Performance Tips", tags: ["javascript", "performance"], collection_id: 3 },
-  { title: "WebGL Fundamentals", tags: ["javascript", "graphics"], collection_id: 3 },
-  { title: "Three.js Getting Started", tags: ["javascript", "graphics"], collection_id: 3 },
-  { title: "Shader Programming Basics", tags: ["graphics", "programming"], collection_id: 3 },
-  { title: "Ray Tracing in One Weekend — Notes", tags: ["graphics", "programming"], collection_id: 3 },
-  { title: "Audio API in the Browser", tags: ["javascript", "webdev"], collection_id: 3 },
-  { title: "WebRTC Architecture", tags: ["networking", "webdev"], collection_id: 3 },
-  { title: "Media Codecs: AV1 vs H.265", tags: ["media", "reference"], collection_id: 3 },
-  { title: "FFmpeg Common Commands", tags: ["devtools", "media"], collection_id: 3 },
-  { title: "Image Format Comparison: AVIF, WebP, JPEG XL", tags: ["webdev", "performance"], collection_id: 3 },
+  {
+    title: 'Skip Lists: Probabilistic Data Structure',
+    tags: ['algorithms', 'data-structures'],
+    collection_id: 3,
+  },
+  {
+    title: 'Trie Data Structure and Applications',
+    tags: ['algorithms', 'data-structures'],
+    collection_id: 3,
+  },
+  {
+    title: 'Red-Black Trees Explained',
+    tags: ['algorithms', 'data-structures'],
+    collection_id: 3,
+  },
+  {
+    title: 'Persistent Data Structures',
+    tags: ['algorithms', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Rope Data Structure for Text Editing',
+    tags: ['algorithms', 'data-structures'],
+    collection_id: 3,
+  },
+  {
+    title: 'Piece Table Implementation',
+    tags: ['algorithms', 'data-structures'],
+    collection_id: 3,
+  },
+  {
+    title: 'Gap Buffer for Text Editors',
+    tags: ['algorithms', 'data-structures'],
+    collection_id: 3,
+  },
+  {
+    title: 'Unicode: UTF-8 Encoding Details',
+    tags: ['reference', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Unicode Normalization Forms',
+    tags: ['reference', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Text Rendering on the Web',
+    tags: ['webdev', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'Variable Fonts Deep Dive',
+    tags: ['css', 'design'],
+    collection_id: 3,
+  },
+  {
+    title: 'Color Spaces: sRGB vs P3',
+    tags: ['design', 'css'],
+    collection_id: 3,
+  },
+  { title: 'HDR on the Web', tags: ['webdev', 'design'], collection_id: 3 },
+  {
+    title: 'SVG Animation Techniques',
+    tags: ['css', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Canvas API Performance Tips',
+    tags: ['javascript', 'performance'],
+    collection_id: 3,
+  },
+  {
+    title: 'WebGL Fundamentals',
+    tags: ['javascript', 'graphics'],
+    collection_id: 3,
+  },
+  {
+    title: 'Three.js Getting Started',
+    tags: ['javascript', 'graphics'],
+    collection_id: 3,
+  },
+  {
+    title: 'Shader Programming Basics',
+    tags: ['graphics', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Ray Tracing in One Weekend — Notes',
+    tags: ['graphics', 'programming'],
+    collection_id: 3,
+  },
+  {
+    title: 'Audio API in the Browser',
+    tags: ['javascript', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'WebRTC Architecture',
+    tags: ['networking', 'webdev'],
+    collection_id: 3,
+  },
+  {
+    title: 'Media Codecs: AV1 vs H.265',
+    tags: ['media', 'reference'],
+    collection_id: 3,
+  },
+  {
+    title: 'FFmpeg Common Commands',
+    tags: ['devtools', 'media'],
+    collection_id: 3,
+  },
+  {
+    title: 'Image Format Comparison: AVIF, WebP, JPEG XL',
+    tags: ['webdev', 'performance'],
+    collection_id: 3,
+  },
 
   // Final batch to reach 500
-  { title: "Sourdough Bread: Scoring Patterns", tags: ["cooking", "recipe"], collection_id: 1 },
-  { title: "Ramen Broth from Scratch", tags: ["cooking", "recipe"], collection_id: 1 },
-  { title: "Meal Planning Template", tags: ["cooking", "productivity"], collection_id: 1 },
-  { title: "Houseplant Watering Schedule", tags: ["home", "personal"], collection_id: 1 },
-  { title: "Year in Review — 2025", tags: ["journal", "personal"], collection_id: 1 },
-  { title: "Vision Board 2026", tags: ["goals", "personal"], collection_id: 1 },
-  { title: "Gratitude Practice Research", tags: ["health", "learning"], collection_id: 1 },
-  { title: "Stoic Journaling Prompts", tags: ["philosophy", "journal"], collection_id: 2 },
-  { title: "Team Knowledge Base Structure", tags: ["work", "documentation"], collection_id: 2 },
-  { title: "PR Review Checklist", tags: ["work", "best-practices"], collection_id: 2 },
-  { title: "Pair Programming Guidelines", tags: ["work", "best-practices"], collection_id: 2 },
-  { title: "Mob Programming Experiment Notes", tags: ["work", "agile"], collection_id: 2 },
-  { title: "Technical Writing Style Guide", tags: ["writing", "work"], collection_id: 2 },
-  { title: "Consensus Protocols Comparison Table", tags: ["distributed-systems", "reference"], collection_id: 3 },
-  { title: "Raft Consensus: Implementation Notes", tags: ["distributed-systems", "algorithms"], collection_id: 3 },
-  { title: "Lamport Clocks Explained", tags: ["distributed-systems"], collection_id: 3 },
-  { title: "Byzantine Fault Tolerance", tags: ["distributed-systems", "algorithms"], collection_id: 3 },
-  { title: "Gossip Protocol Overview", tags: ["distributed-systems", "networking"], collection_id: 3 },
-  { title: "Distributed Hash Tables", tags: ["distributed-systems", "data-structures"], collection_id: 3 },
-  { title: "MapReduce Paper Summary", tags: ["distributed-systems", "algorithms"], collection_id: 3 },
+  {
+    title: 'Sourdough Bread: Scoring Patterns',
+    tags: ['cooking', 'recipe'],
+    collection_id: 1,
+  },
+  {
+    title: 'Ramen Broth from Scratch',
+    tags: ['cooking', 'recipe'],
+    collection_id: 1,
+  },
+  {
+    title: 'Meal Planning Template',
+    tags: ['cooking', 'productivity'],
+    collection_id: 1,
+  },
+  {
+    title: 'Houseplant Watering Schedule',
+    tags: ['home', 'personal'],
+    collection_id: 1,
+  },
+  {
+    title: 'Year in Review — 2025',
+    tags: ['journal', 'personal'],
+    collection_id: 1,
+  },
+  { title: 'Vision Board 2026', tags: ['goals', 'personal'], collection_id: 1 },
+  {
+    title: 'Gratitude Practice Research',
+    tags: ['health', 'learning'],
+    collection_id: 1,
+  },
+  {
+    title: 'Stoic Journaling Prompts',
+    tags: ['philosophy', 'journal'],
+    collection_id: 2,
+  },
+  {
+    title: 'Team Knowledge Base Structure',
+    tags: ['work', 'documentation'],
+    collection_id: 2,
+  },
+  {
+    title: 'PR Review Checklist',
+    tags: ['work', 'best-practices'],
+    collection_id: 2,
+  },
+  {
+    title: 'Pair Programming Guidelines',
+    tags: ['work', 'best-practices'],
+    collection_id: 2,
+  },
+  {
+    title: 'Mob Programming Experiment Notes',
+    tags: ['work', 'agile'],
+    collection_id: 2,
+  },
+  {
+    title: 'Technical Writing Style Guide',
+    tags: ['writing', 'work'],
+    collection_id: 2,
+  },
+  {
+    title: 'Consensus Protocols Comparison Table',
+    tags: ['distributed-systems', 'reference'],
+    collection_id: 3,
+  },
+  {
+    title: 'Raft Consensus: Implementation Notes',
+    tags: ['distributed-systems', 'algorithms'],
+    collection_id: 3,
+  },
+  {
+    title: 'Lamport Clocks Explained',
+    tags: ['distributed-systems'],
+    collection_id: 3,
+  },
+  {
+    title: 'Byzantine Fault Tolerance',
+    tags: ['distributed-systems', 'algorithms'],
+    collection_id: 3,
+  },
+  {
+    title: 'Gossip Protocol Overview',
+    tags: ['distributed-systems', 'networking'],
+    collection_id: 3,
+  },
+  {
+    title: 'Distributed Hash Tables',
+    tags: ['distributed-systems', 'data-structures'],
+    collection_id: 3,
+  },
+  {
+    title: 'MapReduce Paper Summary',
+    tags: ['distributed-systems', 'algorithms'],
+    collection_id: 3,
+  },
 ];
 
 function generateContent(title: string, tags: string[]): string {
-  const tagStr = tags.length > 0 ? `\n\nRelated topics: ${tags.join(", ")}` : "";
+  const tagStr =
+    tags.length > 0 ? `\n\nRelated topics: ${tags.join(', ')}` : '';
   const templates = [
     `# ${title}\n\nKey points to remember about this topic.\n\n## Overview\n\nThis is an area worth exploring further. Initial research suggests several important considerations.\n\n## Notes\n\n- First key insight from reading\n- Second observation worth tracking\n- Open question to revisit later${tagStr}`,
     `# ${title}\n\n## Summary\n\nBrief notes captured for future reference.\n\n## Details\n\nThe main takeaway is that understanding the fundamentals is crucial before diving into implementation details.\n\n## Questions\n\n- How does this compare to alternative approaches?\n- What are the practical trade-offs?\n- Where can I find more in-depth material?${tagStr}`,
@@ -816,9 +2627,8 @@ function generateTimestamps(): { createdAt: string; updatedAt: string } {
   const fourMonthsAgo = now - FOUR_MONTHS_MS;
   const createdAt = randomTimestamp(fourMonthsAgo, now);
   const createdMs = new Date(createdAt).getTime();
-  const updatedAt = Math.random() < 0.5
-    ? createdAt
-    : randomTimestamp(createdMs, now);
+  const updatedAt =
+    Math.random() < 0.5 ? createdAt : randomTimestamp(createdMs, now);
   return { createdAt, updatedAt };
 }
 
@@ -835,13 +2645,38 @@ const allNotes = [
 ];
 
 export async function seed(knex: Knex): Promise<void> {
-  const existingCount = await knex("notes").where("archived", 0).count("* as count").first();
-  if (existingCount && Number(existingCount.count) > 0) return;
+  const existingCount = await knex('notes')
+    .where('archived', 0)
+    .count('* as count')
+    .first();
+  if (existingCount && Number(existingCount.count) > 0) {
+    return;
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash('changeme', salt);
+  await knex('users').insert({
+    email: 'herp.derpson@flurp.com',
+    password: hashedPassword,
+    salt,
+  });
+
+  await knex('settings').insert({
+    user_id: 1,
+    key: 'settings',
+    value: JSON.stringify(DEFAULT_SETTINGS),
+  });
 
   for (const collection of collections) {
-    await knex("collections").insert({
-      name: collection.name,
-      isDefault: collection.name === "Personal" ? 1 : 0,
+    const [inserted] = await knex('collections')
+      .insert({
+        name: collection.name,
+        isDefault: collection.name === 'Personal' ? 1 : 0,
+      })
+      .returning('id');
+    await knex('users_collections').insert({
+      user_id: 1,
+      collection_id: inserted.id,
     });
   }
 
@@ -849,7 +2684,7 @@ export async function seed(knex: Knex): Promise<void> {
     const id = uuidv4();
     const { createdAt, updatedAt } = generateTimestamps();
 
-    await knex("notes").insert({
+    await knex('notes').insert({
       id,
       title: note.title,
       content: note.content,
@@ -859,15 +2694,160 @@ export async function seed(knex: Knex): Promise<void> {
       updatedAt,
     });
 
+    await knex('users_notes').insert({
+      user_id: 1,
+      note_id: id,
+    });
+
     for (const tag of note.tags) {
       const normalizedTag = tag.toLowerCase();
-      await knex("note_tags").insert({ noteId: id, tag: normalizedTag });
+      await knex('note_tags').insert({ noteId: id, tag: normalizedTag });
       await knex.raw(
-        "INSERT INTO tags (tag, count) VALUES (?, 1) ON CONFLICT(tag) DO UPDATE SET count = count + 1",
-        [normalizedTag],
+        'INSERT INTO tags (tag, count) VALUES (?, 1) ON CONFLICT(tag) DO UPDATE SET count = count + 1',
+        [normalizedTag]
       );
     }
   }
 
-  console.log(`Seeded database with ${allNotes.length} notes across ${collections.length} collections`);
+  // -----------------------------------------------------------------------
+  // Second user: Jane Derpson
+  // -----------------------------------------------------------------------
+
+  const janeSalt = await bcrypt.genSalt(10);
+  const janeHash = await bcrypt.hash('changeme', janeSalt);
+  const [janeRow] = await knex('users')
+    .insert({
+      email: 'jane.derpson@flurp.com',
+      password: janeHash,
+      salt: janeSalt,
+    })
+    .returning('id');
+  const janeId = janeRow.id;
+
+  await knex('settings').insert({
+    user_id: janeId,
+    key: 'settings',
+    value: JSON.stringify(DEFAULT_SETTINGS),
+  });
+
+  const janeCollections = ['Recipes', 'Travel'];
+  const janeCollectionIds: Record<string, number> = {};
+
+  for (const name of janeCollections) {
+    const [inserted] = await knex('collections')
+      .insert({ name, isDefault: name === 'Recipes' ? 1 : 0 })
+      .returning('id');
+    janeCollectionIds[name] = inserted.id;
+    await knex('users_collections').insert({
+      user_id: janeId,
+      collection_id: inserted.id,
+    });
+  }
+
+  const janeNotes: {
+    collection: string;
+    title: string;
+    content: string;
+    tags: string[];
+    pinned?: boolean;
+  }[] = [
+    {
+      collection: 'Recipes',
+      pinned: true,
+      title: 'Thai Green Curry',
+      content:
+        '# Thai Green Curry\n\n**Serves:** 4 | **Time:** 35 min\n\n## Ingredients\n\n- 400ml coconut milk\n- 2 tbsp green curry paste\n- 500g chicken thigh, sliced\n- 1 cup Thai basil\n- 2 tbsp fish sauce\n- 1 tbsp palm sugar\n- 1 red chili, sliced\n- Baby eggplant, halved\n\n## Instructions\n\n1. Heat thick coconut cream in a wok until oil separates\n2. Fry curry paste for 2 min until fragrant\n3. Add chicken, cook until sealed\n4. Pour in remaining coconut milk, simmer 15 min\n5. Season with fish sauce and palm sugar\n6. Add eggplant, cook 5 min\n7. Stir in Thai basil and chili, serve over jasmine rice',
+      tags: ['thai', 'curry', 'dinner'],
+    },
+    {
+      collection: 'Recipes',
+      title: 'Banana Bread',
+      content:
+        '# Banana Bread\n\n**Prep:** 10 min | **Bake:** 55 min\n\n## Ingredients\n\n- 3 ripe bananas, mashed\n- 75g melted butter\n- 150g sugar\n- 1 egg\n- 1 tsp vanilla\n- 1 tsp baking soda\n- Pinch of salt\n- 190g plain flour\n\n## Instructions\n\n1. Preheat oven to 175°C\n2. Mix mashed bananas and melted butter\n3. Add sugar, egg, vanilla — stir\n4. Add baking soda, salt, flour — fold until just combined\n5. Pour into greased loaf tin\n6. Bake 55 min until golden and a skewer comes out clean\n\n> **Tip:** The riper the bananas, the sweeter the bread. Freeze overripe bananas for later.',
+      tags: ['baking', 'breakfast'],
+    },
+    {
+      collection: 'Recipes',
+      title: 'Homemade Pesto',
+      content:
+        '# Basil Pesto\n\n- 2 cups fresh basil\n- 1/3 cup pine nuts, toasted\n- 2 cloves garlic\n- 1/2 cup parmesan, grated\n- 1/2 cup extra virgin olive oil\n- Salt and pepper to taste\n\nBlend basil, pine nuts, and garlic in food processor. Add parmesan, pulse. Stream in olive oil until smooth. Season.\n\nKeeps in the fridge for a week. Freeze in ice cube trays for longer storage.',
+      tags: ['italian', 'sauce', 'quick'],
+    },
+    {
+      collection: 'Recipes',
+      title: 'Shakshuka',
+      content:
+        '# Shakshuka\n\n**Serves:** 2 | **Time:** 25 min\n\n## Ingredients\n\n- 1 can (400g) crushed tomatoes\n- 1 red pepper, diced\n- 1 onion, diced\n- 3 cloves garlic, minced\n- 1 tsp cumin\n- 1 tsp paprika\n- 1/2 tsp chili flakes\n- 4 eggs\n- Fresh cilantro and feta to serve\n\n## Instructions\n\n1. Sauté onion and pepper in olive oil, 5 min\n2. Add garlic and spices, cook 1 min\n3. Pour in tomatoes, simmer 10 min until thickened\n4. Make 4 wells, crack an egg into each\n5. Cover and cook 5-7 min until whites set\n6. Top with feta and cilantro, serve with crusty bread',
+      tags: ['breakfast', 'middle-eastern'],
+    },
+    {
+      collection: 'Travel',
+      pinned: true,
+      title: 'Japan Trip Planning',
+      content:
+        '# Japan — Spring 2026\n\n## Itinerary\n\n### Tokyo (4 nights)\n- Shibuya & Harajuku\n- Tsukiji outer market\n- TeamLab Borderless\n- Day trip to Kamakura\n\n### Kyoto (3 nights)\n- Fushimi Inari (go at sunrise)\n- Arashiyama bamboo grove\n- Nishiki Market\n- Tea ceremony in Gion\n\n### Osaka (2 nights)\n- Dotonbori street food\n- Osaka Castle\n- Day trip to Nara (deer park)\n\n## Budget\n\n| Category | Estimate |\n|---|---|\n| Flights | $1,200 |\n| Hotels | $1,500 |\n| JR Pass (14 day) | $420 |\n| Food & activities | $1,000 |\n| **Total** | **$4,120** |\n\n## Notes\n\n- Cherry blossom season: late March to mid April\n- Book JR Pass before departure\n- Get Suica card at airport for local transit',
+      tags: ['japan', 'planning', 'asia'],
+    },
+    {
+      collection: 'Travel',
+      title: 'Packing List — International',
+      content:
+        '## Documents\n\n- [ ] Passport (check expiry)\n- [ ] Travel insurance docs\n- [ ] Hotel confirmations\n- [ ] Copies of all documents (digital + paper)\n\n## Tech\n\n- [ ] Phone + charger\n- [ ] Power adapter (check plug type!)\n- [ ] Portable battery\n- [ ] Kindle\n- [ ] Noise-cancelling headphones\n\n## Clothing\n\n- [ ] 5 tops\n- [ ] 2 bottoms\n- [ ] 7 underwear/socks\n- [ ] Light jacket\n- [ ] Comfortable walking shoes\n- [ ] Flip flops for hostel showers\n\n## Toiletries\n\n- [ ] Travel-size everything (100ml limit!)\n- [ ] Sunscreen\n- [ ] Medications + prescriptions\n- [ ] First aid basics',
+      tags: ['packing', 'checklist'],
+    },
+    {
+      collection: 'Travel',
+      title: 'Portugal Notes',
+      content:
+        '# Portugal Trip — Oct 2025\n\n## Lisbon Highlights\n\n- **Pastéis de Belém** — the original pastel de nata. Worth the queue.\n- **Time Out Market** — great for sampling lots of food in one spot\n- **Tram 28** — iconic but very crowded. Walk the route instead.\n- **Alfama district** — get lost in the narrow streets, best at sunset\n\n## Porto\n\n- Livraria Lello — stunning bookshop (buy a book to skip the line)\n- Port wine tasting in Vila Nova de Gaia\n- Francesinha sandwich at Café Santiago — heavy but incredible\n- São Bento Station — the azulejo tile work is breathtaking\n\n## Tips\n\n- Portuguese people are incredibly friendly\n- Learn a few words: obrigada, bom dia, por favor\n- Food is very affordable compared to other Western Europe\n- Uber works well in both cities',
+      tags: ['portugal', 'europe', 'review'],
+    },
+    {
+      collection: 'Recipes',
+      title: 'Miso Soup',
+      content:
+        '# Miso Soup\n\n**Serves:** 2 | **Time:** 10 min\n\n- 500ml dashi stock (or water + dashi powder)\n- 2 tbsp white miso paste\n- 100g silken tofu, cubed\n- 1 sheet nori, cut into strips\n- 2 spring onions, sliced\n- Optional: wakame seaweed\n\n1. Bring dashi to a gentle simmer\n2. Add tofu and wakame, warm through\n3. Remove from heat\n4. Dissolve miso paste in a ladleful of broth, then stir back in\n5. Garnish with spring onions and nori\n\n> **Never boil miso** — it kills the beneficial cultures and makes it bitter.',
+      tags: ['japanese', 'soup', 'quick'],
+    },
+    {
+      collection: 'Travel',
+      title: 'Useful Travel Apps',
+      content:
+        '# Travel App Recommendations\n\n- **Google Maps** — download offline maps before you go\n- **Google Translate** — camera mode for signs and menus\n- **Rome2Rio** — figure out how to get between cities\n- **Wise** — best exchange rates, multi-currency card\n- **Hostelworld** — budget accommodation\n- **Airalo** — eSIM for international data\n- **Citymapper** — public transit in major cities\n- **XE Currency** — quick currency conversion\n- **PackPoint** — packing list generator based on destination',
+      tags: ['apps', 'reference'],
+    },
+  ];
+
+  for (const note of janeNotes) {
+    const id = uuidv4();
+    const { createdAt, updatedAt } = generateTimestamps();
+
+    await knex('notes').insert({
+      id,
+      title: note.title,
+      content: note.content,
+      collectionId: janeCollectionIds[note.collection],
+      pinned: note.pinned ? 1 : 0,
+      createdAt,
+      updatedAt,
+    });
+
+    await knex('users_notes').insert({
+      user_id: janeId,
+      note_id: id,
+    });
+
+    for (const tag of note.tags) {
+      const normalizedTag = tag.toLowerCase();
+      await knex('note_tags').insert({ noteId: id, tag: normalizedTag });
+      await knex.raw(
+        'INSERT INTO tags (tag, count) VALUES (?, 1) ON CONFLICT(tag) DO UPDATE SET count = count + 1',
+        [normalizedTag]
+      );
+    }
+  }
+
+  console.log(
+    `Seeded database with ${allNotes.length + janeNotes.length} notes across ${collections.length + janeCollections.length} collections for 2 users`
+  );
 }

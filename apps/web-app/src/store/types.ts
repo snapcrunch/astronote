@@ -1,11 +1,14 @@
-import type { Note, Collection, Settings } from "@repo/types";
-import type { Tag } from "@repo/astronote-client/WebClient";
+import type { Note, Collection, Settings, ApiKey } from '@repo/types';
+import type { Tag, User } from '@repo/astronote-client/WebClient';
 
-export type { Tag };
+export type { Tag, User };
 
-export type View = "notes" | "settings" | "collections";
+export type Route = 'loading' | 'login' | 'app';
+export type View = 'notes' | 'settings' | 'collections' | 'keys';
 
 export interface NoteStore {
+  route: Route;
+  user: User | null;
   notes: Note[];
   tags: Tag[];
   collections: Collection[];
@@ -19,10 +22,13 @@ export interface NoteStore {
   archiving: boolean;
   settings: Settings;
   settingsLoaded: boolean;
+  apiKeys: ApiKey[];
   view: View;
   showInfoPanel: boolean;
 
-  init: () => (() => void);
+  init: () => Promise<() => void>;
+  login: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
   fetchSettings: () => Promise<void>;
   updateSettings: (updates: Partial<Settings>) => Promise<void>;
   resetAll: () => Promise<void>;
@@ -31,7 +37,7 @@ export interface NoteStore {
   setSearchQuery: (query: string) => void;
   setSelectedNoteId: (id: string | null) => void;
   setActiveCollectionId: (id: number) => void;
-  toggleTag: (tag: string) => void;
+  toggleTag: (tag: string, accumulate?: boolean) => void;
   fetchClaudeAuthStatus: () => Promise<void>;
   fetchNotes: () => Promise<void>;
   fetchTags: () => Promise<void>;
@@ -40,11 +46,29 @@ export interface NoteStore {
   deleteCollection: (id: number) => Promise<void>;
   setDefaultCollection: (id: number) => Promise<void>;
   createNote: (title: string, content?: string) => Promise<void>;
-  importNote: (title: string, content: string, opts?: { tags?: string[]; collectionId?: number; pinned?: boolean }) => Promise<void>;
+  importNote: (
+    title: string,
+    content: string,
+    opts?: {
+      tags?: string[];
+      collectionId?: number;
+      pinned?: boolean;
+      createdAt?: string;
+      updatedAt?: string;
+    }
+  ) => Promise<void>;
   importing: boolean;
-  updateNote: (id: string, updates: Partial<Pick<Note, "title" | "content" | "pinned">> & { collectionId?: number }) => Promise<void>;
+  updateNote: (
+    id: string,
+    updates: Partial<Pick<Note, 'title' | 'content' | 'pinned'>> & {
+      collectionId?: number;
+    }
+  ) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
   addTag: (noteId: string, tag: string) => Promise<void>;
   removeTag: (noteId: string, tag: string) => Promise<void>;
   exportNotes: () => Promise<void>;
+  fetchApiKeys: () => Promise<void>;
+  createApiKey: (name: string) => Promise<{ token: string }>;
+  deleteApiKey: (id: string) => Promise<void>;
 }

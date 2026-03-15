@@ -8,5 +8,5 @@ dist
 .playwright-cli
 *.db
 apps/desktop
-apps/cli
 resources
+.env

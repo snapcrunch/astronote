@@ -1,7 +1,7 @@
-import SectionHeading from "./SectionHeading";
-import { useSelectedNote } from "../store";
-import StatRow from "./StatRow";
-import { formatDateTime } from "./util";
+import SectionHeading from './SectionHeading';
+import { useSelectedNote } from '../store';
+import StatRow from './StatRow';
+import { formatDateTime } from './util';
 
 function Dates() {
   const note = useSelectedNote();

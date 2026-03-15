@@ -7,11 +7,13 @@ RUN corepack enable
 
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY apps/api/package.json apps/api/
+COPY apps/cli/package.json apps/cli/
 COPY apps/web-app/package.json apps/web-app/
 COPY packages/types/package.json packages/types/
 COPY packages/domain/package.json packages/domain/
 COPY packages/repository/package.json packages/repository/
 COPY packages/astronote-client/package.json packages/astronote-client/
+COPY packages/logger/package.json packages/logger/
 COPY packages/eslint-config/package.json packages/eslint-config/
 COPY packages/typescript-config/package.json packages/typescript-config/
 
@@ -48,9 +50,18 @@ COPY packages/domain/package.json packages/domain/
 COPY packages/domain/src packages/domain/src
 COPY packages/repository/package.json packages/repository/
 COPY packages/repository/src packages/repository/src
+COPY packages/logger/package.json packages/logger/
+COPY packages/logger/src packages/logger/src
+
+# Copy CLI app
+COPY apps/cli/package.json apps/cli/
+COPY apps/cli/src apps/cli/src
+COPY apps/cli/tsconfig.json apps/cli/
 
 # Copy pre-built web-app from builder
 COPY --from=builder /app/apps/web-app/dist apps/web-app/dist
+
+RUN mkdir -p /app/apps/api/data
 
 EXPOSE 3009
 

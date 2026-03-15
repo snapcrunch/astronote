@@ -1,8 +1,8 @@
-import { useMemo } from "react";
-import SectionHeading from "./SectionHeading";
-import { useSelectedNote } from "../store";
-import StatRow from "./StatRow";
-import { countStats } from "./util";
+import { useMemo } from 'react';
+import SectionHeading from './SectionHeading';
+import { useSelectedNote } from '../store';
+import StatRow from './StatRow';
+import { countStats } from './util';
 
 function Statistics() {
   const note = useSelectedNote();

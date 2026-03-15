@@ -10,14 +10,17 @@
     }
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@repo/types": "*",
     "axios": "^1.9.0"
   },
   "devDependencies": {
+    "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
+    "eslint": "^9.39.1",
     "typescript": "^5.9.2"
   }
 }

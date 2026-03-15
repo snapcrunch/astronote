@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useNoteStore } from "../store";
+import { useMemo } from 'react';
+import { useNoteStore } from '../store';
 
 export interface Command {
   id: string;
@@ -9,8 +9,16 @@ export interface Command {
   action: () => void;
 }
 
-export function useCommands(onClose: () => void, onOpenCollectionPicker: () => void, onOpenImport: () => void, onOpenReset: () => void, onOpenClaudeAuth: () => void, onOpenClaudePrompt: () => void): Command[] {
+export function useCommands(
+  onClose: () => void,
+  onOpenCollectionPicker: () => void,
+  onOpenImport: () => void,
+  onOpenReset: () => void,
+  onOpenClaudeAuth: () => void,
+  onOpenClaudePrompt: () => void
+): Command[] {
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
+  const user = useNoteStore((s) => s.user);
   const claudeAuthenticated = useNoteStore((s) => s.claudeAuthenticated);
   return useMemo(() => {
     const run = (fn: () => void) => () => {
@@ -20,18 +28,20 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
 
     return [
       {
-        id: "focus-search",
-        label: "Focus Search",
-        shortcut: "⌘⇧K",
+        id: 'focus-search',
+        label: 'Focus Search',
+        shortcut: '⌘⇧K',
         action: run(() => {
-          const el = document.querySelector<HTMLInputElement>('input[placeholder*="Search"]');
+          const el = document.querySelector<HTMLInputElement>(
+            'input[placeholder*="Search"]'
+          );
           el?.focus();
         }),
       },
       {
-        id: "delete-note",
-        label: "Delete Selected Note",
-        shortcut: "⌘⇧D",
+        id: 'delete-note',
+        label: 'Delete Selected Note',
+        shortcut: '⌘⇧D',
         disabled: !selectedNoteId,
         action: run(() => {
           const { selectedNoteId, deleteNote } = useNoteStore.getState();
@@ -39,70 +49,77 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
         }),
       },
       {
-        id: "change-collection",
-        label: "Change Collection",
-        shortcut: "⌘⇧C",
+        id: 'change-collection',
+        label: 'Change Collection',
+        shortcut: '⌘⇧C',
         action: () => {
           onClose();
           onOpenCollectionPicker();
         },
       },
       {
-        id: "clear-search",
-        label: "Clear Search",
+        id: 'clear-search',
+        label: 'Clear Search',
         action: run(() => {
-          useNoteStore.getState().setSearchQuery("");
+          useNoteStore.getState().setSearchQuery('');
         }),
       },
       {
-        id: "clear-tags",
-        label: "Clear Tag Filters",
+        id: 'clear-tags',
+        label: 'Clear Tag Filters',
         action: run(() => {
           useNoteStore.setState({ selectedTags: [] });
           useNoteStore.getState().fetchNotes();
         }),
       },
       {
-        id: "import-notes",
-        label: "Import Notes",
+        id: 'import-notes',
+        label: 'Import Notes',
         action: () => {
           onClose();
           onOpenImport();
         },
       },
       {
-        id: "export-notes",
-        label: "Export Notes",
+        id: 'export-notes',
+        label: 'Export Notes',
         action: run(() => {
           useNoteStore.getState().exportNotes();
         }),
       },
       {
-        id: "manage-collections",
-        label: "Manage Collections",
+        id: 'manage-collections',
+        label: 'Manage Collections',
         action: run(() => {
-          useNoteStore.getState().setView("collections");
+          useNoteStore.getState().setView('collections');
         }),
       },
       {
-        id: "settings",
-        label: "Settings",
-        shortcut: "⌘⇧S",
+        id: 'manage-api-keys',
+        label: 'Manage API Keys',
         action: run(() => {
-          useNoteStore.getState().setView("settings");
+          useNoteStore.getState().setView('keys');
         }),
       },
       {
-        id: "reset-all",
-        label: "Reset All Data",
+        id: 'settings',
+        label: 'Settings',
+        shortcut: '⌘⇧S',
+        action: run(() => {
+          useNoteStore.getState().setView('settings');
+        }),
+      },
+      {
+        id: 'reset-all',
+        label: 'Reset All Data',
         action: () => {
           onClose();
           onOpenReset();
         },
       },
       {
-        id: "claude-auth",
-        label: "Authenticate Claude Code",
+        id: 'claude-auth',
+        label: 'Authenticate Claude Code',
         disabled: claudeAuthenticated,
         action: () => {
           onClose();
@@ -110,15 +127,33 @@ export function useCommands(onClose: () => void, onOpenCollectionPicker: () => v
         },
       },
       {
-        id: "claude-prompt",
-        label: "Ask Claude",
-        shortcut: "⌘⇧Z",
+        id: 'claude-prompt',
+        label: 'Ask Claude',
+        shortcut: '⌘⇧Z',
         disabled: !claudeAuthenticated,
         action: () => {
           onClose();
           onOpenClaudePrompt();
         },
       },
+      {
+        id: 'sign-out',
+        label: 'Sign Out',
+        disabled: !user,
+        action: run(() => {
+          useNoteStore.getState().signOut();
+        }),
+      },
     ];
-  }, [onClose, onOpenCollectionPicker, onOpenImport, onOpenReset, onOpenClaudeAuth, onOpenClaudePrompt, selectedNoteId, claudeAuthenticated]);
+  }, [
+    onClose,
+    onOpenCollectionPicker,
+    onOpenImport,
+    onOpenReset,
+    onOpenClaudeAuth,
+    onOpenClaudePrompt,
+    selectedNoteId,
+    claudeAuthenticated,
+    user,
+  ]);
 }

@@ -1,49 +1,55 @@
-import { Router } from "express";
-import { CreateCollectionInputSchema, IdParamSchema } from "@repo/types";
-import domain from "@repo/domain";
+import { Router } from 'express';
+import { CreateCollectionInputSchema, IdParamSchema } from '@repo/types';
+import domain from '@repo/domain';
 
 export const collectionsRouter = Router();
 
-collectionsRouter.get("/", async (_req, res) => {
-  const collections = await domain.collections.list();
+collectionsRouter.get('/', async (req, res) => {
+  const collections = await domain.collections.list(req.user!);
   res.json(collections);
 });
 
-collectionsRouter.post("/", async (req, res) => {
+collectionsRouter.post('/', async (req, res) => {
   const result = CreateCollectionInputSchema.safeParse(req.body);
   if (!result.success) {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const collection = await domain.collections.create(result.data.name.trim());
+  const collection = await domain.collections.create(
+    req.user!,
+    result.data.name.trim()
+  );
   res.status(201).json(collection);
 });
 
-collectionsRouter.delete("/:id", async (req, res) => {
+collectionsRouter.delete('/:id', async (req, res) => {
   const result = IdParamSchema.safeParse(req.params);
   if (!result.success) {
-    res.status(400).json({ error: "Invalid id" });
+    res.status(400).json({ error: 'Invalid id' });
     return;
   }
-  const deleted = await domain.collections.remove(result.data.id);
+  const deleted = await domain.collections.remove(req.user!, result.data.id);
   if (!deleted) {
-    res.status(404).json({ error: "Collection not found" });
+    res.status(404).json({ error: 'Collection not found' });
     return;
   }
   res.status(204).send();
 });
 
-collectionsRouter.post("/:id/default", async (req, res) => {
+collectionsRouter.post('/:id/default', async (req, res) => {
   const result = IdParamSchema.safeParse(req.params);
   if (!result.success) {
-    res.status(400).json({ error: "Invalid id" });
+    res.status(400).json({ error: 'Invalid id' });
     return;
   }
-  const success = await domain.collections.setDefault(result.data.id);
+  const success = await domain.collections.setDefault(
+    req.user!,
+    result.data.id
+  );
   if (!success) {
-    res.status(404).json({ error: "Collection not found" });
+    res.status(404).json({ error: 'Collection not found' });
     return;
   }
-  const collections = await domain.collections.list();
+  const collections = await domain.collections.list(req.user!);
   res.json(collections);
 });

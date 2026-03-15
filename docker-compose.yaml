@@ -3,3 +3,11 @@ services:
     image: tkambler/astronote:latest
     ports:
       - "3009:3009"
+    environment:
+      ASTRONOTE_API_PORT: 3009
+      ASTRONOTE_DATA_DIR: /app/apps/api/data
+      ASTRONOTE_JWT_SECRET: random-string
+      ASTRONOTE_DEFAULT_USER: herp.derpson@flurp.com
+      ASTRONOTE_DEFAULT_PASSWORD: changeme
+    volumes:
+      - ./astronote-data:/app/apps/api/data

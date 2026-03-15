@@ -10,18 +10,23 @@
     }
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@repo/types": "*",
+    "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.6.2",
     "knex": "^3.1.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
+    "@types/bcrypt": "^6.0.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/uuid": "^11.0.0",
+    "eslint": "^9.39.1",
     "typescript": "^5.9.2"
   }
 }

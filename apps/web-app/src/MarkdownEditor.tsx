@@ -1,9 +1,13 @@
-import { useRef, useEffect } from "react";
-import { EditorView, keymap, placeholder as cmPlaceholder } from "@codemirror/view";
-import { EditorState } from "@codemirror/state";
-import { markdown } from "@codemirror/lang-markdown";
-import { languages } from "@codemirror/language-data";
-import { basicSetup } from "codemirror";
+import { useRef, useEffect } from 'react';
+import {
+  EditorView,
+  keymap,
+  placeholder as cmPlaceholder,
+} from '@codemirror/view';
+import { EditorState } from '@codemirror/state';
+import { markdown } from '@codemirror/lang-markdown';
+import { languages } from '@codemirror/language-data';
+import { basicSetup } from 'codemirror';
 
 interface MarkdownEditorProps {
   value: string;
@@ -12,7 +16,12 @@ interface MarkdownEditorProps {
   onEscape?: () => void;
 }
 
-function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditorProps) {
+function MarkdownEditor({
+  value,
+  onChange,
+  autoFocus,
+  onEscape,
+}: MarkdownEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);
@@ -29,14 +38,14 @@ function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditor
         extensions: [
           keymap.of([
             {
-              key: "Tab",
+              key: 'Tab',
               run: (view) => {
-                view.dispatch(view.state.replaceSelection("    "));
+                view.dispatch(view.state.replaceSelection('    '));
                 return true;
               },
             },
             {
-              key: "Escape",
+              key: 'Escape',
               run: () => {
                 onEscapeRef.current?.();
                 return true;
@@ -47,7 +56,7 @@ function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditor
           ]),
           basicSetup,
           markdown({ codeLanguages: languages }),
-          cmPlaceholder("Start writing…"),
+          cmPlaceholder('Start writing…'),
           EditorView.lineWrapping,
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
@@ -55,25 +64,25 @@ function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditor
             }
           }),
           EditorView.theme({
-            "&": {
-              height: "100%",
-              fontSize: "14px",
+            '&': {
+              height: '100%',
+              fontSize: '14px',
             },
-            ".cm-scroller": {
-              overflow: "auto",
+            '.cm-scroller': {
+              overflow: 'auto',
             },
-            ".cm-content": {
+            '.cm-content': {
               fontFamily: "'JetBrains Mono', monospace",
-              lineHeight: "1.8",
+              lineHeight: '1.8',
             },
-            ".cm-gutters": {
-              display: "none",
+            '.cm-gutters': {
+              display: 'none',
             },
-            "&.cm-focused": {
-              outline: "none",
+            '&.cm-focused': {
+              outline: 'none',
             },
-            ".cm-activeLine": {
-              backgroundColor: "transparent",
+            '.cm-activeLine': {
+              backgroundColor: 'transparent',
             },
           }),
         ],
@@ -104,10 +113,7 @@ function MarkdownEditor({ value, onChange, autoFocus, onEscape }: MarkdownEditor
   }, [value]);
 
   return (
-    <div
-      ref={containerRef}
-      style={{ height: "100%", overflow: "hidden" }}
-    />
+    <div ref={containerRef} style={{ height: '100%', overflow: 'hidden' }} />
   );
 }
 

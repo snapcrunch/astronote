@@ -1,6 +1,9 @@
-import type { Collection } from "@repo/types";
-import * as repository from "@repo/repository";
+import type { Collection, AuthUser } from '@repo/types';
+import * as repository from '@repo/repository';
 
-export async function create(name: string): Promise<Collection> {
-  return repository.createCollection(name);
+export async function create(
+  user: AuthUser,
+  name: string
+): Promise<Collection> {
+  return repository.createCollection(user.id, name);
 }

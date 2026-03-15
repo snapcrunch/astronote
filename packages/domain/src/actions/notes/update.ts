@@ -1,11 +1,17 @@
-import type { Note, UpdateNoteInput } from "@repo/types";
-import * as repository from "@repo/repository";
+import type { Note, UpdateNoteInput, AuthUser } from '@repo/types';
+import * as repository from '@repo/repository';
 
-export async function update(id: string, input: UpdateNoteInput): Promise<Note | null> {
-  const existing = await repository.getNoteById(id);
-  if (!existing) return null;
+export async function update(
+  user: AuthUser,
+  id: string,
+  input: UpdateNoteInput
+): Promise<Note | null> {
+  const existing = await repository.getNoteById(user.id, id);
+  if (!existing) {
+    return null;
+  }
 
-  const updated = await repository.updateNote(id, {
+  const updated = await repository.updateNote(user.id, id, {
     title: input.title,
     content: input.content,
     pinned: input.pinned,

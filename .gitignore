@@ -5,3 +5,5 @@ node_modules/
 .turbo/
 .playwright-cli/
 dist/
+*.db
+*.db-journal

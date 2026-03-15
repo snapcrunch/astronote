@@ -1,6 +1,6 @@
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import * as styles from "./styles";
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import * as styles from './styles';
 
 function Placeholder() {
   return (

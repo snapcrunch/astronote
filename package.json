@@ -5,13 +5,25 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "start": "turbo run build && yarn workspace @repo/api start",
     "check-types": "turbo run check-types",
-    "cli": "node --import tsx apps/cli/src/index.ts"
+    "cli": "node --import tsx apps/cli/src/index.ts",
+    "db:delete": "rm -f ./apps/api/data/astronote.db",
+    "postinstall": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "yarn lint-staged"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": "eslint --fix",
+    "*.{md,json}": "prettier --write"
   },
   "devDependencies": {
+    "lint-staged": "^16.4.0",
     "prettier": "^3.7.4",
+    "simple-git-hooks": "^2.13.1",
     "turbo": "^2.8.14",
     "typescript": "5.9.2"
   },
