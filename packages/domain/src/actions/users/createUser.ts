@@ -38,7 +38,7 @@ export async function createUser(
   const user = await repoCreateUser(email, hashedPassword, salt);
 
   await updateSettings(user.id, DEFAULT_SETTINGS);
-  const collection = await createCollection(user.id, 'Personal');
+  const collection = await createCollection(user.id, 'Default');
   await setDefaultCollection(user.id, collection.id);
 
   const authUser = { id: user.id, email };
