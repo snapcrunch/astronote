@@ -18,6 +18,7 @@ export function useCommands(
   onOpenClaudePrompt: () => void
 ): Command[] {
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
+  const collections = useNoteStore((s) => s.collections);
   const user = useNoteStore((s) => s.user);
   const claudeAuthenticated = useNoteStore((s) => s.claudeAuthenticated);
   return useMemo(() => {
@@ -52,6 +53,7 @@ export function useCommands(
         id: 'change-collection',
         label: 'Change Collection',
         shortcut: '⌘⇧C',
+        disabled: collections.length <= 1,
         action: () => {
           onClose();
           onOpenCollectionPicker();
@@ -153,6 +155,7 @@ export function useCommands(
     onOpenClaudeAuth,
     onOpenClaudePrompt,
     selectedNoteId,
+    collections,
     claudeAuthenticated,
     user,
   ]);
