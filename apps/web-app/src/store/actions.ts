@@ -45,10 +45,11 @@ export function createActions({
       }
 
       set({ route: 'app' });
+      // Fetch collections first so activeCollectionId is set before fetching notes
+      await get().fetchCollections();
       Promise.all([
         get().fetchNotes(),
         get().fetchTags(),
-        get().fetchCollections(),
         get().fetchApiKeys(),
         get().fetchSettings(),
         get().fetchClaudeAuthStatus(),
@@ -210,8 +211,6 @@ export function createActions({
         const defaultCol =
           collections.find((c) => c.isDefault) ?? collections[0]!;
         set({ collections, activeCollectionId: defaultCol.id });
-        get().fetchNotes();
-        get().fetchTags();
       } else {
         set({ collections });
       }

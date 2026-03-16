@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
+import Fade from '@mui/material/Fade';
 import introJs from 'intro.js';
 import 'intro.js/introjs.css';
 import Sidebar from './Sidebar';
@@ -77,23 +78,32 @@ function MainApp() {
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {isMobile ? (
           <>
-            <Box
-              sx={{
-                display: showNoteView ? 'none' : 'flex',
-                flexDirection: 'column',
-                height: '100%',
-              }}
-            >
-              <Sidebar />
-            </Box>
-            {showNoteView && contentView}
+            <Fade in={!showNoteView} mountOnEnter unmountOnExit timeout={150}>
+              <Box
+                sx={{
+                  flexDirection: 'column',
+                  height: '100%',
+                }}
+              >
+                <Sidebar />
+              </Box>
+            </Fade>
+            <Fade key={view} in={showNoteView} mountOnEnter unmountOnExit timeout={150}>
+              <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
+                {contentView}
+              </Box>
+            </Fade>
           </>
         ) : (
           <>
             <Omnibar />
             <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
               <Sidebar />
-              {contentView}
+              <Fade key={view} in timeout={150}>
+                <Box sx={{ display: 'flex', flex: 1 }}>
+                  {contentView}
+                </Box>
+              </Fade>
               <InfoPanel />
             </Box>
           </>
