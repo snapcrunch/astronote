@@ -119,7 +119,7 @@ export function useCommands(
       },
       {
         id: 'settings',
-        label: 'Settings',
+        label: 'Manage Settings',
         shortcut: '⌘⇧S',
         platforms: both,
         action: run(() => {

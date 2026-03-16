@@ -338,6 +338,33 @@ export class WebClient {
       return;
     }
 
+    // If token expired, refresh and retry once
+    if (response.status === 401) {
+      const refreshed = await this.refresh();
+      if (refreshed) {
+        headers['Authorization'] = `Bearer ${localStorage.getItem('astronote.token')}`;
+        try {
+          response = await fetch(`${baseURL}/api/claude/prompt`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              prompt,
+              ...(sessionId ? { sessionId } : {}),
+              ...(activeNoteTitle ? { activeNoteTitle } : {}),
+            }),
+            signal,
+          });
+        } catch (err: unknown) {
+          if (err instanceof Error && err.name === 'AbortError') return;
+          onError(err instanceof Error ? err.message : 'Network error');
+          return;
+        }
+      } else {
+        this.onAuthFailure?.();
+        return;
+      }
+    }
+
     if (!response.ok) {
       try {
         const body = await response.json();

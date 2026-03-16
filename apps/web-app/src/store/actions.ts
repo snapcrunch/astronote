@@ -218,8 +218,13 @@ export function createActions({
     },
 
     deleteCollection: async (id: number) => {
+      const { activeCollectionId } = get();
       await client.deleteCollection(id);
+      if (activeCollectionId === id) {
+        set({ activeCollectionId: null, selectedNoteId: null });
+      }
       await get().fetchCollections();
+      await Promise.all([get().fetchNotes(), get().fetchTags()]);
     },
 
     setDefaultCollection: async (id: number) => {

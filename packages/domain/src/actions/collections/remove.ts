@@ -1,6 +1,15 @@
 import type { AuthUser } from '@repo/types';
 import * as repository from '@repo/repository';
+import { populateUser } from '../users/populateUser';
 
 export async function remove(user: AuthUser, id: number): Promise<boolean> {
-  return repository.deleteCollection(user.id, id);
+  const deleted = await repository.deleteCollection(user.id, id);
+  if (!deleted) return false;
+
+  const remaining = await repository.getCollections(user.id);
+  if (remaining.length === 0) {
+    await populateUser(user);
+  }
+
+  return true;
 }

@@ -10,5 +10,6 @@
 - [x] Remove the excess padding around the "Add a tag" input field in the right-hand sidebar. It should be flush with the container (similar to the omnibar).
 - [x] Disable the "Change Collection" command palette action if only one collection exists.
 - [x] Ensure that the web app served by the Docker image is the compiled / bundled one (and not the dev version served by Vite).
-- [ ] The mechanism by which the web app's WebClient should seemlessly and automatically detect an expired JWT token and refresh it (without the user being logged out or noticing it) appears to be broken. Find out why. Explain. Fix it.
+- [x] When the user deletes one of their collections, if it is the only collection they have - they are left with no collections. Instead, if they delete their only collection - we should populate their account back with default data like we do upon creation of a new account or when the user selects the "Reset All Data" action.
+- [x] The mechanism by which the web app's WebClient should seemlessly and automatically detect an expired JWT token and refresh it (without the user being logged out or noticing it) appears to be broken. Find out why. Explain. Fix it.
 - [ ] Provide recommendations on things that could be done in the frontend web app to increase polish / make the app appear more professional and well-put-together.
