@@ -1,6 +1,9 @@
+import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import InputBase from '@mui/material/InputBase';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
@@ -8,7 +11,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { useNoteStore } from '../store';
 import { useIsMobile } from '../hooks';
-import type { DefaultView } from '@repo/types';
+import type { BackupInterval, BackupMechanism, DefaultView } from '@repo/types';
 
 function SettingsView() {
   const isMobile = useIsMobile();
@@ -16,6 +19,17 @@ function SettingsView() {
   const settings = useNoteStore((s) => s.settings);
   const settingsLoaded = useNoteStore((s) => s.settingsLoaded);
   const updateSettings = useNoteStore((s) => s.updateSettings);
+
+  const [sshUrl, setSshUrl] = useState(settings.backup_repo_ssh_url);
+  const [sshKey, setSshKey] = useState(settings.backup_ssh_private_key);
+
+  useEffect(() => {
+    setSshUrl(settings.backup_repo_ssh_url);
+  }, [settings.backup_repo_ssh_url]);
+
+  useEffect(() => {
+    setSshKey(settings.backup_ssh_private_key);
+  }, [settings.backup_ssh_private_key]);
 
   if (!settingsLoaded) return null;
 
@@ -145,6 +159,134 @@ function SettingsView() {
                     </Select>
                   </td>
                 </tr>
+              </tbody>
+              <tbody>
+                <tr>
+                  <td colSpan={2} style={{ textAlign: 'left' }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: '0.75rem',
+                        color: 'text.secondary',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        py: 0.75,
+                      }}
+                    >
+                      Backups
+                    </Typography>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <Typography variant="body2">Backup Mechanism</Typography>
+                  </td>
+                  <td>
+                    <Select
+                      variant="standard"
+                      value={settings.backup_mechanism}
+                      onChange={(e) =>
+                        updateSettings({
+                          backup_mechanism: e.target.value as BackupMechanism,
+                        })
+                      }
+                      size="small"
+                      sx={{ minWidth: 200, fontSize: '0.875rem' }}
+                    >
+                      <MenuItem value="disabled">Disabled</MenuItem>
+                      <MenuItem value="git">Git</MenuItem>
+                    </Select>
+                  </td>
+                </tr>
+                {settings.backup_mechanism === 'git' && (
+                  <tr>
+                    <td>
+                      <Typography variant="body2">
+                        Repository SSH URL
+                      </Typography>
+                    </td>
+                    <td>
+                      <InputBase
+                        value={sshUrl}
+                        onChange={(e) => setSshUrl(e.target.value)}
+                        onBlur={() => {
+                          if (sshUrl !== settings.backup_repo_ssh_url) {
+                            updateSettings({ backup_repo_ssh_url: sshUrl });
+                          }
+                        }}
+                        placeholder="git@github.com:user/repo.git"
+                        size="small"
+                        sx={{ fontSize: '0.875rem', width: '100%', '& input': { textAlign: 'right' } }}
+                      />
+                    </td>
+                  </tr>
+                )}
+                {settings.backup_mechanism === 'git' && (
+                  <tr>
+                    <td style={{ verticalAlign: 'top' }}>
+                      <Typography variant="body2" sx={{ pt: 0.5 }}>
+                        Private SSH Key
+                      </Typography>
+                    </td>
+                    <td>
+                      <InputBase
+                        value={sshKey}
+                        onChange={(e) => setSshKey(e.target.value)}
+                        onBlur={() => {
+                          if (sshKey !== settings.backup_ssh_private_key) {
+                            updateSettings({ backup_ssh_private_key: sshKey });
+                          }
+                        }}
+                        multiline
+                        minRows={4}
+                        placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"
+                        sx={{
+                          fontSize: '0.75rem',
+                          fontFamily: 'monospace',
+                          width: '100%',
+                          '& textarea': { textAlign: 'right' },
+                        }}
+                      />
+                    </td>
+                  </tr>
+                )}
+                {settings.backup_mechanism === 'git' && (
+                  <tr>
+                    <td>
+                      <Typography variant="body2">Backup Interval</Typography>
+                    </td>
+                    <td>
+                      <Select
+                        variant="standard"
+                        value={settings.backup_interval}
+                        onChange={(e) =>
+                          updateSettings({
+                            backup_interval: e.target.value as BackupInterval,
+                          })
+                        }
+                        size="small"
+                        sx={{ minWidth: 200, fontSize: '0.875rem' }}
+                      >
+                        <MenuItem value="daily">Daily</MenuItem>
+                        <MenuItem value="hourly">Hourly</MenuItem>
+                      </Select>
+                    </td>
+                  </tr>
+                )}
+                {settings.backup_mechanism === 'git' && (
+                  <tr>
+                    <td>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => {}}
+                      >
+                        Perform Backup Now
+                      </Button>
+                    </td>
+                    <td />
+                  </tr>
+                )}
               </tbody>
             </Box>
           </Paper>

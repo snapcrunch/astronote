@@ -10,3 +10,4 @@
 - [x] Remove the excess padding around the "Add a tag" input field in the right-hand sidebar. It should be flush with the container (similar to the omnibar).
 - [x] Disable the "Change Collection" command palette action if only one collection exists.
 - [x] Ensure that the web app served by the Docker image is the compiled / bundled one (and not the dev version served by Vite).
+- [ ] The mechanism by which the web app's WebClient should seemlessly and automatically detect an expired JWT token and refresh it (without the user being logged out or noticing it) appears to be broken. Find out why. Explain. Fix it.
