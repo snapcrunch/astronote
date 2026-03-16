@@ -9,4 +9,4 @@
 - [x] When viewing a note in render mode, if I press the escape key, the selected note should be de-selected.
 - [x] Remove the excess padding around the "Add a tag" input field in the right-hand sidebar. It should be flush with the container (similar to the omnibar).
 - [x] Disable the "Change Collection" command palette action if only one collection exists.
-- [ ] Ensure that the web app served by the Docker image is the compiled / bundled one (and not the dev version served by Vite).
+- [x] Ensure that the web app served by the Docker image is the compiled / bundled one (and not the dev version served by Vite).

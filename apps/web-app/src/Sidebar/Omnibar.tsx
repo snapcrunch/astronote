@@ -2,6 +2,7 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { omnibarRef, omnibarKeyDownHandler } from './refs';
 import { useSearch } from './hooks';
 
@@ -36,22 +37,10 @@ function Omnibar() {
           input: {
             startAdornment: (
               <InputAdornment position="start">
-                <img
-                  id="omnibar-planet-icon"
-                  src="/favicon.svg"
-                  alt=""
-                  width={20}
-                  height={20}
-                  style={{
+                <MoreVertIcon
+                  sx={{
                     cursor: 'pointer',
-                    opacity: 0.75,
-                    transition: 'opacity 0.15s',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.opacity = '1';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.opacity = '0.75';
+                    fontSize: 20,
                   }}
                   onClick={() => {
                     document.dispatchEvent(
