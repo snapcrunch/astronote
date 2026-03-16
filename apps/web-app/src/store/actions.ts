@@ -45,12 +45,14 @@ export function createActions({
       }
 
       set({ route: 'app' });
-      get().fetchNotes();
-      get().fetchTags();
-      get().fetchCollections();
-      get().fetchApiKeys();
-      get().fetchSettings();
-      get().fetchClaudeAuthStatus();
+      Promise.all([
+        get().fetchNotes(),
+        get().fetchTags(),
+        get().fetchCollections(),
+        get().fetchApiKeys(),
+        get().fetchSettings(),
+        get().fetchClaudeAuthStatus(),
+      ]);
       window.addEventListener('popstate', restoreFromUrl);
       return () => window.removeEventListener('popstate', restoreFromUrl);
     },
@@ -122,8 +124,7 @@ export function createActions({
         showInfoPanel: get().showInfoPanel,
         settingDefault: sd(),
       });
-      await get().fetchCollections();
-      await get().fetchSettings();
+      await Promise.all([get().fetchCollections(), get().fetchSettings()]);
     },
 
     toggleInfoPanel: () => {

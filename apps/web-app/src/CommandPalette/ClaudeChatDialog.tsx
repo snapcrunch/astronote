@@ -93,10 +93,12 @@ export default function ClaudeChatDialog({
           if (sid) setSessionId(sid);
           setTimeout(() => inputRef.current?.focus(), 50);
           const s = useNoteStore.getState();
-          s.fetchNotes();
-          s.fetchTags();
-          s.fetchCollections();
-          s.fetchSettings();
+          Promise.all([
+            s.fetchNotes(),
+            s.fetchTags(),
+            s.fetchCollections(),
+            s.fetchSettings(),
+          ]);
         },
         onError: (message) => {
           setStatus('error');
