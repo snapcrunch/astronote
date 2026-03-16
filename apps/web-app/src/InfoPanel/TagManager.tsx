@@ -108,7 +108,7 @@ function TagManager() {
                     px: 2,
                     borderBottom: index < tags.length - 1 ? 1 : 0,
                     borderColor: 'divider',
-                    bgcolor: index % 2 === 0 ? 'background.paper' : 'grey.50',
+                    bgcolor: 'background.paper',
                   }}
                 >
                   <ListItemText

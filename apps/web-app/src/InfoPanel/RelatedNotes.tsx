@@ -66,7 +66,16 @@ function RelatedNotes({ sx }: RelatedNotesProps) {
                   py: 0.25,
                   borderBottom: 1,
                   borderColor: 'divider',
-                  bgcolor: index % 2 === 0 ? 'background.paper' : 'grey.50',
+                  bgcolor: 'background.paper',
+                  transition: 'background-color 75ms ease',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                  },
+                  '&.Mui-focusVisible': {
+                    outline: '2px solid',
+                    outlineColor: 'primary.main',
+                    outlineOffset: '-2px',
+                  },
                 }}
               >
                 <ListItemText
