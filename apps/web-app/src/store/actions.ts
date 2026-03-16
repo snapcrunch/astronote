@@ -79,7 +79,12 @@ export function createActions({
         settingsLoaded: false,
         editOnCreate: false,
         importing: false,
+        importedCount: 0,
         saving: false,
+        renaming: false,
+        tagging: false,
+        creatingCollection: false,
+        deletingCollection: false,
         archiving: false,
         view: 'notes',
       });
@@ -213,18 +218,28 @@ export function createActions({
     },
 
     createCollection: async (name: string) => {
-      await client.createCollection(name);
-      await get().fetchCollections();
+      set({ creatingCollection: true });
+      try {
+        await client.createCollection(name);
+        await get().fetchCollections();
+      } finally {
+        set({ creatingCollection: false });
+      }
     },
 
     deleteCollection: async (id: number) => {
-      const { activeCollectionId } = get();
-      await client.deleteCollection(id);
-      if (activeCollectionId === id) {
-        set({ activeCollectionId: null, selectedNoteId: null });
+      set({ deletingCollection: true });
+      try {
+        const { activeCollectionId } = get();
+        await client.deleteCollection(id);
+        if (activeCollectionId === id) {
+          set({ activeCollectionId: null, selectedNoteId: null });
+        }
+        await get().fetchCollections();
+        await Promise.all([get().fetchNotes(), get().fetchTags()]);
+      } finally {
+        set({ deletingCollection: false });
       }
-      await get().fetchCollections();
-      await Promise.all([get().fetchNotes(), get().fetchTags()]);
     },
 
     setDefaultCollection: async (id: number) => {
@@ -299,7 +314,9 @@ export function createActions({
         collectionId?: number;
       }
     ) => {
-      set({ saving: true });
+      const isRename =
+        updates.title !== undefined && updates.content === undefined;
+      set(isRename ? { renaming: true } : { saving: true });
       try {
         const updated = await client.updateNote(id, updates);
         if (updates.collectionId !== undefined) {
@@ -315,7 +332,7 @@ export function createActions({
         }
         get().fetchTags();
       } finally {
-        set({ saving: false });
+        set(isRename ? { renaming: false } : { saving: false });
       }
     },
 
@@ -348,19 +365,29 @@ export function createActions({
     },
 
     addTag: async (noteId: string, tag: string) => {
-      const updated = await client.addTag(noteId, tag);
-      set((state) => ({
-        notes: state.notes.map((n) => (n.id === noteId ? updated : n)),
-      }));
-      get().fetchTags();
+      set({ tagging: true });
+      try {
+        const updated = await client.addTag(noteId, tag);
+        set((state) => ({
+          notes: state.notes.map((n) => (n.id === noteId ? updated : n)),
+        }));
+        get().fetchTags();
+      } finally {
+        set({ tagging: false });
+      }
     },
 
     removeTag: async (noteId: string, tag: string) => {
-      const updated = await client.removeTag(noteId, tag);
-      set((state) => ({
-        notes: state.notes.map((n) => (n.id === noteId ? updated : n)),
-      }));
-      get().fetchTags();
+      set({ tagging: true });
+      try {
+        const updated = await client.removeTag(noteId, tag);
+        set((state) => ({
+          notes: state.notes.map((n) => (n.id === noteId ? updated : n)),
+        }));
+        get().fetchTags();
+      } finally {
+        set({ tagging: false });
+      }
     },
 
     exportNotes: async () => {

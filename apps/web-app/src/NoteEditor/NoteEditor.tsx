@@ -60,11 +60,6 @@ function NoteEditor() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.closest('[role="dialog"]')) return;
-      if (e.key === 'Enter' && !editingRef.current) {
-        e.preventDefault();
-        setEditing(true);
-        return;
-      }
       if (e.key !== 'Escape') return;
       if (editingRef.current) {
         flushAndExitEdit();

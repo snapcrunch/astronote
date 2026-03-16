@@ -5,6 +5,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { omnibarRef, omnibarKeyDownHandler } from './refs';
 import { useSearch } from './hooks';
+import SaveStatusIndicator from '../NoteEditor/SaveStatusIndicator';
 
 function Omnibar() {
   const { localQuery, handleSearchChange } = useSearch();
@@ -56,7 +57,8 @@ function Omnibar() {
               </InputAdornment>
             ),
             endAdornment: (
-              <InputAdornment position="end">
+              <InputAdornment position="end" sx={{ gap: 1 }}>
+                <SaveStatusIndicator />
                 <Typography
                   variant="caption"
                   sx={{

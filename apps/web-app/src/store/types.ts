@@ -19,6 +19,10 @@ export interface NoteStore {
   claudeAuthenticated: boolean;
   editOnCreate: boolean;
   saving: boolean;
+  renaming: boolean;
+  tagging: boolean;
+  creatingCollection: boolean;
+  deletingCollection: boolean;
   archiving: boolean;
   settings: Settings;
   settingsLoaded: boolean;
@@ -58,6 +62,7 @@ export interface NoteStore {
     }
   ) => Promise<void>;
   importing: boolean;
+  importedCount: number;
   updateNote: (
     id: string,
     updates: Partial<Pick<Note, 'title' | 'content' | 'pinned'>> & {
