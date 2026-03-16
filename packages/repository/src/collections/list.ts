@@ -20,3 +20,21 @@ export async function getCollections(userId: number): Promise<Collection[]> {
     .orderBy('collections.name', 'asc');
   return rows.map(rowToCollection);
 }
+
+export async function getUserCollectionByName(
+  userId: number,
+  name: string
+): Promise<Collection | undefined> {
+  const db = getDb();
+  const row = await db('collections')
+    .join(
+      'users_collections',
+      'collections.id',
+      'users_collections.collection_id'
+    )
+    .where('users_collections.user_id', userId)
+    .andWhere('collections.name', name)
+    .select('collections.*')
+    .first();
+  return row ? rowToCollection(row) : undefined;
+}

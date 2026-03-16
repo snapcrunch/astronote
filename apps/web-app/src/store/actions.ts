@@ -108,12 +108,9 @@ export function createActions({
     },
 
     resetAll: async () => {
-      const defaultCollection = await client.resetAll();
+      await client.resetAll();
       set({
-        notes: [],
-        tags: [],
-        collections: [defaultCollection],
-        activeCollectionId: defaultCollection.id,
+        activeCollectionId: null,
         selectedNoteId: null,
         searchQuery: '',
         selectedTags: [],
@@ -125,6 +122,7 @@ export function createActions({
         showInfoPanel: get().showInfoPanel,
         settingDefault: sd(),
       });
+      await get().fetchCollections();
       await get().fetchSettings();
     },
 

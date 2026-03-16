@@ -10,7 +10,7 @@ export async function up(knex: Knex): Promise<void> {
 
   await knex.schema.createTable('collections', (table) => {
     table.increments('id').primary();
-    table.text('name').notNullable().unique();
+    table.text('name').notNullable();
     table.integer('isDefault').notNullable().defaultTo(0);
   });
 
@@ -73,12 +73,55 @@ export async function up(knex: Knex): Promise<void> {
   });
 
   await knex.schema.createTable('settings', (table) => {
-    table.string('key').primary();
+    table
+      .integer('user_id')
+      .notNullable()
+      .references('id')
+      .inTable('users')
+      .onDelete('CASCADE')
+      .onUpdate('RESTRICT');
+    table.string('key').notNullable();
     table.string('value').notNullable();
+    table.primary(['user_id', 'key']);
+  });
+
+  await knex.schema.createTable('refresh_tokens', (table) => {
+    table.increments('id').primary();
+    table
+      .integer('user_id')
+      .notNullable()
+      .references('id')
+      .inTable('users')
+      .onDelete('CASCADE');
+    table.text('token').notNullable().unique();
+    table.text('expires_at').notNullable();
+    table.text('created_at').notNullable();
+  });
+
+  await knex.schema.createTable('api_keys', (table) => {
+    table.text('id').primary();
+    table.text('name').notNullable();
+    table.text('token').notNullable();
+    table
+      .integer('user_id')
+      .notNullable()
+      .references('id')
+      .inTable('users')
+      .onDelete('CASCADE')
+      .onUpdate('RESTRICT');
+    table.unique(['name', 'user_id']);
+  });
+
+  await knex.schema.createTable('keyval', (table) => {
+    table.text('key').notNullable().primary();
+    table.text('value').notNullable();
   });
 }
 
 export async function down(knex: Knex): Promise<void> {
+  await knex.schema.dropTableIfExists('keyval');
+  await knex.schema.dropTableIfExists('api_keys');
+  await knex.schema.dropTableIfExists('refresh_tokens');
   await knex.schema.dropTableIfExists('users_notes');
   await knex.schema.dropTableIfExists('users_collections');
   await knex.schema.dropTableIfExists('note_tags');

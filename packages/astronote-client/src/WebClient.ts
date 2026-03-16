@@ -169,9 +169,8 @@ export class WebClient {
     return data;
   }
 
-  async resetAll(): Promise<Collection> {
-    const { data } = await this.http.post<Collection>('/api/settings/reset');
-    return data;
+  async resetAll(): Promise<void> {
+    await this.http.post('/api/settings/reset');
   }
 
   // Tags

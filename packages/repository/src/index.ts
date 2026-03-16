@@ -15,6 +15,7 @@ export {
 } from './notes';
 export {
   getCollections,
+  getUserCollectionByName,
   createCollection,
   deleteCollection,
   setDefaultCollection,

@@ -20,6 +20,6 @@ settingsRouter.patch('/', async (req, res) => {
 });
 
 settingsRouter.post('/reset', async (req, res) => {
-  const defaultCollection = await domain.settings.resetAll(req.user!);
-  res.json(defaultCollection);
+  await domain.settings.resetAll(req.user!);
+  res.status(204).send();
 });

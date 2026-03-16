@@ -15,11 +15,19 @@ collectionsRouter.post('/', async (req, res) => {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const collection = await domain.collections.create(
-    req.user!,
-    result.data.name.trim()
-  );
-  res.status(201).json(collection);
+  try {
+    const collection = await domain.collections.create(
+      req.user!,
+      result.data.name.trim()
+    );
+    res.status(201).json(collection);
+  } catch (err) {
+    if (err instanceof domain.collections.CollectionAlreadyExistsError) {
+      res.status(409).json({ error: 'A collection with that name already exists' });
+      return;
+    }
+    throw err;
+  }
 });
 
 collectionsRouter.delete('/:id', async (req, res) => {
