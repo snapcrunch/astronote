@@ -83,7 +83,7 @@ export class WebClient {
           error.response?.status === 401 &&
           originalRequest &&
           !originalRequest._retry &&
-          !originalRequest.url?.includes('/api/auth')
+          originalRequest.url !== '/api/auth/refresh'
         ) {
           originalRequest._retry = true;
           const refreshed = await this.refresh();
