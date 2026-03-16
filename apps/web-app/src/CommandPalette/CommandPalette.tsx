@@ -15,6 +15,7 @@ import Alert from '@mui/material/Alert';
 import { WebClient } from '@repo/astronote-client/WebClient';
 import { useNoteStore } from '../store';
 import { ImportDropZone } from '../SettingsView/ImportSection';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { useCommands } from './hooks';
 import PaletteDialog from './PaletteDialog';
 import ClaudeChatDialog from './ClaudeChatDialog';
@@ -51,6 +52,7 @@ export default function CommandPalette() {
   const [claudeAuthCode, setClaudeAuthCode] = useState('');
   const [claudeAuthError, setClaudeAuthError] = useState('');
   const [claudeChatOpen, setClaudeChatOpen] = useState(false);
+  const isMobile = useIsMobile();
   const resetAll = useNoteStore((s) => s.resetAll);
   const fetchClaudeAuthStatus = useNoteStore((s) => s.fetchClaudeAuthStatus);
   const collections = useNoteStore((s) => s.collections);
@@ -124,16 +126,19 @@ export default function CommandPalette() {
     handleOpenClaudeChat
   );
 
+  const platform = isMobile ? 'mobile' : 'desktop';
   const commandItems = useMemo(
     () =>
-      commands.map((c) => ({
-        id: c.id,
-        label: c.label,
-        disabled: c.disabled,
-        shortcut: c.shortcut,
-        action: c.action,
-      })),
-    [commands]
+      commands
+        .filter((c) => c.platforms.includes(platform))
+        .map((c) => ({
+          id: c.id,
+          label: c.label,
+          disabled: c.disabled,
+          shortcut: c.shortcut,
+          action: c.action,
+        })),
+    [commands, platform]
   );
 
   useEffect(() => {

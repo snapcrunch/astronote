@@ -1,11 +1,14 @@
 import { useMemo } from 'react';
 import { useNoteStore } from '../store';
 
+export type Platform = 'desktop' | 'mobile';
+
 export interface Command {
   id: string;
   label: string;
   shortcut?: string;
   disabled?: boolean;
+  platforms: Platform[];
   action: () => void;
 }
 
@@ -27,11 +30,14 @@ export function useCommands(
       fn();
     };
 
+    const both: Platform[] = ['desktop', 'mobile'];
+
     return [
       {
         id: 'focus-search',
         label: 'Focus Search',
         shortcut: '⌘⇧K',
+        platforms: ['desktop'],
         action: run(() => {
           const el = document.querySelector<HTMLInputElement>(
             'input[placeholder*="Search"]'
@@ -44,6 +50,7 @@ export function useCommands(
         label: 'Delete Selected Note',
         shortcut: '⌘⇧D',
         disabled: !selectedNoteId,
+        platforms: ['desktop'],
         action: run(() => {
           const { selectedNoteId, deleteNote } = useNoteStore.getState();
           if (selectedNoteId) deleteNote(selectedNoteId);
@@ -54,6 +61,7 @@ export function useCommands(
         label: 'Change Collection',
         shortcut: '⌘⇧C',
         disabled: collections.length <= 1,
+        platforms: both,
         action: () => {
           onClose();
           onOpenCollectionPicker();
@@ -62,6 +70,7 @@ export function useCommands(
       {
         id: 'clear-search',
         label: 'Clear Search',
+        platforms: both,
         action: run(() => {
           useNoteStore.getState().setSearchQuery('');
         }),
@@ -69,6 +78,7 @@ export function useCommands(
       {
         id: 'clear-tags',
         label: 'Clear Tag Filters',
+        platforms: both,
         action: run(() => {
           useNoteStore.setState({ selectedTags: [] });
           useNoteStore.getState().fetchNotes();
@@ -77,6 +87,7 @@ export function useCommands(
       {
         id: 'import-notes',
         label: 'Import Notes',
+        platforms: both,
         action: () => {
           onClose();
           onOpenImport();
@@ -85,6 +96,7 @@ export function useCommands(
       {
         id: 'export-notes',
         label: 'Export Notes',
+        platforms: both,
         action: run(() => {
           useNoteStore.getState().exportNotes();
         }),
@@ -92,6 +104,7 @@ export function useCommands(
       {
         id: 'manage-collections',
         label: 'Manage Collections',
+        platforms: both,
         action: run(() => {
           useNoteStore.getState().setView('collections');
         }),
@@ -99,6 +112,7 @@ export function useCommands(
       {
         id: 'manage-api-keys',
         label: 'Manage API Keys',
+        platforms: both,
         action: run(() => {
           useNoteStore.getState().setView('keys');
         }),
@@ -107,6 +121,7 @@ export function useCommands(
         id: 'settings',
         label: 'Settings',
         shortcut: '⌘⇧S',
+        platforms: both,
         action: run(() => {
           useNoteStore.getState().setView('settings');
         }),
@@ -114,6 +129,7 @@ export function useCommands(
       {
         id: 'reset-all',
         label: 'Reset All Data',
+        platforms: both,
         action: () => {
           onClose();
           onOpenReset();
@@ -123,6 +139,7 @@ export function useCommands(
         id: 'claude-auth',
         label: 'Authenticate Claude Code',
         disabled: claudeAuthenticated,
+        platforms: both,
         action: () => {
           onClose();
           onOpenClaudeAuth();
@@ -133,6 +150,7 @@ export function useCommands(
         label: 'Ask Claude',
         shortcut: '⌘⇧Z',
         disabled: !claudeAuthenticated,
+        platforms: both,
         action: () => {
           onClose();
           onOpenClaudePrompt();
@@ -142,6 +160,7 @@ export function useCommands(
         id: 'sign-out',
         label: 'Sign Out',
         disabled: !user,
+        platforms: both,
         action: run(() => {
           useNoteStore.getState().signOut();
         }),
