@@ -23,7 +23,9 @@ collectionsRouter.post('/', async (req, res) => {
     res.status(201).json(collection);
   } catch (err) {
     if (err instanceof domain.collections.CollectionAlreadyExistsError) {
-      res.status(409).json({ error: 'A collection with that name already exists' });
+      res
+        .status(409)
+        .json({ error: 'A collection with that name already exists' });
       return;
     }
     throw err;

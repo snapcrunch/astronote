@@ -362,6 +362,10 @@ export function createActions({
       await client.exportNotes();
     },
 
+    performBackup: async () => {
+      await client.performBackup();
+    },
+
     fetchApiKeys: async () => {
       const apiKeys = await client.fetchApiKeys();
       set({ apiKeys });

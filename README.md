@@ -14,6 +14,7 @@ Yet another note taking application[^1].
 - **Pinned notes** — Pin important notes to the top of the list.
 - **Command palette** — Access all actions quickly via the command palette (⌘⇧P).
 - **Import & export** — Import notes from ZIP archives and export all notes for backup.
+- **Git backups** — Automatically back up notes to a remote Git repository on an hourly or daily schedule. Configure an SSH URL and private key in Settings, or trigger a backup manually at any time.
 - **Mobile-friendly** — Responsive layout with touch-optimized interactions and home screen app support (iOS/Android).
 - **Self-hosted** — Runs as a single Docker container with an embedded SQLite database. Optional HTTP basic auth.
 - **Ask Claude** — Chat with Claude directly from the app (⌘⇧Z). Claude can search, read, create, and edit your notes, manage tags and collections, and even browse the web — all through a streaming chat interface with session persistence. Authenticate via OAuth from the command palette.
@@ -57,6 +58,27 @@ yarn cli seed
 # If running in Docker
 docker exec <container> node_modules/.bin/tsx apps/cli/src/index.ts seed
 ```
+
+## Git Backups
+
+Astronote can automatically back up your notes to a remote Git repository. Each backup exports all notes as a `notes.zip` archive, commits it to the repo, and force-pushes.
+
+### Setup
+
+1. Open **Settings** in the web app.
+2. Under **Backups**, set **Backup Mechanism** to **Git**.
+3. Enter your **Repository SSH URL** (e.g. `git@github.com:user/astronote-backup.git`).
+4. Paste your **Private SSH Key** (the key must have push access to the repository).
+5. Choose a **Backup Interval** — **Daily** (default) or **Hourly**.
+
+Backups run automatically on schedule. You can also click **Perform Backup Now** to trigger one immediately.
+
+### How it works
+
+- On service startup, a background monitor is scheduled to run at the top of every hour.
+- It checks each user's backup settings and history to determine whether a backup is due.
+- The backup clones the repo (shallow, depth 1), writes `notes.zip`, commits, and force-pushes.
+- Backup history is recorded in the database so intervals are respected across restarts.
 
 ## Packages
 

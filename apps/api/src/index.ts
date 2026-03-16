@@ -6,6 +6,7 @@ import { notesRouter } from '#routes/notes';
 import { tagsRouter } from '#routes/tags';
 import { collectionsRouter } from '#routes/collections';
 import { settingsRouter } from '#routes/settings';
+import { backupRouter } from '#routes/backup';
 import { keysRouter } from '#routes/keys';
 import { authRouter } from '#routes/auth';
 import { requestLogger } from '#middleware/requestLogger';
@@ -41,6 +42,7 @@ async function main() {
   app.use('/api/collections', requireAuth, collectionsRouter);
   app.use('/api/keys', requireAuth, keysRouter);
   app.use('/api/settings', requireAuth, settingsRouter);
+  app.use('/api/backup', requireAuth, backupRouter);
   app.use('/api/claude/auth', requireAuth, claudeAuthRouter);
   app.use('/api/claude/prompt', requireAuth, claudePromptRouter(config.dbPath));
   app.use(errorHandler);

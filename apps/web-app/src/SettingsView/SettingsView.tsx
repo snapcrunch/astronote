@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import FormHelperText from '@mui/material/FormHelperText';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import InputBase from '@mui/material/InputBase';
@@ -19,7 +20,9 @@ function SettingsView() {
   const settings = useNoteStore((s) => s.settings);
   const settingsLoaded = useNoteStore((s) => s.settingsLoaded);
   const updateSettings = useNoteStore((s) => s.updateSettings);
+  const performBackup = useNoteStore((s) => s.performBackup);
 
+  const [backingUp, setBackingUp] = useState(false);
   const [sshUrl, setSshUrl] = useState(settings.backup_repo_ssh_url);
   const [sshKey, setSshKey] = useState(settings.backup_ssh_private_key);
 
@@ -216,7 +219,11 @@ function SettingsView() {
                         }}
                         placeholder="git@github.com:user/repo.git"
                         size="small"
-                        sx={{ fontSize: '0.875rem', width: '100%', '& input': { textAlign: 'right' } }}
+                        sx={{
+                          fontSize: '0.875rem',
+                          width: '100%',
+                          '& input': { textAlign: 'right' },
+                        }}
                       />
                     </td>
                   </tr>
@@ -267,9 +274,15 @@ function SettingsView() {
                         size="small"
                         sx={{ minWidth: 200, fontSize: '0.875rem' }}
                       >
+                        <MenuItem value="none">None</MenuItem>
                         <MenuItem value="daily">Daily</MenuItem>
                         <MenuItem value="hourly">Hourly</MenuItem>
                       </Select>
+                      {settings.backup_interval === 'none' && (
+                        <FormHelperText sx={{ textAlign: 'right' }}>
+                          Automated backups will not be performed.
+                        </FormHelperText>
+                      )}
                     </td>
                   </tr>
                 )}
@@ -279,9 +292,17 @@ function SettingsView() {
                       <Button
                         variant="outlined"
                         size="small"
-                        onClick={() => {}}
+                        disabled={backingUp}
+                        onClick={async () => {
+                          setBackingUp(true);
+                          try {
+                            await performBackup();
+                          } finally {
+                            setBackingUp(false);
+                          }
+                        }}
                       >
-                        Perform Backup Now
+                        {backingUp ? 'Backing up...' : 'Perform Backup Now'}
                       </Button>
                     </td>
                     <td />

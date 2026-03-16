@@ -6,7 +6,10 @@ import { logger } from '@repo/logger';
 const TIMEOUT_MS = 120_000;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const CLI_PATH = path.resolve(__dirname, '../../../../../apps/cli/src/index.ts');
+const CLI_PATH = path.resolve(
+  __dirname,
+  '../../../../../apps/cli/src/index.ts'
+);
 
 const ADMIN_COMMANDS = ['create-user', 'seed', 'help-all', 'help'];
 

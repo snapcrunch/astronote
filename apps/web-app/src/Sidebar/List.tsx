@@ -350,8 +350,7 @@ function NoteList({
             [...allTags]
               .sort((a, b) => a.tag.localeCompare(b.tag))
               .map(({ tag }) => {
-                const isApplied =
-                  contextMenuNote?.tags.includes(tag) ?? false;
+                const isApplied = contextMenuNote?.tags.includes(tag) ?? false;
                 return (
                   <MenuItem
                     key={tag}

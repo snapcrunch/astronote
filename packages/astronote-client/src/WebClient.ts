@@ -173,6 +173,12 @@ export class WebClient {
     await this.http.post('/api/settings/reset');
   }
 
+  // Backup
+
+  async performBackup(): Promise<void> {
+    await this.http.post('/api/backup');
+  }
+
   // Tags
 
   async fetchTags(collectionId?: number): Promise<Tag[]> {

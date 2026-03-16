@@ -2,6 +2,7 @@ import { initDatabase } from '@repo/repository';
 import { logger } from '@repo/logger';
 import domain from '@repo/domain';
 import { setJwtSecret } from '../../config';
+import { monitorBackups } from './monitorBackups';
 
 const init = async ({
   dbPath,
@@ -26,6 +27,8 @@ const init = async ({
     }
     await domain.systemSettings.patch({ initialized: true });
   }
+
+  monitorBackups();
 };
 
 export { init };

@@ -87,7 +87,7 @@ export const BackupMechanismSchema = z.enum(['disabled', 'git']);
 
 export type BackupMechanism = z.infer<typeof BackupMechanismSchema>;
 
-export const BackupIntervalSchema = z.enum(['daily', 'hourly']);
+export const BackupIntervalSchema = z.enum(['none', 'daily', 'hourly']);
 
 export type BackupInterval = z.infer<typeof BackupIntervalSchema>;
 
@@ -99,10 +99,12 @@ export const SettingsSchema = z.object({
   backup_mechanism: BackupMechanismSchema,
   backup_ssh_private_key: z.string(),
   backup_interval: BackupIntervalSchema,
-  backup_repo_ssh_url: z.string().refine(
-    (val) => val === '' || /^git@[\w.-]+:[\w./-]+\.git$/.test(val),
-    { message: 'Must be a valid Git SSH URL (e.g. git@github.com:user/repo.git)' }
-  ),
+  backup_repo_ssh_url: z
+    .string()
+    .refine((val) => val === '' || /^git@[\w.-]+:[\w./-]+\.git$/.test(val), {
+      message:
+        'Must be a valid Git SSH URL (e.g. git@github.com:user/repo.git)',
+    }),
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;

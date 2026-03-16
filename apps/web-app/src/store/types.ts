@@ -68,6 +68,7 @@ export interface NoteStore {
   addTag: (noteId: string, tag: string) => Promise<void>;
   removeTag: (noteId: string, tag: string) => Promise<void>;
   exportNotes: () => Promise<void>;
+  performBackup: () => Promise<void>;
   fetchApiKeys: () => Promise<void>;
   createApiKey: (name: string) => Promise<{ token: string }>;
   deleteApiKey: (id: string) => Promise<void>;

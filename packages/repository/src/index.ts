@@ -22,7 +22,8 @@ export {
 } from './collections';
 export { getTags } from './tags';
 export { getSettings, updateSettings, resetAll } from './settings';
-export { createUser, getUserByEmail, getUserById } from './users';
+export { createUser, getUserByEmail, getUserById, listUsers } from './users';
+export { recordBackup, getLastBackup } from './backupHistory';
 export {
   createRefreshToken,
   getRefreshToken,
