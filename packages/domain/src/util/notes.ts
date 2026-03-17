@@ -1,5 +1,9 @@
 import type { Note } from '@repo/types';
 
+export function trimNoteContent(note: Note): Note {
+  return { ...note, content: note.content.trim() };
+}
+
 export function buildFrontmatter(note: Note, collectionName?: string): string {
   return [
     '---',

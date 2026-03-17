@@ -1,5 +1,6 @@
 import type { Note, UpdateNoteInput, AuthUser } from '@repo/types';
 import repository from '@repo/repository';
+import { trimNoteContent } from '../../util/notes';
 
 export async function update(
   user: AuthUser,
@@ -16,11 +17,11 @@ export async function update(
     id,
     updates: {
       title: input.title,
-      content: input.content,
+      content: input.content?.trim(),
       pinned: input.pinned,
       collectionId: input.collectionId,
       updatedAt: new Date().toISOString(),
     },
   });
-  return updated;
+  return updated ? trimNoteContent(updated) : null;
 }

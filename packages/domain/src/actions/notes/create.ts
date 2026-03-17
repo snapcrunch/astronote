@@ -11,7 +11,7 @@ export async function create(
   const note: Note = {
     id: uuidv4(),
     title: input.title,
-    content: input.content ?? '',
+    content: (input.content ?? '').trim(),
     tags,
     pinned: input.pinned ?? false,
     createdAt: input.createdAt ?? now,
