@@ -3,7 +3,7 @@ import { getById } from './get';
 
 export async function remove(params: {
   userId: number;
-  id: string;
+  id: number;
 }): Promise<boolean> {
   const { userId, id } = params;
   const db = getDb();
@@ -19,7 +19,7 @@ export async function remove(params: {
 
 export async function archive(params: {
   userId: number;
-  id: string;
+  id: number;
 }): Promise<boolean> {
   const { userId, id } = params;
   const db = getDb();

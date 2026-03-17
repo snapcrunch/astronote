@@ -160,7 +160,7 @@ export function createActions({
       get().fetchNotes();
     },
 
-    setSelectedNoteId: (id: string | null) => {
+    setSelectedNoteId: (id: number | null) => {
       const view = id ? 'notes' : get().view;
       set({ selectedNoteId: id, view });
       syncUrl({
@@ -293,6 +293,7 @@ export function createActions({
       title: string,
       content: string,
       opts?: {
+        id?: number;
         tags?: string[];
         collectionId?: number;
         pinned?: boolean;
@@ -302,6 +303,7 @@ export function createActions({
     ) => {
       const collectionId = opts?.collectionId ?? get().activeCollectionId;
       await client.createNote({
+        id: opts?.id,
         title,
         content,
         tags: opts?.tags,
@@ -313,7 +315,7 @@ export function createActions({
     },
 
     updateNote: async (
-      id: string,
+      id: number,
       updates: Partial<Pick<Note, 'title' | 'content' | 'pinned'>> & {
         collectionId?: number;
       }
@@ -340,7 +342,7 @@ export function createActions({
       }
     },
 
-    deleteNote: async (id: string) => {
+    deleteNote: async (id: number) => {
       set({ archiving: true });
       try {
         await client.deleteNote(id);
@@ -368,7 +370,7 @@ export function createActions({
       }
     },
 
-    addTag: async (noteId: string, tag: string) => {
+    addTag: async (noteId: number, tag: string) => {
       set({ tagging: true });
       try {
         const updated = await client.addTag(noteId, tag);
@@ -381,7 +383,7 @@ export function createActions({
       }
     },
 
-    removeTag: async (noteId: string, tag: string) => {
+    removeTag: async (noteId: number, tag: string) => {
       set({ tagging: true });
       try {
         const updated = await client.removeTag(noteId, tag);

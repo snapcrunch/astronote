@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import type { Note, CreateNoteInput, AuthUser } from '@repo/types';
 import repository from '@repo/repository';
 
@@ -8,8 +7,20 @@ export async function create(
 ): Promise<Note> {
   const now = new Date().toISOString();
   const tags = (input.tags ?? []).map((t) => t.toLowerCase());
+  let id: number;
+  if (input.id) {
+    const existing = await repository.notes.getById({
+      userId: user.id,
+      id: input.id,
+    });
+    id = existing
+      ? Math.floor((performance.timeOrigin + performance.now()) * 1000)
+      : input.id;
+  } else {
+    id = Math.floor((performance.timeOrigin + performance.now()) * 1000);
+  }
   const note: Note = {
-    id: uuidv4(),
+    id,
     title: input.title,
     content: (input.content ?? '').trim(),
     tags,

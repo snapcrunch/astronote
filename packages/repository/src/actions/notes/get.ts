@@ -4,7 +4,7 @@ import { rowToNote } from './helpers';
 
 export async function getById(params: {
   userId: number;
-  id: string;
+  id: number;
 }): Promise<Note | null> {
   const { userId, id } = params;
   const db = getDb();

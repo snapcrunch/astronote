@@ -1,7 +1,11 @@
-import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import type { Knex } from 'knex';
 import { DEFAULT_SETTINGS } from '@repo/types';
+
+let _seedId = Math.floor((performance.timeOrigin + performance.now()) * 1000);
+function nextNoteId(): number {
+  return _seedId++;
+}
 
 const collections = [
   { name: 'Personal' },
@@ -2681,7 +2685,7 @@ export async function seed(knex: Knex): Promise<void> {
   }
 
   for (const note of allNotes) {
-    const id = uuidv4();
+    const id = nextNoteId();
     const { createdAt, updatedAt } = generateTimestamps();
 
     await knex('notes').insert({
@@ -2819,7 +2823,7 @@ export async function seed(knex: Knex): Promise<void> {
   ];
 
   for (const note of janeNotes) {
-    const id = uuidv4();
+    const id = nextNoteId();
     const { createdAt, updatedAt } = generateTimestamps();
 
     await knex('notes').insert({

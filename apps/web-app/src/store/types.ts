@@ -13,7 +13,7 @@ export interface NoteStore {
   tags: Tag[];
   collections: Collection[];
   activeCollectionId: number | null;
-  selectedNoteId: string | null;
+  selectedNoteId: number | null;
   searchQuery: string;
   selectedTags: string[];
   claudeAuthenticated: boolean;
@@ -40,7 +40,7 @@ export interface NoteStore {
   setView: (view: View) => void;
   toggleInfoPanel: () => void;
   setSearchQuery: (query: string) => void;
-  setSelectedNoteId: (id: string | null) => void;
+  setSelectedNoteId: (id: number | null) => void;
   setActiveCollectionId: (id: number) => void;
   toggleTag: (tag: string, accumulate?: boolean) => void;
   fetchClaudeAuthStatus: () => Promise<void>;
@@ -55,6 +55,7 @@ export interface NoteStore {
     title: string,
     content: string,
     opts?: {
+      id?: number;
       tags?: string[];
       collectionId?: number;
       pinned?: boolean;
@@ -65,14 +66,14 @@ export interface NoteStore {
   importing: boolean;
   importedCount: number;
   updateNote: (
-    id: string,
+    id: number,
     updates: Partial<Pick<Note, 'title' | 'content' | 'pinned'>> & {
       collectionId?: number;
     }
   ) => Promise<void>;
-  deleteNote: (id: string) => Promise<void>;
-  addTag: (noteId: string, tag: string) => Promise<void>;
-  removeTag: (noteId: string, tag: string) => Promise<void>;
+  deleteNote: (id: number) => Promise<void>;
+  addTag: (noteId: number, tag: string) => Promise<void>;
+  removeTag: (noteId: number, tag: string) => Promise<void>;
   exportNotes: () => Promise<void>;
   performBackup: () => Promise<void>;
   fetchApiKeys: () => Promise<void>;

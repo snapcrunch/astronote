@@ -4,6 +4,7 @@ import {
   UpdateNoteInputSchema,
   ListNotesQuerySchema,
   AddTagInputSchema,
+  NoteIdParamSchema,
 } from '@repo/types';
 import domain from '@repo/domain';
 
@@ -35,7 +36,8 @@ notesRouter.get('/', async (req, res) => {
 });
 
 notesRouter.get('/:id', async (req, res) => {
-  const note = await domain.notes.get(req.user!, req.params.id);
+  const { id } = NoteIdParamSchema.parse(req.params);
+  const note = await domain.notes.get(req.user!, id);
   if (!note) {
     res.status(404).json({ error: 'Note not found' });
     return;
@@ -54,12 +56,13 @@ notesRouter.post('/', async (req, res) => {
 });
 
 notesRouter.patch('/:id', async (req, res) => {
+  const { id } = NoteIdParamSchema.parse(req.params);
   const result = UpdateNoteInputSchema.safeParse(req.body);
   if (!result.success) {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const note = await domain.notes.update(req.user!, req.params.id, result.data);
+  const note = await domain.notes.update(req.user!, id, result.data);
   if (!note) {
     res.status(404).json({ error: 'Note not found' });
     return;
@@ -68,16 +71,13 @@ notesRouter.patch('/:id', async (req, res) => {
 });
 
 notesRouter.post('/:id/tags', async (req, res) => {
+  const { id } = NoteIdParamSchema.parse(req.params);
   const result = AddTagInputSchema.safeParse(req.body);
   if (!result.success) {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const note = await domain.notes.addTag(
-    req.user!,
-    req.params.id,
-    result.data.tag.trim()
-  );
+  const note = await domain.notes.addTag(req.user!, id, result.data.tag.trim());
   if (!note) {
     res.status(404).json({ error: 'Note not found' });
     return;
@@ -86,11 +86,8 @@ notesRouter.post('/:id/tags', async (req, res) => {
 });
 
 notesRouter.delete('/:id/tags/:tag', async (req, res) => {
-  const note = await domain.notes.removeTag(
-    req.user!,
-    req.params.id,
-    req.params.tag
-  );
+  const { id } = NoteIdParamSchema.parse(req.params);
+  const note = await domain.notes.removeTag(req.user!, id, req.params.tag);
   if (!note) {
     res.status(404).json({ error: 'Note not found' });
     return;
@@ -99,7 +96,8 @@ notesRouter.delete('/:id/tags/:tag', async (req, res) => {
 });
 
 notesRouter.delete('/:id', async (req, res) => {
-  const archived = await domain.notes.remove(req.user!, req.params.id);
+  const { id } = NoteIdParamSchema.parse(req.params);
+  const archived = await domain.notes.remove(req.user!, id);
   if (!archived) {
     res.status(404).json({ error: 'Note not found' });
     return;

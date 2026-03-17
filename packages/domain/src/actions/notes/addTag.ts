@@ -3,7 +3,7 @@ import repository from '@repo/repository';
 
 export async function addTag(
   user: AuthUser,
-  noteId: string,
+  noteId: number,
   tag: string
 ): Promise<Note | null> {
   const normalizedTag = tag.toLowerCase();

@@ -27,6 +27,7 @@ export interface FetchNotesParams {
 }
 
 export interface CreateNoteParams {
+  id?: number;
   title: string;
   content?: string;
   tags?: string[];
@@ -249,7 +250,7 @@ export class WebClient {
   }
 
   async updateNote(
-    id: string,
+    id: number,
     updates: Partial<Pick<Note, 'title' | 'content' | 'pinned'>> & {
       collectionId?: number;
     }
@@ -258,18 +259,18 @@ export class WebClient {
     return data;
   }
 
-  async deleteNote(id: string): Promise<void> {
+  async deleteNote(id: number): Promise<void> {
     await this.http.delete(`/api/notes/${id}`);
   }
 
-  async addTag(noteId: string, tag: string): Promise<Note> {
+  async addTag(noteId: number, tag: string): Promise<Note> {
     const { data } = await this.http.post<Note>(`/api/notes/${noteId}/tags`, {
       tag,
     });
     return data;
   }
 
-  async removeTag(noteId: string, tag: string): Promise<Note> {
+  async removeTag(noteId: number, tag: string): Promise<Note> {
     const { data } = await this.http.delete<Note>(
       `/api/notes/${noteId}/tags/${encodeURIComponent(tag)}`
     );

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const NoteSchema = z.object({
-  id: z.string(),
+  id: z.number(),
   title: z.string(),
   content: z.string(),
   tags: z.array(z.string()),
@@ -13,6 +13,7 @@ export const NoteSchema = z.object({
 export type Note = z.infer<typeof NoteSchema>;
 
 export const CreateNoteInputSchema = z.object({
+  id: z.number().optional(),
   title: z.string().min(1),
   content: z.string().optional(),
   pinned: z.boolean().optional(),
@@ -134,6 +135,10 @@ export const CreateApiKeyInputSchema = z.object({
 });
 
 export type CreateApiKeyInput = z.infer<typeof CreateApiKeyInputSchema>;
+
+export const NoteIdParamSchema = z.object({
+  id: z.coerce.number(),
+});
 
 export const UuidParamSchema = z.object({
   id: z.string().uuid(),

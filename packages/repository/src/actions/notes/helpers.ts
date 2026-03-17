@@ -1,7 +1,7 @@
 import type { Note } from '@repo/types';
 import { getDb } from '../../db';
 
-export async function getNoteTagsAsync(noteId: string): Promise<string[]> {
+export async function getNoteTagsAsync(noteId: number): Promise<string[]> {
   const db = getDb();
   const rows = await db('note_tags')
     .where('noteId', noteId)
@@ -11,7 +11,7 @@ export async function getNoteTagsAsync(noteId: string): Promise<string[]> {
 }
 
 export async function rowToNote(row: Record<string, unknown>): Promise<Note> {
-  const id = row.id as string;
+  const id = row.id as number;
   return {
     id,
     title: row.title as string,

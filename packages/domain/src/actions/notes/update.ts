@@ -4,7 +4,7 @@ import { trimNoteContent } from '../../util/notes';
 
 export async function update(
   user: AuthUser,
-  id: string,
+  id: number,
   input: UpdateNoteInput
 ): Promise<Note | null> {
   const existing = await repository.notes.getById({ userId: user.id, id });

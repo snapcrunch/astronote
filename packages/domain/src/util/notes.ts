@@ -7,6 +7,7 @@ export function trimNoteContent(note: Note): Note {
 export function buildFrontmatter(note: Note, collectionName?: string): string {
   return [
     '---',
+    `id: ${note.id}`,
     `title: ${note.title}`,
     `tags: ${note.tags.join(', ')}`,
     ...(collectionName ? [`collection: ${collectionName}`] : []),

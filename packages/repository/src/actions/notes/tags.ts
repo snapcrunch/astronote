@@ -1,7 +1,7 @@
 import { getDb } from '../../db';
 
 export async function addTag(params: {
-  noteId: string;
+  noteId: number;
   tag: string;
 }): Promise<void> {
   const { noteId, tag } = params;
@@ -17,7 +17,7 @@ export async function addTag(params: {
 }
 
 export async function removeTag(params: {
-  noteId: string;
+  noteId: number;
   tag: string;
 }): Promise<void> {
   const { noteId, tag } = params;

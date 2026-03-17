@@ -90,12 +90,12 @@ function NestedMenuItem({
 
 interface NoteListProps {
   notes: Note[];
-  selectedNoteId: string | null;
+  selectedNoteId: number | null;
   listRef: React.RefObject<HTMLUListElement | null>;
-  onSelectNote: (id: string) => void;
-  onDeleteNote: (id: string) => void;
+  onSelectNote: (id: number) => void;
+  onDeleteNote: (id: number) => void;
   onItemKeyDown: (e: React.KeyboardEvent, index: number) => void;
-  onRenameNote?: (noteId: string, currentTitle: string) => void;
+  onRenameNote?: (noteId: number, currentTitle: string) => void;
 }
 
 function formatDate(dateStr: string) {
@@ -145,7 +145,7 @@ function NoteList({
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
     mouseY: number;
-    noteId: string;
+    noteId: number;
   } | null>(null);
   const allTags = useNoteStore((s) => s.tags);
   const collections = useNoteStore((s) => s.collections);
@@ -158,7 +158,7 @@ function NoteList({
     ? notes.find((n) => n.id === contextMenu.noteId)
     : null;
 
-  const handleContextMenu = (e: React.MouseEvent, noteId: string) => {
+  const handleContextMenu = (e: React.MouseEvent, noteId: number) => {
     e.preventDefault();
     setContextMenu({ mouseX: e.clientX, mouseY: e.clientY, noteId });
   };

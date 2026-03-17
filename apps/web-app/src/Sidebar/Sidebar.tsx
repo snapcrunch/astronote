@@ -17,7 +17,7 @@ const SIDEBAR_WIDTH = 475;
 function Sidebar() {
   const isMobile = useIsMobile();
   const [renameDialog, setRenameDialog] = useState<{
-    noteId: string;
+    noteId: number;
     title: string;
   } | null>(null);
   const updateNote = useNoteStore((s) => s.updateNote);

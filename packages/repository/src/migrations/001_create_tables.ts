@@ -33,7 +33,7 @@ export async function up(knex: Knex): Promise<void> {
   });
 
   await knex.schema.createTable('notes', (table) => {
-    table.text('id').primary();
+    table.bigInteger('id').primary();
     table.text('title').notNullable();
     table.text('content').notNullable().defaultTo('');
     table.integer('archived').notNullable().defaultTo(0);
@@ -52,7 +52,7 @@ export async function up(knex: Knex): Promise<void> {
       .onDelete('CASCADE')
       .onUpdate('RESTRICT');
     table
-      .text('note_id')
+      .bigInteger('note_id')
       .notNullable()
       .references('id')
       .inTable('notes')
@@ -67,7 +67,7 @@ export async function up(knex: Knex): Promise<void> {
   });
 
   await knex.schema.createTable('note_tags', (table) => {
-    table.text('noteId').notNullable().references('id').inTable('notes');
+    table.bigInteger('noteId').notNullable().references('id').inTable('notes');
     table.text('tag').notNullable();
     table.primary(['noteId', 'tag']);
   });

@@ -2,7 +2,7 @@ import type { View } from './types';
 
 interface UrlParams {
   view: View;
-  selectedNoteId: string | null;
+  selectedNoteId: number | null;
   showInfoPanel: boolean;
   settingDefault: boolean;
 }
@@ -42,7 +42,7 @@ export function syncUrl(params: UrlParams) {
 
 export function parseUrl(): {
   view: View;
-  selectedNoteId: string | null;
+  selectedNoteId: number | null;
   showInfoPanel: boolean | null;
 } {
   const path = window.location.pathname;
@@ -63,7 +63,11 @@ export function parseUrl(): {
 
   const noteMatch = path.match(/^\/notes\/(.+)$/);
   if (noteMatch) {
-    return { view: 'notes', selectedNoteId: noteMatch[1]!, showInfoPanel };
+    return {
+      view: 'notes',
+      selectedNoteId: Number(noteMatch[1]),
+      showInfoPanel,
+    };
   }
 
   return { view: 'notes', selectedNoteId: null, showInfoPanel };

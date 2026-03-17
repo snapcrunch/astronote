@@ -96,7 +96,14 @@ function MainApp() {
               unmountOnExit
               timeout={150}
             >
-              <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', overflow: 'hidden' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flex: 1,
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
                 {contentView}
               </Box>
             </Fade>

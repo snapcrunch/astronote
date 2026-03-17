@@ -8,6 +8,7 @@ export function titleFromFilename(name: string): string {
 }
 
 export interface Frontmatter {
+  id?: number;
   title?: string;
   tags?: string[];
   collection?: string;
@@ -32,7 +33,10 @@ export function parseFrontmatter(content: string): {
     if (sep === -1) continue;
     const key = line.slice(0, sep).trim().toLowerCase();
     const value = line.slice(sep + 1).trim();
-    if (key === 'title' && value) {
+    if (key === 'id' && value) {
+      const parsed = parseInt(value, 10);
+      if (!isNaN(parsed)) frontmatter.id = parsed;
+    } else if (key === 'title' && value) {
       frontmatter.title = value;
     } else if (key === 'tags' && value) {
       frontmatter.tags = value

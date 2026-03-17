@@ -6,12 +6,12 @@ type UpdateNoteFn = ReturnType<typeof useNoteStore.getState>['updateNote'];
 export function useDebouncedNoteUpdate(updateNote: UpdateNoteFn) {
   const debounceTimer = useRef<ReturnType<typeof setTimeout>>(null);
   const pendingUpdate = useRef<{
-    id: string;
+    id: number;
     updates: Parameters<UpdateNoteFn>[1];
   } | null>(null);
 
   const debouncedUpdateNote = useCallback(
-    (id: string, updates: Parameters<UpdateNoteFn>[1]) => {
+    (id: number, updates: Parameters<UpdateNoteFn>[1]) => {
       pendingUpdate.current = { id, updates };
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       debounceTimer.current = setTimeout(() => {
@@ -43,7 +43,7 @@ export function useDebouncedNoteUpdate(updateNote: UpdateNoteFn) {
   return { debouncedUpdateNote, flushPendingUpdate };
 }
 
-export function useEditingState(noteId: string | undefined) {
+export function useEditingState(noteId: number | undefined) {
   const [editing, setEditing] = useState(false);
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { getById } from './get';
 
 export async function update(params: {
   userId: number;
-  id: string;
+  id: number;
   updates: {
     title?: string;
     content?: string;

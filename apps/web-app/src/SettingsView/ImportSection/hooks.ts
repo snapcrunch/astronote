@@ -57,6 +57,7 @@ export function useImport() {
             collectionId = await resolveCollectionId(frontmatter.collection);
           }
           await importNote(title, body, {
+            id: frontmatter.id,
             tags,
             collectionId,
             pinned: frontmatter.pinned,
