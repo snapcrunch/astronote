@@ -15,6 +15,7 @@ import CommandPalette from './CommandPalette';
 import Omnibar from './Sidebar/Omnibar';
 import LoadingView from './LoadingView';
 import LoginView from './LoginView';
+import MobileBottomNav from './components/MobileBottomNav';
 import { useNoteStore } from './store';
 import { useDocumentTitle, useIsMobile } from './hooks';
 import { themes } from './themes';
@@ -94,6 +95,7 @@ function MainApp() {
                 {contentView}
               </Box>
             </Fade>
+            {selectedNoteId === null && <MobileBottomNav />}
           </>
         ) : (
           <>

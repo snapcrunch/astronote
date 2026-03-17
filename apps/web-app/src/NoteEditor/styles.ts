@@ -103,16 +103,3 @@ export const markdownContent: SxProps<Theme> = {
     my: 2,
   },
 };
-
-export const mobileInfoToggle: SxProps<Theme> = {
-  px: 1.5,
-  py: 1,
-  display: 'flex',
-  alignItems: 'center',
-  gap: 0.5,
-  borderTop: 1,
-  borderColor: 'divider',
-  bgcolor: 'grey.100',
-  cursor: 'pointer',
-  userSelect: 'none',
-};

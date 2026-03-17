@@ -8,6 +8,9 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
+import BottomNavigation from '@mui/material/BottomNavigation';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import { visit } from 'unist-util-visit';
 import type { Root, Element } from 'hast';
 import { useNoteStore, useSelectedNote } from '../store';
@@ -193,25 +196,21 @@ function NoteEditor() {
         </OverlayScrollbarsComponent>
       )}
       {isMobile && (
-        <Box
-          onClick={() => setMobileInfoOpen((prev) => !prev)}
-          sx={styles.mobileInfoToggle}
-        >
-          <InfoOutlinedIcon
-            sx={{
-              fontSize: 16,
-              color: mobileInfoOpen ? 'primary.main' : 'text.secondary',
-            }}
-          />
-          <Typography
-            variant="caption"
-            sx={{
-              fontWeight: 600,
-              color: mobileInfoOpen ? 'primary.main' : 'text.secondary',
-            }}
+        <Box sx={{ borderTop: 1, borderColor: 'divider', pb: 'env(safe-area-inset-bottom)' }}>
+          <BottomNavigation
+            value={mobileInfoOpen ? 1 : 0}
+            onChange={(_, newValue) => setMobileInfoOpen(newValue === 1)}
+            showLabels
           >
-            Info
-          </Typography>
+            <BottomNavigationAction
+              label="Note"
+              icon={<DescriptionOutlinedIcon />}
+            />
+            <BottomNavigationAction
+              label="Info"
+              icon={<InfoOutlinedIcon />}
+            />
+          </BottomNavigation>
         </Box>
       )}
     </Box>
