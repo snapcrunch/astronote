@@ -9,8 +9,11 @@ import DialogTitle from '@mui/material/DialogTitle';
 import InputBase from '@mui/material/InputBase';
 import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { WebClient } from '@repo/astronote-client/WebClient';
 import { useNoteStore, useSelectedNote } from '../store';
+import CodeBlock from '../NoteEditor/CodeBlock';
 
 const client = new WebClient();
 
@@ -171,12 +174,61 @@ export default function ClaudeChatDialog({
                 px: 1.5,
                 py: 1,
                 borderRadius: 2,
-                whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
                 fontSize: '0.9rem',
+                ...(msg.role === 'user'
+                  ? { whiteSpace: 'pre-wrap' }
+                  : {
+                      '& > *:first-child': { mt: 0, pt: 0 },
+                      '& > *:last-child': { mb: 0, pb: 0 },
+                      '& table': {
+                        borderCollapse: 'collapse',
+                        width: '100%',
+                        my: 2,
+                      },
+                      '& th, & td': {
+                        border: 1,
+                        borderColor: 'divider',
+                        px: 1.5,
+                        py: 0.75,
+                        textAlign: 'left',
+                      },
+                      '& th': { bgcolor: 'grey.200', fontWeight: 600 },
+                      '& code': {
+                        fontSize: '0.875rem',
+                        bgcolor: 'grey.200',
+                        px: 0.5,
+                        borderRadius: 0.5,
+                      },
+                      '& pre code': { bgcolor: 'transparent', px: 0 },
+                      '& blockquote': {
+                        borderLeft: 4,
+                        borderColor: 'grey.300',
+                        pl: 2,
+                        ml: 0,
+                        color: 'text.secondary',
+                        fontStyle: 'italic',
+                      },
+                      '& a': { color: 'primary.main' },
+                      '& hr': {
+                        border: 'none',
+                        borderTop: 1,
+                        borderColor: 'divider',
+                        my: 2,
+                      },
+                    }),
               }}
             >
-              {msg.text}
+              {msg.role === 'user' ? (
+                msg.text
+              ) : (
+                <Markdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{ pre: CodeBlock }}
+                >
+                  {msg.text}
+                </Markdown>
+              )}
             </Box>
           ) : null
         )}
