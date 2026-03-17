@@ -36,17 +36,31 @@ function NestedMenuItem({
 }: NestedMenuItemProps) {
   const menuItemRef = useRef<HTMLLIElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const closeTimeout = useRef<ReturnType<typeof setTimeout>>();
+
+  const handleMouseEnter = () => {
+    clearTimeout(closeTimeout.current);
+    setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    closeTimeout.current = setTimeout(() => setIsOpen(false), 50);
+  };
 
   useEffect(() => {
     if (!parentMenuOpen) setIsOpen(false);
   }, [parentMenuOpen]);
 
+  useEffect(() => {
+    return () => clearTimeout(closeTimeout.current);
+  }, []);
+
   return (
     <>
       <MenuItem
         ref={menuItemRef}
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         {leftIcon && <ListItemIcon>{leftIcon}</ListItemIcon>}
         <ListItemText>{label}</ListItemText>
@@ -62,7 +76,8 @@ function NestedMenuItem({
         MenuListProps={{
           dense: true,
           style: { pointerEvents: 'auto' },
-          onMouseLeave: () => setIsOpen(false),
+          onMouseEnter: handleMouseEnter,
+          onMouseLeave: handleMouseLeave,
         }}
         autoFocus={false}
         disableAutoFocus
