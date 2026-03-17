@@ -97,7 +97,14 @@ function NoteEditor() {
 
   if (!note) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flex: 1,
+        }}
+      >
         <CircularProgress size={24} />
       </Box>
     );

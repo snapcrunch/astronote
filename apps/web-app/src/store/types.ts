@@ -1,4 +1,10 @@
-import type { Note, NoteSummary, Collection, Settings, ApiKey } from '@repo/types';
+import type {
+  Note,
+  NoteSummary,
+  Collection,
+  Settings,
+  ApiKey,
+} from '@repo/types';
 import type { Tag, User } from '@repo/astronote-client/WebClient';
 
 export type { Tag, User };

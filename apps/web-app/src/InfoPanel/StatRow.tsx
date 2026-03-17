@@ -20,7 +20,10 @@ function StatRow({
         variant="caption"
         sx={{
           ...statValue,
-          ...(onValueClick && { cursor: 'pointer', '&:hover': { color: 'primary.main' } }),
+          ...(onValueClick && {
+            cursor: 'pointer',
+            '&:hover': { color: 'primary.main' },
+          }),
         }}
         onClick={onValueClick}
       >

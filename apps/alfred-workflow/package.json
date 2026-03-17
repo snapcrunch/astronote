@@ -4,8 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bash scripts/build.sh",
-    "lint": "eslint ."
+    "build": "bash scripts/build.sh"
   },
   "dependencies": {
     "alfy": "^3.1.0"

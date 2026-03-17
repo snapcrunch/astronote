@@ -26,7 +26,6 @@ export const infoPanelHeader: SxProps<Theme> = {
   boxSizing: 'content-box',
 };
 
-
 export const infoPanelContent: SxProps<Theme> = {
   px: 2,
   py: 1.5,

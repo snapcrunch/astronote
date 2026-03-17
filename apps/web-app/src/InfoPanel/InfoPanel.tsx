@@ -41,7 +41,9 @@ function InfoPanel({ variant = 'side' }: InfoPanelProps) {
             <StatRow
               label="ID"
               value={note.id}
-              onValueClick={() => navigator.clipboard.writeText(note.id)}
+              onValueClick={() =>
+                navigator.clipboard.writeText(String(note.id))
+              }
             />
             <StatRow label="Created" value={formatDateTime(note.createdAt)} />
             <StatRow label="Modified" value={formatDateTime(note.updatedAt)} />

@@ -183,7 +183,12 @@ export function createActions({
     },
 
     setActiveCollectionId: (id: number) => {
-      set({ activeCollectionId: id, selectedNoteId: null, notes: [], noteContentCache: {} });
+      set({
+        activeCollectionId: id,
+        selectedNoteId: null,
+        notes: [],
+        noteContentCache: {},
+      });
       syncUrl({
         view: 'notes',
         selectedNoteId: null,
@@ -308,7 +313,10 @@ export function createActions({
           selectedNoteId: note.id,
           editOnCreate: true,
           view: 'notes',
-          noteContentCache: { ...state.noteContentCache, [note.id]: note.content },
+          noteContentCache: {
+            ...state.noteContentCache,
+            [note.id]: note.content,
+          },
         }));
         syncUrl({
           view: 'notes',
@@ -362,14 +370,20 @@ export function createActions({
         const { content: _, ...summary } = updated;
         if (updates.collectionId !== undefined) {
           set((state) => ({
-            noteContentCache: { ...state.noteContentCache, [id]: updated.content },
+            noteContentCache: {
+              ...state.noteContentCache,
+              [id]: updated.content,
+            },
           }));
           await get().fetchNotes();
           await get().fetchCollections();
         } else {
           set((state) => ({
             notes: state.notes.map((n) => (n.id === id ? summary : n)),
-            noteContentCache: { ...state.noteContentCache, [id]: updated.content },
+            noteContentCache: {
+              ...state.noteContentCache,
+              [id]: updated.content,
+            },
           }));
           if (updates.pinned !== undefined) {
             await get().fetchNotes();
@@ -421,7 +435,10 @@ export function createActions({
         const { content: _, ...summary } = updated;
         set((state) => ({
           notes: state.notes.map((n) => (n.id === noteId ? summary : n)),
-          noteContentCache: { ...state.noteContentCache, [noteId]: updated.content },
+          noteContentCache: {
+            ...state.noteContentCache,
+            [noteId]: updated.content,
+          },
         }));
         get().fetchTags();
       } finally {
@@ -436,7 +453,10 @@ export function createActions({
         const { content: _, ...summary } = updated;
         set((state) => ({
           notes: state.notes.map((n) => (n.id === noteId ? summary : n)),
-          noteContentCache: { ...state.noteContentCache, [noteId]: updated.content },
+          noteContentCache: {
+            ...state.noteContentCache,
+            [noteId]: updated.content,
+          },
         }));
         get().fetchTags();
       } finally {
