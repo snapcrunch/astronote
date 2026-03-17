@@ -7,17 +7,34 @@ Yet another note taking application[^1].
 ## Features
 
 - **Full-text search & instant creation** — Type in the omnibar to search existing notes or press Enter to create a new one.
-- **Markdown editing** — Write notes in Markdown with a live rendered preview, powered by CodeMirror. Syntax highlighting for code blocks in rendered mode.
-- **Rename notes** — Rename any note via the context menu or the keyboard shortcut ⌘⇧E.
+- **Markdown editing** — Write notes in Markdown with a live rendered preview, powered by CodeMirror. Syntax highlighting for code blocks, `[[wiki-style links]]` between notes with autocomplete and broken-link detection, and clickable task list checkboxes.
+- **Note actions** — Rename (⌘⇧E), delete (⌘⇧D), pin, move to a collection, manage tags, or copy a note's ID — all available from the right-click context menu.
 - **Collections** — Organize notes into collections and quickly switch between them.
 - **Tags** — Tag notes for flexible categorization and filter by tags in the sidebar.
+- **Info panel** — Toggle a side panel (⌘I) showing a table of contents, word and character statistics, creation and modification dates, and related notes.
 - **Pinned notes** — Pin important notes to the top of the list.
-- **Command palette** — Access all actions quickly via the command palette (⌘⇧P).
+- **Command palette** — Access all actions quickly via the command palette (⌘⇧P), including data reset.
 - **Import & export** — Import notes from ZIP archives and export all notes for backup.
+- **API keys** — Generate keys for programmatic access to the REST API. Create, view, and revoke keys from Settings.
 - **Git backups** — Automatically back up notes to a remote Git repository on an hourly or daily schedule. Configure an SSH URL and private key in Settings, or trigger a backup manually at any time.
+- **Settings** — Configure the default editor view, info panel visibility, and dark/light theme (⌘⇧S).
 - **Mobile-friendly** — Responsive layout with touch-optimized interactions and home screen app support (iOS/Android).
 - **Self-hosted** — Runs as a single Docker container with an embedded SQLite database. Optional HTTP basic auth.
 - **Ask Claude** — Chat with Claude directly from the app (⌘⇧Z). Claude can search, read, create, and edit your notes, manage tags and collections, and even browse the web — all through a streaming chat interface with session persistence. Authenticate via OAuth from the command palette.
+
+### Keyboard Shortcuts
+
+| Shortcut | Action                 |
+| -------- | ---------------------- |
+| ⌘⇧K      | Focus search / omnibar |
+| ⌘⇧P      | Command palette        |
+| ⌘⇧C      | Switch collection      |
+| ⌘⇧S      | Open settings          |
+| ⌘⇧E      | Rename note            |
+| ⌘⇧D      | Delete note            |
+| ⌘⇧Z      | Ask Claude             |
+| ⌘I       | Toggle info panel      |
+| Escape   | Close panel / dialog   |
 
 ## Quick Start
 
