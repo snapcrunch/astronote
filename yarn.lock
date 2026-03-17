@@ -216,7 +216,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/autocomplete@npm:^6.0.0, @codemirror/autocomplete@npm:^6.3.2, @codemirror/autocomplete@npm:^6.7.1":
+"@codemirror/autocomplete@npm:^6.0.0, @codemirror/autocomplete@npm:^6.20.1, @codemirror/autocomplete@npm:^6.3.2, @codemirror/autocomplete@npm:^6.7.1":
   version: 6.20.1
   resolution: "@codemirror/autocomplete@npm:6.20.1"
   dependencies:
@@ -1930,6 +1930,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@repo/web-app@workspace:apps/web-app"
   dependencies:
+    "@codemirror/autocomplete": ^6.20.1
     "@codemirror/lang-markdown": ^6.5.0
     "@codemirror/language-data": ^6.5.2
     "@codemirror/state": ^6.5.4

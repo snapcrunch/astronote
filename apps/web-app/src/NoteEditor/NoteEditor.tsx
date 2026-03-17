@@ -20,6 +20,8 @@ import InfoPanel from '../InfoPanel';
 import MarkdownEditor from '../MarkdownEditor';
 import CodeBlock from './CodeBlock';
 import { headingComponents } from './HeadingWithId';
+import rehypeWikiLinks from './rehypeWikiLinks';
+import WikiLink from './WikiLink';
 import { useDebouncedNoteUpdate, useEditingState } from './hooks';
 import Placeholder from './Placeholder';
 import * as styles from './styles';
@@ -37,7 +39,7 @@ function rehypeNumberCheckboxes() {
   };
 }
 
-const rehypePlugins = [rehypeNumberCheckboxes];
+const rehypePlugins = [rehypeNumberCheckboxes, rehypeWikiLinks];
 
 function NoteEditor() {
   const isMobile = useIsMobile();
@@ -45,6 +47,7 @@ function NoteEditor() {
   const toggleInfoPanel = useNoteStore((s) => s.toggleInfoPanel);
   const setSelectedNoteId = useNoteStore((s) => s.setSelectedNoteId);
   const note = useSelectedNote();
+  const notes = useNoteStore((s) => s.notes);
   const updateNote = useNoteStore((s) => s.updateNote);
   const [mobileInfoOpen, setMobileInfoOpen] = useState(false);
   const [checkboxContent, setCheckboxContent] = useState<string | null>(null);
@@ -98,6 +101,7 @@ function NoteEditor() {
   const markdownComponents = {
     pre: CodeBlock,
     ...headingComponents,
+    'wiki-link': WikiLink,
     input({
       checked,
       type,
@@ -180,6 +184,8 @@ function NoteEditor() {
                 }}
                 onEscape={flushAndExitEdit}
                 autoFocus
+                notes={notes}
+                currentNoteId={note.id}
               />
             ) : (
               <Box sx={styles.markdownContent}>

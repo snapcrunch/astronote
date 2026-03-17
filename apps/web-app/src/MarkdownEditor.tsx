@@ -8,12 +8,17 @@ import { EditorState } from '@codemirror/state';
 import { markdown } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
 import { basicSetup } from 'codemirror';
+import { completionStatus } from '@codemirror/autocomplete';
+import type { Note } from '@repo/types';
+import { wikiLinkCompletion } from './NoteEditor/wikiLinkAutocomplete';
 
 interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;
   autoFocus?: boolean;
   onEscape?: () => void;
+  notes?: Note[];
+  currentNoteId?: number;
 }
 
 function MarkdownEditor({
@@ -21,6 +26,8 @@ function MarkdownEditor({
   onChange,
   autoFocus,
   onEscape,
+  notes,
+  currentNoteId,
 }: MarkdownEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -28,6 +35,10 @@ function MarkdownEditor({
   onChangeRef.current = onChange;
   const onEscapeRef = useRef(onEscape);
   onEscapeRef.current = onEscape;
+  const notesRef = useRef(notes ?? []);
+  notesRef.current = notes ?? [];
+  const currentNoteIdRef = useRef(currentNoteId);
+  currentNoteIdRef.current = currentNoteId;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -46,7 +57,8 @@ function MarkdownEditor({
             },
             {
               key: 'Escape',
-              run: () => {
+              run: (view) => {
+                if (completionStatus(view.state)) return false;
                 onEscapeRef.current?.();
                 return true;
               },
@@ -58,6 +70,10 @@ function MarkdownEditor({
           markdown({ codeLanguages: languages }),
           cmPlaceholder('Start writing…'),
           EditorView.lineWrapping,
+          wikiLinkCompletion(
+            () => notesRef.current,
+            () => currentNoteIdRef.current
+          ),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
               onChangeRef.current(update.state.doc.toString());
