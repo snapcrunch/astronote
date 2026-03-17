@@ -21,10 +21,19 @@ function RelatedNotes({ sx }: RelatedNotesProps) {
   const [open, setOpen] = useState(true);
 
   const relatedNotes = useMemo(() => {
-    if (!note || note.tags.length === 0) return [];
+    if (!note) return [];
     const tagSet = new Set(note.tags);
+    const linkedIds = new Set<number>();
+    for (const m of note.content.matchAll(/\[\[(\d+)\]\]/g)) {
+      linkedIds.add(Number(m[1]));
+    }
+    if (tagSet.size === 0 && linkedIds.size === 0) return [];
     return notes
-      .filter((n) => n.id !== note.id && n.tags.some((t) => tagSet.has(t)))
+      .filter(
+        (n) =>
+          n.id !== note.id &&
+          (n.tags.some((t) => tagSet.has(t)) || linkedIds.has(n.id))
+      )
       .sort((a, b) => a.title.localeCompare(b.title));
   }, [note, notes]);
 
