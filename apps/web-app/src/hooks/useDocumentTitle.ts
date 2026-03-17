@@ -9,5 +9,5 @@ export function useDocumentTitle() {
     return () => {
       document.title = 'Astronote';
     };
-  }, [note?.title]);
+  }, [note]);
 }

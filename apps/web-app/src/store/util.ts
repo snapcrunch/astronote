@@ -1,11 +1,18 @@
 import type { View } from './types';
 
-export function buildUrl(
-  view: View,
-  selectedNoteId: string | null,
-  showInfoPanel: boolean,
-  settingDefault: boolean
-): string {
+interface UrlParams {
+  view: View;
+  selectedNoteId: string | null;
+  showInfoPanel: boolean;
+  settingDefault: boolean;
+}
+
+export function buildUrl({
+  view,
+  selectedNoteId,
+  showInfoPanel,
+  settingDefault,
+}: UrlParams): string {
   let path: string;
   if (view === 'settings') {
     path = '/settings';
@@ -26,20 +33,8 @@ export function buildUrl(
   return qs ? `${path}?${qs}` : path;
 }
 
-interface SyncUrlParams {
-  view: View;
-  selectedNoteId: string | null;
-  showInfoPanel: boolean;
-  settingDefault: boolean;
-}
-
-export function syncUrl({
-  view,
-  selectedNoteId,
-  showInfoPanel,
-  settingDefault,
-}: SyncUrlParams) {
-  const url = buildUrl(view, selectedNoteId, showInfoPanel, settingDefault);
+export function syncUrl(params: UrlParams) {
+  const url = buildUrl(params);
   if (url !== window.location.pathname + window.location.search) {
     window.history.pushState(null, '', url);
   }

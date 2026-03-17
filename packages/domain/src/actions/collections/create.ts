@@ -5,11 +5,14 @@ export async function create(
   user: AuthUser,
   name: string
 ): Promise<Collection> {
-  const existing = await repository.collections.getByName(user.id, name);
+  const existing = await repository.collections.getByName({
+    userId: user.id,
+    name,
+  });
   if (existing) {
     throw new CollectionAlreadyExistsError(name);
   }
-  return repository.collections.create(user.id, name);
+  return repository.collections.create({ userId: user.id, name });
 }
 
 export class CollectionAlreadyExistsError extends Error {

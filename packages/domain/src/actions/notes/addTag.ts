@@ -7,6 +7,6 @@ export async function addTag(
   tag: string
 ): Promise<Note | null> {
   const normalizedTag = tag.toLowerCase();
-  await repository.notes.addTag(noteId, normalizedTag);
-  return repository.notes.getById(user.id, noteId);
+  await repository.notes.addTag({ noteId, tag: normalizedTag });
+  return repository.notes.getById({ userId: user.id, id: noteId });
 }

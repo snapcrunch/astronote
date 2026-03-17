@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 
+// eslint-disable-next-line max-params -- Express error handlers require exactly 4 parameters
 export function errorHandler(
   err: unknown,
   _req: Request,

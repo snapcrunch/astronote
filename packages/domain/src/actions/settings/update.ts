@@ -5,5 +5,5 @@ export async function update(
   user: AuthUser,
   updates: Partial<Settings>
 ): Promise<Settings> {
-  return repository.settings.update(user.id, updates);
+  return repository.settings.update({ userId: user.id, updates });
 }

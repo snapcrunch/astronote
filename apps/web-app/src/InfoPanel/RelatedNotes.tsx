@@ -56,7 +56,7 @@ function RelatedNotes({ sx }: RelatedNotesProps) {
           }}
         >
           <List dense disablePadding>
-            {relatedNotes.map((n, index) => (
+            {relatedNotes.map((n) => (
               <ListItemButton
                 key={n.id}
                 onClick={() => setSelectedNoteId(n.id)}

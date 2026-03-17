@@ -5,7 +5,11 @@ import Fade from '@mui/material/Fade';
 import CheckIcon from '@mui/icons-material/Check';
 import { useNoteStore } from '../store';
 
-function useActivityStatus(busy: boolean, activeText: string, doneText: string) {
+function useActivityStatus(
+  busy: boolean,
+  activeText: string,
+  doneText: string
+) {
   const [showDone, setShowDone] = useState(false);
   const prev = useRef(busy);
 
@@ -34,21 +38,25 @@ function SaveStatusIndicator() {
 
   const saveStatus = useActivityStatus(saving, 'Saving...', 'Saved');
   const renameStatus = useActivityStatus(renaming, 'Renaming...', 'Renamed');
-  const tagStatus = useActivityStatus(tagging, 'Updating tags...', 'Tags updated');
+  const tagStatus = useActivityStatus(
+    tagging,
+    'Updating tags...',
+    'Tags updated'
+  );
   const importStatus = useActivityStatus(
     importing,
     'Importing notes...',
-    `Imported ${importedCount} note${importedCount === 1 ? '' : 's'}`,
+    `Imported ${importedCount} note${importedCount === 1 ? '' : 's'}`
   );
   const createCollectionStatus = useActivityStatus(
     creatingCollection,
     'Creating collection...',
-    'Collection created',
+    'Collection created'
   );
   const deleteCollectionStatus = useActivityStatus(
     deletingCollection,
     'Deleting collection...',
-    'Collection deleted',
+    'Collection deleted'
   );
 
   const allStatuses = [
@@ -76,7 +84,10 @@ function SaveStatusIndicator() {
         )}
         <Typography
           variant="caption"
-          sx={{ color: current.done ? 'success.main' : 'text.secondary', whiteSpace: 'nowrap' }}
+          sx={{
+            color: current.done ? 'success.main' : 'text.secondary',
+            whiteSpace: 'nowrap',
+          }}
         >
           {current.text}
         </Typography>

@@ -1,10 +1,11 @@
 import type { Collection } from '@repo/types';
 import { getDb } from '../../db';
 
-export async function create(
-  userId: number,
-  name: string
-): Promise<Collection> {
+export async function create(params: {
+  userId: number;
+  name: string;
+}): Promise<Collection> {
+  const { userId, name } = params;
   const db = getDb();
   const [id] = await db('collections').insert({ name });
   await db('users_collections').insert({

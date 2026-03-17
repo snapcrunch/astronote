@@ -2,19 +2,20 @@ import type { Note } from '@repo/types';
 import { getDb } from '../../db';
 import { getById } from './get';
 
-export async function update(
-  userId: number,
-  id: string,
+export async function update(params: {
+  userId: number;
+  id: string;
   updates: {
     title?: string;
     content?: string;
     pinned?: boolean;
     collectionId?: number;
     updatedAt: string;
-  }
-): Promise<Note | null> {
+  };
+}): Promise<Note | null> {
+  const { userId, id, updates } = params;
   const db = getDb();
-  const existing = await getById(userId, id);
+  const existing = await getById({ userId, id });
   if (!existing) {
     return null;
   }

@@ -1,9 +1,10 @@
 import { getDb } from '../../db';
 
-export async function list(
-  userId: number,
-  collectionId?: number
-): Promise<{ tag: string; count: number }[]> {
+export async function list(params: {
+  userId: number;
+  collectionId?: number;
+}): Promise<{ tag: string; count: number }[]> {
+  const { userId, collectionId } = params;
   const db = getDb();
 
   let q = db('note_tags')

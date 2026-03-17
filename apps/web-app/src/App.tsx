@@ -58,7 +58,7 @@ function MainApp() {
         .start();
     }, 500);
     return () => clearTimeout(timer);
-  }, [introDismissed, updateSettings]);
+  }, [introDismissed, updateSettings, isMobile]);
 
   const isNotes = view === 'notes';
   const showNoteView = isMobile && (selectedNoteId !== null || !isNotes);
@@ -89,7 +89,13 @@ function MainApp() {
             >
               <Sidebar />
             </Box>
-            <Fade key={view} in={showNoteView} mountOnEnter unmountOnExit timeout={150}>
+            <Fade
+              key={view}
+              in={showNoteView}
+              mountOnEnter
+              unmountOnExit
+              timeout={150}
+            >
               <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
                 {contentView}
               </Box>
@@ -102,9 +108,7 @@ function MainApp() {
             <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
               <Sidebar />
               <Fade key={view} in timeout={150}>
-                <Box sx={{ display: 'flex', flex: 1 }}>
-                  {contentView}
-                </Box>
+                <Box sx={{ display: 'flex', flex: 1 }}>{contentView}</Box>
               </Fade>
               <InfoPanel />
             </Box>

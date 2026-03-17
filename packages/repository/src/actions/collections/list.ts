@@ -21,10 +21,11 @@ export async function list(userId: number): Promise<Collection[]> {
   return rows.map(rowToCollection);
 }
 
-export async function getByName(
-  userId: number,
-  name: string
-): Promise<Collection | undefined> {
+export async function getByName(params: {
+  userId: number;
+  name: string;
+}): Promise<Collection | undefined> {
+  const { userId, name } = params;
   const db = getDb();
   const row = await db('collections')
     .join(

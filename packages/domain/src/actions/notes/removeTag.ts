@@ -7,6 +7,6 @@ export async function removeTag(
   tag: string
 ): Promise<Note | null> {
   const normalizedTag = tag.toLowerCase();
-  await repository.notes.removeTag(noteId, normalizedTag);
-  return repository.notes.getById(user.id, noteId);
+  await repository.notes.removeTag({ noteId, tag: normalizedTag });
+  return repository.notes.getById({ userId: user.id, id: noteId });
 }

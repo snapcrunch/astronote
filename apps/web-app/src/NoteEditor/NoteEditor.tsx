@@ -196,7 +196,13 @@ function NoteEditor() {
         </OverlayScrollbarsComponent>
       )}
       {isMobile && (
-        <Box sx={{ borderTop: 1, borderColor: 'divider', pb: 'env(safe-area-inset-bottom)' }}>
+        <Box
+          sx={{
+            borderTop: 1,
+            borderColor: 'divider',
+            pb: 'env(safe-area-inset-bottom)',
+          }}
+        >
           <BottomNavigation
             value={mobileInfoOpen ? 1 : 0}
             onChange={(_, newValue) => setMobileInfoOpen(newValue === 1)}
@@ -206,10 +212,7 @@ function NoteEditor() {
               label="Note"
               icon={<DescriptionOutlinedIcon />}
             />
-            <BottomNavigationAction
-              label="Info"
-              icon={<InfoOutlinedIcon />}
-            />
+            <BottomNavigationAction label="Info" icon={<InfoOutlinedIcon />} />
           </BottomNavigation>
         </Box>
       )}

@@ -5,5 +5,5 @@ export async function list(
   user: AuthUser,
   collectionId?: number
 ): Promise<{ tag: string; count: number }[]> {
-  return repository.tags.list(user.id, collectionId);
+  return repository.tags.list({ userId: user.id, collectionId });
 }

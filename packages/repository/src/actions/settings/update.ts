@@ -2,10 +2,11 @@ import type { Settings } from '@repo/types';
 import { getDb } from '../../db';
 import { get } from './get';
 
-export async function update(
-  userId: number,
-  updates: Partial<Settings>
-): Promise<Settings> {
+export async function update(params: {
+  userId: number;
+  updates: Partial<Settings>;
+}): Promise<Settings> {
+  const { userId, updates } = params;
   const db = getDb();
   const current = await get(userId);
   const merged = { ...current, ...updates };

@@ -1,8 +1,6 @@
 import { getDb } from '../../db';
 
-export async function update(
-  settings: Record<string, unknown>
-): Promise<void> {
+export async function update(settings: Record<string, unknown>): Promise<void> {
   const db = getDb();
   const value = JSON.stringify(settings);
 

@@ -2,11 +2,12 @@ import type { Note } from '@repo/types';
 import { getDb } from '../../db';
 import { getNoteTagsAsync } from './helpers';
 
-export async function create(
-  userId: number,
-  note: Note,
-  collectionId?: number
-): Promise<Note> {
+export async function create(params: {
+  userId: number;
+  note: Note;
+  collectionId?: number;
+}): Promise<Note> {
+  const { userId, note, collectionId } = params;
   const db = getDb();
   await db('notes').insert({
     id: note.id,

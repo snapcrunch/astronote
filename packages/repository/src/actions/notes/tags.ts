@@ -1,6 +1,10 @@
 import { getDb } from '../../db';
 
-export async function addTag(noteId: string, tag: string): Promise<void> {
+export async function addTag(params: {
+  noteId: string;
+  tag: string;
+}): Promise<void> {
+  const { noteId, tag } = params;
   const db = getDb();
   await db('note_tags')
     .insert({ noteId, tag })
@@ -12,10 +16,11 @@ export async function addTag(noteId: string, tag: string): Promise<void> {
   );
 }
 
-export async function removeTag(
-  noteId: string,
-  tag: string
-): Promise<void> {
+export async function removeTag(params: {
+  noteId: string;
+  tag: string;
+}): Promise<void> {
+  const { noteId, tag } = params;
   const db = getDb();
   const exists = await db('note_tags').where({ noteId, tag }).first();
   if (!exists) {

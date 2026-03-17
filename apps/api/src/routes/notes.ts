@@ -26,7 +26,11 @@ notesRouter.get('/', async (req, res) => {
     return;
   }
   const { q, tags, collectionId } = result.data;
-  const notes = await domain.notes.list(req.user!, q, tags, collectionId);
+  const notes = await domain.notes.list(req.user!, {
+    query: q,
+    tags,
+    collectionId,
+  });
   res.json(notes);
 });
 

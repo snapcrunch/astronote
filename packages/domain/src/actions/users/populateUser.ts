@@ -18,9 +18,18 @@ const defaultNotes = [
 ];
 
 export async function populateUser(user: AuthUser): Promise<Collection> {
-  await repository.settings.update(user.id, DEFAULT_SETTINGS);
-  const collection = await repository.collections.create(user.id, 'Default');
-  await repository.collections.setDefault(user.id, collection.id);
+  await repository.settings.update({
+    userId: user.id,
+    updates: DEFAULT_SETTINGS,
+  });
+  const collection = await repository.collections.create({
+    userId: user.id,
+    name: 'Default',
+  });
+  await repository.collections.setDefault({
+    userId: user.id,
+    id: collection.id,
+  });
 
   for (const note of defaultNotes) {
     await createNote(user, {

@@ -1,9 +1,10 @@
 import { getDb } from '../../db';
 
-export async function remove(
-  userId: number,
-  id: number
-): Promise<boolean> {
+export async function remove(params: {
+  userId: number;
+  id: number;
+}): Promise<boolean> {
+  const { userId, id } = params;
   const db = getDb();
   const owns = await db('users_collections')
     .where({ user_id: userId, collection_id: id })

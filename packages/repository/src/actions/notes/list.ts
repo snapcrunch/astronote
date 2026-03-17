@@ -2,12 +2,13 @@ import type { Note } from '@repo/types';
 import { getDb } from '../../db';
 import { rowToNote } from './helpers';
 
-export async function list(
-  userId: number,
-  query?: string,
-  tags?: string[],
-  collectionId?: number
-): Promise<Note[]> {
+export async function list(params: {
+  userId: number;
+  query?: string;
+  tags?: string[];
+  collectionId?: number;
+}): Promise<Note[]> {
+  const { userId, query, tags, collectionId } = params;
   const db = getDb();
   let q = db('notes')
     .join('users_notes', 'notes.id', 'users_notes.note_id')

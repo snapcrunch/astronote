@@ -13,6 +13,6 @@ export async function create(
     { id: user.id, email: user.email, apiKeyId: id },
     getJwtSecret()
   );
-  await repository.apiKeys.create(user.id, id, name, token);
+  await repository.apiKeys.create({ userId: user.id, id, name, token });
   return { id, name, token };
 }

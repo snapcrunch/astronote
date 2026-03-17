@@ -12,14 +12,22 @@ export interface Command {
   action: () => void;
 }
 
-export function useCommands(
-  onClose: () => void,
-  onOpenCollectionPicker: () => void,
-  onOpenImport: () => void,
-  onOpenReset: () => void,
-  onOpenClaudeAuth: () => void,
-  onOpenClaudePrompt: () => void
-): Command[] {
+export function useCommands(callbacks: {
+  onClose: () => void;
+  onOpenCollectionPicker: () => void;
+  onOpenImport: () => void;
+  onOpenReset: () => void;
+  onOpenClaudeAuth: () => void;
+  onOpenClaudePrompt: () => void;
+}): Command[] {
+  const {
+    onClose,
+    onOpenCollectionPicker,
+    onOpenImport,
+    onOpenReset,
+    onOpenClaudeAuth,
+    onOpenClaudePrompt,
+  } = callbacks;
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
   const collections = useNoteStore((s) => s.collections);
   const user = useNoteStore((s) => s.user);

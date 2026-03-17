@@ -117,14 +117,14 @@ export default function CommandPalette() {
     setClaudeChatOpen(true);
   }, []);
 
-  const commands = useCommands(
-    handleClose,
-    handleOpenCollectionPicker,
-    handleOpenImport,
-    handleOpenReset,
-    handleOpenClaudeAuth,
-    handleOpenClaudeChat
-  );
+  const commands = useCommands({
+    onClose: handleClose,
+    onOpenCollectionPicker: handleOpenCollectionPicker,
+    onOpenImport: handleOpenImport,
+    onOpenReset: handleOpenReset,
+    onOpenClaudeAuth: handleOpenClaudeAuth,
+    onOpenClaudePrompt: handleOpenClaudeChat,
+  });
 
   const platform = isMobile ? 'mobile' : 'desktop';
   const commandItems = useMemo(

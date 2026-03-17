@@ -22,12 +22,11 @@ export function registerNotes(program: Command) {
           const collectionId = opts.collectionId
             ? Number(opts.collectionId)
             : undefined;
-          return domain.notes.list(
-            getUser(program),
-            opts.query,
+          return domain.notes.list(getUser(program), {
+            query: opts.query,
             tags,
-            collectionId
-          );
+            collectionId,
+          });
         });
       }
     );

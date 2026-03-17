@@ -54,7 +54,7 @@ export function useOmnibar(onRenameSelectedNote?: () => void) {
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isMobile]);
 
   return omnibarRef;
 }

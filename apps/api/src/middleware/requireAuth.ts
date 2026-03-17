@@ -26,7 +26,10 @@ export async function requireAuth(
     ) as TokenPayload;
 
     if (payload.apiKeyId) {
-      const exists = await repository.apiKeys.getById(payload.apiKeyId, payload.id);
+      const exists = await repository.apiKeys.getById({
+        id: payload.apiKeyId,
+        userId: payload.id,
+      });
       if (!exists) {
         res.status(401).json({ error: 'API key has been revoked' });
         return;

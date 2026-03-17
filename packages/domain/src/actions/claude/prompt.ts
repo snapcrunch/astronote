@@ -136,7 +136,7 @@ export function prompt(
         },
       });
 
-      child.stdout.on('data', (data: Buffer) => {
+      child.stdout!.on('data', (data: Buffer) => {
         if (finished) {
           return;
         }
@@ -177,7 +177,7 @@ export function prompt(
         }
       });
 
-      child.stderr.on('data', (data: Buffer) => {
+      child.stderr!.on('data', (data: Buffer) => {
         stderr += data.toString();
       });
 

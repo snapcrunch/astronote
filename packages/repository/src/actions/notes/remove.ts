@@ -1,9 +1,13 @@
 import { getDb } from '../../db';
 import { getById } from './get';
 
-export async function remove(userId: number, id: string): Promise<boolean> {
+export async function remove(params: {
+  userId: number;
+  id: string;
+}): Promise<boolean> {
+  const { userId, id } = params;
   const db = getDb();
-  const existing = await getById(userId, id);
+  const existing = await getById({ userId, id });
   if (!existing) {
     return false;
   }
@@ -13,12 +17,13 @@ export async function remove(userId: number, id: string): Promise<boolean> {
   return true;
 }
 
-export async function archive(
-  userId: number,
-  id: string
-): Promise<boolean> {
+export async function archive(params: {
+  userId: number;
+  id: string;
+}): Promise<boolean> {
+  const { userId, id } = params;
   const db = getDb();
-  const existing = await getById(userId, id);
+  const existing = await getById({ userId, id });
   if (!existing) {
     return false;
   }

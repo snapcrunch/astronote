@@ -67,7 +67,10 @@ export function useImport() {
         }
         await Promise.all([fetchNotes(), fetchTags(), fetchCollections()]);
       } finally {
-        useNoteStore.setState({ importing: false, importedCount: validFiles.length });
+        useNoteStore.setState({
+          importing: false,
+          importedCount: validFiles.length,
+        });
         setProgress(null);
       }
     },

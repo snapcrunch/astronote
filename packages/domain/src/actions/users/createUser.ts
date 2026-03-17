@@ -14,7 +14,11 @@ export async function createUser(
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  const user = await repository.users.create(email, hashedPassword, salt);
+  const user = await repository.users.create({
+    email,
+    password: hashedPassword,
+    salt,
+  });
 
   await populateUser({ id: user.id, email });
 

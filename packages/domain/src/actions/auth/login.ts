@@ -27,7 +27,11 @@ export async function login(
   const expiresAt = new Date(
     Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000
   ).toISOString();
-  await repository.refreshTokens.create(user.id, refreshToken, expiresAt);
+  await repository.refreshTokens.create({
+    userId: user.id,
+    token: refreshToken,
+    expiresAt,
+  });
 
   return { token, refreshToken };
 }
