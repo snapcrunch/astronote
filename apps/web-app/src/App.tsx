@@ -16,7 +16,7 @@ import Omnibar from './Sidebar/Omnibar';
 import LoadingView from './LoadingView';
 import LoginView from './LoginView';
 import { useNoteStore } from './store';
-import { useIsMobile } from './hooks';
+import { useDocumentTitle, useIsMobile } from './hooks';
 import { themes } from './themes';
 
 function MainApp() {
@@ -24,6 +24,7 @@ function MainApp() {
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
   const view = useNoteStore((s) => s.view);
   const isMobile = useIsMobile();
+  useDocumentTitle();
   const introDismissed = useNoteStore((s) => s.settings.intro_dismissed);
   const updateSettings = useNoteStore((s) => s.updateSettings);
 
