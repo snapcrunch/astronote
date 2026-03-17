@@ -7,6 +7,7 @@ RUN corepack enable
 
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY apps/api/package.json apps/api/
+COPY apps/alfred-workflow/package.json apps/alfred-workflow/
 COPY apps/cli/package.json apps/cli/
 COPY apps/web-app/package.json apps/web-app/
 COPY packages/types/package.json packages/types/
