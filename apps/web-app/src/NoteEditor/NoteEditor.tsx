@@ -204,6 +204,7 @@ function NoteEditor() {
           }}
         >
           <BottomNavigation
+            sx={{ minHeight: 0, height: 40 }}
             value={mobileInfoOpen ? 1 : 0}
             onChange={(_, newValue) => setMobileInfoOpen(newValue === 1)}
             showLabels

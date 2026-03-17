@@ -21,6 +21,7 @@ function MobileBottomNav() {
       }}
     >
       <BottomNavigation
+        sx={{ minHeight: 0, height: 40 }}
         value={value}
         onChange={(_, newValue) => {
           if (newValue === 0) {
