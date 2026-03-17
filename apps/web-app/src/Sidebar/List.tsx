@@ -36,7 +36,7 @@ function NestedMenuItem({
 }: NestedMenuItemProps) {
   const menuItemRef = useRef<HTMLLIElement>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const closeTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const closeTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const handleMouseEnter = () => {
     clearTimeout(closeTimeout.current);
