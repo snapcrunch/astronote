@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material/styles';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import {
   oneLight,
@@ -12,6 +14,7 @@ function CodeBlock({
   ...props
 }: React.PropsWithChildren<React.ComponentPropsWithoutRef<'pre'>>) {
   const [copied, setCopied] = useState(false);
+  const theme = useTheme();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const codeEl = children as any;
@@ -37,21 +40,38 @@ function CodeBlock({
   };
 
   return (
-    <Box sx={{ position: 'relative', '&:hover .copy-btn': { opacity: 1 } }}>
+    <Box sx={{ position: 'relative' }}>
       <SyntaxHighlighter
         {...props}
         language={isShell ? 'shell-session' : language}
         style={isShell ? dracula : oneLight}
         customStyle={{
           margin: 0,
-          borderRadius: 4,
+          borderRadius: 6,
           border: '1px solid',
-          borderColor: 'rgba(0,0,0,0.12)',
+          borderColor: theme.palette.divider,
           fontSize: '0.875rem',
         }}
       >
         {displayCode}
       </SyntaxHighlighter>
+      {language && (
+        <Typography
+          variant="caption"
+          sx={{
+            position: 'absolute',
+            top: 6,
+            left: 10,
+            opacity: 0.55,
+            fontFamily: 'monospace',
+            fontSize: '0.7rem',
+            lineHeight: 1,
+            userSelect: 'none',
+          }}
+        >
+          {language}
+        </Typography>
+      )}
       <Button
         className="copy-btn"
         size="small"
@@ -63,7 +83,7 @@ function CodeBlock({
           bgcolor: 'background.paper',
           border: 1,
           borderColor: 'divider',
-          opacity: 0,
+          opacity: 0.5,
           '&:hover': { opacity: 1, bgcolor: 'background.paper' },
           minWidth: 'unset',
           px: 1,
