@@ -18,7 +18,7 @@ export const infoPanelHeader: SxProps<Theme> = {
   px: 2,
   display: 'flex',
   alignItems: 'center',
-  bgcolor: 'grey.100',
+  bgcolor: 'grey.200',
   borderBottom: 1,
   borderColor: 'divider',
   height: 40,
@@ -26,7 +26,6 @@ export const infoPanelHeader: SxProps<Theme> = {
   boxSizing: 'content-box',
 };
 
-export const infoPanelHeaderTitle: SxProps<Theme> = { fontWeight: 600 };
 
 export const infoPanelContent: SxProps<Theme> = {
   px: 2,

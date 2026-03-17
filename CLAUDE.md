@@ -1,10 +1,8 @@
 # Monorepo Summary
 
-This repository contains a monorepo managed by [Turborepo](https://turborepo.dev/docs). It implements a web-based note-taking application called "Astronote."
+This repo contains a web-based note-taking application called "Astronote." It is structured as a monorepo managed by [Turborepo](https://turborepo.dev/docs). Package dependencies are managed by [Yarn](https://yarnpkg.com/).
 
 ## Packages
-
-This project is structured as a [monorepo](https://monorepo.tools/) managed with [Turborepo](https://turborepo.dev/). It contains several packages:
 
 ### Applications
 
