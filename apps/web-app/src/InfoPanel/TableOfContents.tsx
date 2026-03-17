@@ -26,7 +26,6 @@ function TableOfContents() {
 
   return (
     <SectionHeading
-      first
       content={
         headings.length === 0 ? (
           <Typography
