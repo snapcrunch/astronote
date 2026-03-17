@@ -1,4 +1,4 @@
-import type { Note } from '@repo/types';
+import type { Note, NoteSummary } from '@repo/types';
 import { getDb } from '../../db';
 
 export async function getNoteTagsAsync(noteId: number): Promise<string[]> {
@@ -16,6 +16,20 @@ export async function rowToNote(row: Record<string, unknown>): Promise<Note> {
     id,
     title: row.title as string,
     content: row.content as string,
+    tags: await getNoteTagsAsync(id), // @TODO Performance issues here.
+    createdAt: row.createdAt as string,
+    updatedAt: row.updatedAt as string,
+    pinned: Boolean(row.pinned),
+  };
+}
+
+export async function rowToNoteSummary(
+  row: Record<string, unknown>
+): Promise<NoteSummary> {
+  const id = row.id as number;
+  return {
+    id,
+    title: row.title as string,
     tags: await getNoteTagsAsync(id), // @TODO Performance issues here.
     createdAt: row.createdAt as string,
     updatedAt: row.updatedAt as string,

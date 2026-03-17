@@ -9,7 +9,7 @@ import { markdown } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
 import { basicSetup } from 'codemirror';
 import { completionStatus } from '@codemirror/autocomplete';
-import type { Note } from '@repo/types';
+import type { NoteSummary } from '@repo/types';
 import { wikiLinkCompletion } from './NoteEditor/wikiLinkAutocomplete';
 
 interface MarkdownEditorProps {
@@ -17,7 +17,7 @@ interface MarkdownEditorProps {
   onChange: (value: string) => void;
   autoFocus?: boolean;
   onEscape?: () => void;
-  notes?: Note[];
+  notes?: NoteSummary[];
   currentNoteId?: number;
 }
 

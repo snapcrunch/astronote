@@ -1,14 +1,16 @@
-import type { Note } from '@repo/types';
+import type { Note, NoteSummary } from '@repo/types';
 import { getDb } from '../../db';
-import { rowToNote } from './helpers';
+import { rowToNote, rowToNoteSummary } from './helpers';
 
-export async function list(params: {
-  userId: number;
-  query?: string;
-  tags?: string[];
-  collectionId?: number;
-}): Promise<Note[]> {
-  const { userId, query, tags, collectionId } = params;
+export async function list(
+  params: {
+    userId: number;
+    query?: string;
+    tags?: string[];
+    collectionId?: number;
+  } & ({ includeContent: true } | { includeContent?: false })
+): Promise<(Note | NoteSummary)[]> {
+  const { userId, query, tags, collectionId, includeContent } = params;
   const db = getDb();
   let q = db('notes')
     .join('users_notes', 'notes.id', 'users_notes.note_id')
@@ -22,11 +24,13 @@ export async function list(params: {
   if (query) {
     const pattern = `%${query}%`;
     q = q.andWhere(function () {
-      this.where('notes.title', 'like', pattern).orWhere(
-        'notes.content',
-        'like',
-        pattern
-      );
+      this.where('notes.title', 'like', pattern)
+        .orWhere('notes.content', 'like', pattern)
+        .orWhere(
+          'notes.id',
+          'in',
+          db('note_tags').where('tag', 'like', pattern).select('noteId')
+        );
     });
   }
 
@@ -40,11 +44,23 @@ export async function list(params: {
     }
   }
 
-  const rows = await q.select('notes.*').orderBy([
+  const columns = includeContent
+    ? ['notes.*']
+    : [
+        'notes.id',
+        'notes.title',
+        'notes.pinned',
+        'notes.createdAt',
+        'notes.updatedAt',
+      ];
+
+  const rows = await q.select(columns).orderBy([
     { column: 'notes.pinned', order: 'desc' },
     { column: 'notes.updatedAt', order: 'desc' },
   ]);
-  return Promise.all(rows.map(rowToNote));
+
+  const mapper = includeContent ? rowToNote : rowToNoteSummary;
+  return Promise.all(rows.map(mapper));
 }
 
 export async function getCount(userId: number): Promise<number> {

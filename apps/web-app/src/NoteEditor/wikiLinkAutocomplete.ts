@@ -4,10 +4,10 @@ import {
   type CompletionResult,
 } from '@codemirror/autocomplete';
 import type { Extension } from '@codemirror/state';
-import type { Note } from '@repo/types';
+import type { NoteSummary } from '@repo/types';
 
 export function wikiLinkCompletion(
-  getNotes: () => Note[],
+  getNotes: () => NoteSummary[],
   getCurrentNoteId: () => number | undefined
 ): Extension {
   return autocompletion({

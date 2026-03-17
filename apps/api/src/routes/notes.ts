@@ -26,11 +26,12 @@ notesRouter.get('/', async (req, res) => {
     res.status(400).json({ error: result.error.flatten().fieldErrors });
     return;
   }
-  const { q, tags, collectionId } = result.data;
+  const { q, tags, collectionId, includeContent } = result.data;
   const notes = await domain.notes.list(req.user!, {
     query: q,
     tags,
     collectionId,
+    includeContent,
   });
   res.json(notes);
 });

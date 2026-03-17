@@ -40,6 +40,8 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   deletingCollection: false,
   archiving: false,
   loadingNotes: false,
+  noteContentCache: {},
+  loadingNoteContent: false,
   view: initialUrl.view,
   showInfoPanel: initialUrl.showInfoPanel ?? true,
   ...createActions({
@@ -76,8 +78,12 @@ export function useStatusMessage() {
 export function useSelectedNote() {
   const notes = useNoteStore((s) => s.notes);
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
-  return useMemo(
-    () => notes.find((n) => n.id === selectedNoteId) ?? null,
-    [notes, selectedNoteId]
-  );
+  const contentCache = useNoteStore((s) => s.noteContentCache);
+  return useMemo(() => {
+    const summary = notes.find((n) => n.id === selectedNoteId);
+    if (!summary) return null;
+    const content = contentCache[summary.id];
+    if (content === undefined) return null;
+    return { ...summary, content };
+  }, [notes, selectedNoteId, contentCache]);
 }

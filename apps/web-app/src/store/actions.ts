@@ -87,6 +87,7 @@ export function createActions({
         creatingCollection: false,
         deletingCollection: false,
         archiving: false,
+        noteContentCache: {},
         view: 'notes',
       });
       window.history.replaceState(null, '', '/login');
@@ -122,6 +123,7 @@ export function createActions({
         selectedNoteId: null,
         searchQuery: '',
         selectedTags: [],
+        noteContentCache: {},
         view: 'notes',
       });
       syncUrl({
@@ -172,7 +174,7 @@ export function createActions({
     },
 
     setActiveCollectionId: (id: number) => {
-      set({ activeCollectionId: id, selectedNoteId: null, notes: [] });
+      set({ activeCollectionId: id, selectedNoteId: null, notes: [], noteContentCache: {} });
       syncUrl({
         view: 'notes',
         selectedNoteId: null,
@@ -261,6 +263,19 @@ export function createActions({
       }
     },
 
+    fetchNoteContent: async (id: number) => {
+      if (get().noteContentCache[id] !== undefined) return;
+      set({ loadingNoteContent: true });
+      try {
+        const note = await client.fetchNote(id);
+        set((state) => ({
+          noteContentCache: { ...state.noteContentCache, [id]: note.content },
+        }));
+      } finally {
+        set({ loadingNoteContent: false });
+      }
+    },
+
     createNote: async (title: string, content?: string) => {
       set({ saving: true });
       try {
@@ -270,12 +285,13 @@ export function createActions({
           content,
           collectionId: activeCollectionId,
         });
-        set({
+        set((state) => ({
           searchQuery: '',
           selectedNoteId: note.id,
           editOnCreate: true,
           view: 'notes',
-        });
+          noteContentCache: { ...state.noteContentCache, [note.id]: note.content },
+        }));
         syncUrl({
           view: 'notes',
           selectedNoteId: note.id,
@@ -325,12 +341,17 @@ export function createActions({
       set(isRename ? { renaming: true } : { saving: true });
       try {
         const updated = await client.updateNote(id, updates);
+        const { content: _, ...summary } = updated;
         if (updates.collectionId !== undefined) {
+          set((state) => ({
+            noteContentCache: { ...state.noteContentCache, [id]: updated.content },
+          }));
           await get().fetchNotes();
           await get().fetchCollections();
         } else {
           set((state) => ({
-            notes: state.notes.map((n) => (n.id === id ? updated : n)),
+            notes: state.notes.map((n) => (n.id === id ? summary : n)),
+            noteContentCache: { ...state.noteContentCache, [id]: updated.content },
           }));
           if (updates.pinned !== undefined) {
             await get().fetchNotes();
@@ -347,8 +368,12 @@ export function createActions({
       try {
         await client.deleteNote(id);
         set((state) => {
+          const { [id]: _, ...remainingCache } = state.noteContentCache;
           if (state.selectedNoteId !== id) {
-            return { notes: state.notes.filter((n) => n.id !== id) };
+            return {
+              notes: state.notes.filter((n) => n.id !== id),
+              noteContentCache: remainingCache,
+            };
           }
           const index = state.notes.findIndex((n) => n.id === id);
           const next = state.notes[index - 1] ?? state.notes[index + 1] ?? null;
@@ -362,6 +387,7 @@ export function createActions({
           return {
             notes: state.notes.filter((n) => n.id !== id),
             selectedNoteId: nextId,
+            noteContentCache: remainingCache,
           };
         });
         get().fetchTags();
@@ -374,8 +400,10 @@ export function createActions({
       set({ tagging: true });
       try {
         const updated = await client.addTag(noteId, tag);
+        const { content: _, ...summary } = updated;
         set((state) => ({
-          notes: state.notes.map((n) => (n.id === noteId ? updated : n)),
+          notes: state.notes.map((n) => (n.id === noteId ? summary : n)),
+          noteContentCache: { ...state.noteContentCache, [noteId]: updated.content },
         }));
         get().fetchTags();
       } finally {
@@ -387,8 +415,10 @@ export function createActions({
       set({ tagging: true });
       try {
         const updated = await client.removeTag(noteId, tag);
+        const { content: _, ...summary } = updated;
         set((state) => ({
-          notes: state.notes.map((n) => (n.id === noteId ? updated : n)),
+          notes: state.notes.map((n) => (n.id === noteId ? summary : n)),
+          noteContentCache: { ...state.noteContentCache, [noteId]: updated.content },
         }));
         get().fetchTags();
       } finally {

@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
+import CircularProgress from '@mui/material/CircularProgress';
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -46,8 +47,16 @@ function NoteEditor() {
   const showInfoPanel = useNoteStore((s) => s.showInfoPanel);
   const toggleInfoPanel = useNoteStore((s) => s.toggleInfoPanel);
   const setSelectedNoteId = useNoteStore((s) => s.setSelectedNoteId);
+  const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
+  const fetchNoteContent = useNoteStore((s) => s.fetchNoteContent);
   const note = useSelectedNote();
   const notes = useNoteStore((s) => s.notes);
+
+  useEffect(() => {
+    if (selectedNoteId != null) {
+      fetchNoteContent(selectedNoteId);
+    }
+  }, [selectedNoteId, fetchNoteContent]);
   const updateNote = useNoteStore((s) => s.updateNote);
   const [mobileInfoOpen, setMobileInfoOpen] = useState(false);
   const [checkboxContent, setCheckboxContent] = useState<string | null>(null);
@@ -82,8 +91,16 @@ function NoteEditor() {
     setCheckboxContent(null);
   }, [note?.id, editing]);
 
-  if (!note) {
+  if (!note && !selectedNoteId) {
     return <Placeholder />;
+  }
+
+  if (!note) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+        <CircularProgress size={24} />
+      </Box>
+    );
   }
 
   const displayContent = checkboxContent ?? note.content;

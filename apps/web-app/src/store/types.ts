@@ -1,4 +1,4 @@
-import type { Note, Collection, Settings, ApiKey } from '@repo/types';
+import type { Note, NoteSummary, Collection, Settings, ApiKey } from '@repo/types';
 import type { Tag, User } from '@repo/astronote-client/WebClient';
 
 export type { Tag, User };
@@ -9,7 +9,7 @@ export type View = 'notes' | 'settings' | 'collections' | 'keys';
 export interface NoteStore {
   route: Route;
   user: User | null;
-  notes: Note[];
+  notes: NoteSummary[];
   tags: Tag[];
   collections: Collection[];
   activeCollectionId: number | null;
@@ -25,6 +25,8 @@ export interface NoteStore {
   deletingCollection: boolean;
   archiving: boolean;
   loadingNotes: boolean;
+  noteContentCache: Record<number, string>;
+  loadingNoteContent: boolean;
   settings: Settings;
   settingsLoaded: boolean;
   apiKeys: ApiKey[];
@@ -45,6 +47,7 @@ export interface NoteStore {
   toggleTag: (tag: string, accumulate?: boolean) => void;
   fetchClaudeAuthStatus: () => Promise<void>;
   fetchNotes: () => Promise<void>;
+  fetchNoteContent: (id: number) => Promise<void>;
   fetchTags: () => Promise<void>;
   fetchCollections: () => Promise<void>;
   createCollection: (name: string) => Promise<void>;

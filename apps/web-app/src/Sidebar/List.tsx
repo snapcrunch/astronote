@@ -19,7 +19,7 @@ import PushPinIcon from '@mui/icons-material/PushPin';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import type { Note } from '@repo/types';
+import type { NoteSummary } from '@repo/types';
 import { useNoteStore } from '../store';
 
 interface NestedMenuItemProps {
@@ -90,7 +90,7 @@ function NestedMenuItem({
 }
 
 interface NoteListProps {
-  notes: Note[];
+  notes: NoteSummary[];
   selectedNoteId: number | null;
   listRef: React.RefObject<HTMLUListElement | null>;
   onSelectNote: (id: number) => void;

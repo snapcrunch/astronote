@@ -12,6 +12,10 @@ export const NoteSchema = z.object({
 
 export type Note = z.infer<typeof NoteSchema>;
 
+export const NoteSummarySchema = NoteSchema.omit({ content: true });
+
+export type NoteSummary = z.infer<typeof NoteSummarySchema>;
+
 export const CreateNoteInputSchema = z.object({
   id: z.number().optional(),
   title: z.string().min(1),
@@ -41,6 +45,7 @@ export const ListNotesQuerySchema = z.object({
     .transform((s) => s.split(','))
     .optional(),
   collectionId: z.coerce.number().optional(),
+  includeContent: z.coerce.boolean().optional(),
 });
 
 export const AddTagInputSchema = z.object({

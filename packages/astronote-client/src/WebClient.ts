@@ -4,6 +4,7 @@ import axios, {
 } from 'axios';
 import type {
   Note,
+  NoteSummary,
   Collection,
   Settings,
   ApiKey,
@@ -231,8 +232,8 @@ export class WebClient {
 
   // Notes
 
-  async fetchNotes(params?: FetchNotesParams): Promise<Note[]> {
-    const { data } = await this.http.get<Note[]>('/api/notes', {
+  async fetchNotes(params?: FetchNotesParams): Promise<NoteSummary[]> {
+    const { data } = await this.http.get<NoteSummary[]>('/api/notes', {
       params: {
         ...(params?.q ? { q: params.q } : {}),
         ...(params?.tags?.length ? { tags: params.tags.join(',') } : {}),
@@ -241,6 +242,11 @@ export class WebClient {
           : {}),
       },
     });
+    return data;
+  }
+
+  async fetchNote(id: number): Promise<Note> {
+    const { data } = await this.http.get<Note>(`/api/notes/${id}`);
     return data;
   }
 
