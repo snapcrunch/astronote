@@ -67,7 +67,6 @@ function RenameDialog({
         sx={{
           px: 2,
           py: 1.5,
-          fontSize: '0.95rem',
         }}
       />
     </Dialog>

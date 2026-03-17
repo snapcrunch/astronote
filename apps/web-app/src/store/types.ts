@@ -24,6 +24,7 @@ export interface NoteStore {
   creatingCollection: boolean;
   deletingCollection: boolean;
   archiving: boolean;
+  loadingNotes: boolean;
   settings: Settings;
   settingsLoaded: boolean;
   apiKeys: ApiKey[];

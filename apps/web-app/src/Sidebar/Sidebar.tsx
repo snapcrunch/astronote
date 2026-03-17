@@ -5,6 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import { useNoteStore } from '../store';
 import { useIsMobile } from '../hooks';
+import { kbdSx } from '../themes';
 import { useOmnibar, useNoteList } from './hooks';
 import Omnibar from './Omnibar';
 import NoteList from './List';
@@ -77,15 +78,7 @@ function Sidebar() {
               <Typography
                 variant="caption"
                 sx={{
-                  bgcolor: 'grey.200',
-                  color: 'text.secondary',
-                  px: 0.75,
-                  py: 0.25,
-                  borderRadius: 0.5,
-                  fontSize: '0.7rem',
-                  fontWeight: 600,
-                  lineHeight: 1,
-                  whiteSpace: 'nowrap',
+                  ...kbdSx,
                   mr: 2.5,
                   pointerEvents: 'none',
                 }}
@@ -94,13 +87,12 @@ function Sidebar() {
               </Typography>
             }
             sx={{
-              fontSize: '0.85rem',
               '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
               bgcolor: 'background.paper',
             }}
           >
             {collections.map((c) => (
-              <MenuItem key={c.id} value={c.id} sx={{ fontSize: '0.85rem' }}>
+              <MenuItem key={c.id} value={c.id}>
                 Collection: {c.name}
               </MenuItem>
             ))}

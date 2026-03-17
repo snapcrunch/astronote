@@ -36,7 +36,7 @@ function Tags() {
           alignItems: 'center',
           borderBottom: 1,
           borderColor: open ? 'divider' : 'transparent',
-          px: 1.5,
+          px: 2,
           cursor: 'pointer',
           height: 40,
           bgcolor: 'grey.200',
@@ -70,7 +70,7 @@ function Tags() {
                   disableRipple
                   sx={{
                     py: 0.25,
-                    px: 1.5,
+                    px: 2,
                     borderBottom: 1,
                     borderColor: 'divider',
                     bgcolor: 'background.paper',

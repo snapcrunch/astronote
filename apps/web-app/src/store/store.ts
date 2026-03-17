@@ -39,6 +39,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   creatingCollection: false,
   deletingCollection: false,
   archiving: false,
+  loadingNotes: false,
   view: initialUrl.view,
   showInfoPanel: initialUrl.showInfoPanel ?? true,
   ...createActions({

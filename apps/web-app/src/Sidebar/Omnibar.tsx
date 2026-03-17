@@ -6,6 +6,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { omnibarRef, omnibarKeyDownHandler } from './refs';
 import { useSearch } from './hooks';
 import SaveStatusIndicator from '../NoteEditor/SaveStatusIndicator';
+import { kbdSx } from '../themes';
 
 function Omnibar() {
   const { localQuery, handleSearchChange } = useSearch();
@@ -59,20 +60,7 @@ function Omnibar() {
             endAdornment: (
               <InputAdornment position="end" sx={{ gap: 1 }}>
                 <SaveStatusIndicator />
-                <Typography
-                  variant="caption"
-                  sx={{
-                    bgcolor: 'grey.200',
-                    color: 'text.secondary',
-                    px: 0.75,
-                    py: 0.25,
-                    borderRadius: 0.5,
-                    fontSize: '0.7rem',
-                    fontWeight: 600,
-                    lineHeight: 1,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
+                <Typography variant="caption" sx={kbdSx}>
                   ⌘⇧K
                 </Typography>
               </InputAdornment>

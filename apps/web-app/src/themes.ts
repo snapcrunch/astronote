@@ -1,6 +1,19 @@
 import { createTheme, type Theme } from '@mui/material/styles';
 import type { ThemeId } from '@repo/types';
 
+/** Shared sx for keyboard-shortcut badges (⌘⇧K, ⌘⇧C, etc.) */
+export const kbdSx = {
+  bgcolor: 'grey.200',
+  color: 'text.secondary',
+  px: 0.75,
+  py: 0.25,
+  borderRadius: 0.5,
+  fontSize: '0.7rem',
+  fontWeight: 600,
+  lineHeight: 1,
+  whiteSpace: 'nowrap',
+} as const;
+
 const baseOverrides = {
   components: {
     MuiCssBaseline: {

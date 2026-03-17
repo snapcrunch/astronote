@@ -5,6 +5,7 @@ import MuiList from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -125,6 +126,7 @@ function NoteList({
   const scrollViewportRef = useRef<HTMLDivElement>(null);
   const isScrollable = useIsScrollable(listRef, scrollViewportRef);
   const searchQuery = useNoteStore((s) => s.searchQuery);
+  const loadingNotes = useNoteStore((s) => s.loadingNotes);
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
     mouseY: number;
@@ -192,6 +194,39 @@ function NoteList({
           options={{ scrollbars: { autoHide: 'move' } }}
         >
           <MuiList ref={listRef} sx={{ pt: 0 }} disablePadding>
+            {loadingNotes &&
+              notes.length === 0 &&
+              Array.from({ length: 6 }, (_, i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    px: 2,
+                    py: 0.25,
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                  }}
+                >
+                  <Skeleton
+                    variant="text"
+                    width="60%"
+                    sx={{ fontSize: '0.875rem' }}
+                  />
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}
+                  >
+                    <Skeleton
+                      variant="text"
+                      width={70}
+                      sx={{ fontSize: '0.75rem' }}
+                    />
+                    <Skeleton
+                      variant="text"
+                      width={50}
+                      sx={{ fontSize: '0.75rem' }}
+                    />
+                  </Box>
+                </Box>
+              ))}
             {notes.map((note, index) => (
               <ListItemButton
                 key={note.id}
@@ -302,7 +337,7 @@ function NoteList({
                 />
               </ListItemButton>
             ))}
-            {notes.length === 0 && searchQuery && (
+            {notes.length === 0 && !loadingNotes && searchQuery && (
               <Box sx={{ p: 2, textAlign: 'center' }}>
                 <Typography variant="body2" color="text.secondary">
                   No notes found.
@@ -312,7 +347,7 @@ function NoteList({
                 </Typography>
               </Box>
             )}
-            {notes.length === 0 && !searchQuery && (
+            {notes.length === 0 && !loadingNotes && !searchQuery && (
               <Box sx={{ p: 2, textAlign: 'center' }}>
                 <Typography variant="body2" color="text.secondary">
                   No notes yet. Type in the search bar and press Enter to create

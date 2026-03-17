@@ -172,7 +172,7 @@ export function createActions({
     },
 
     setActiveCollectionId: (id: number) => {
-      set({ activeCollectionId: id, selectedNoteId: null });
+      set({ activeCollectionId: id, selectedNoteId: null, notes: [] });
       syncUrl({
         view: 'notes',
         selectedNoteId: null,
@@ -247,13 +247,18 @@ export function createActions({
     },
 
     fetchNotes: async () => {
-      const { searchQuery, selectedTags, activeCollectionId } = get();
-      const notes = await client.fetchNotes({
-        q: searchQuery || undefined,
-        tags: selectedTags.length > 0 ? selectedTags : undefined,
-        collectionId: activeCollectionId ?? undefined,
-      });
-      set({ notes });
+      set({ loadingNotes: true });
+      try {
+        const { searchQuery, selectedTags, activeCollectionId } = get();
+        const notes = await client.fetchNotes({
+          q: searchQuery || undefined,
+          tags: selectedTags.length > 0 ? selectedTags : undefined,
+          collectionId: activeCollectionId ?? undefined,
+        });
+        set({ notes });
+      } finally {
+        set({ loadingNotes: false });
+      }
     },
 
     createNote: async (title: string, content?: string) => {
