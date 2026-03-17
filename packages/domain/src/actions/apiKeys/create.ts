@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import type { AuthUser, ApiKeyWithToken } from '@repo/types';
-import { createApiKey as repoCreate } from '@repo/repository';
+import repository from '@repo/repository';
 import { getJwtSecret } from '../../config';
 
 export async function create(
@@ -13,6 +13,6 @@ export async function create(
     { id: user.id, email: user.email, apiKeyId: id },
     getJwtSecret()
   );
-  await repoCreate(user.id, id, name, token);
+  await repository.apiKeys.create(user.id, id, name, token);
   return { id, name, token };
 }

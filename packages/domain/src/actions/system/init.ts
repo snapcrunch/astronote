@@ -1,4 +1,4 @@
-import { initDatabase } from '@repo/repository';
+import repository from '@repo/repository';
 import { logger } from '@repo/logger';
 import domain from '@repo/domain';
 import { setJwtSecret } from '../../config';
@@ -16,7 +16,7 @@ const init = async ({
   defaultPassword?: string | null;
 }) => {
   setJwtSecret(jwtSecret);
-  await initDatabase(dbPath);
+  await repository.db.init(dbPath);
 
   const settings = await domain.systemSettings.get();
 

@@ -1,5 +1,5 @@
 import type { Command } from 'commander';
-import { initDatabase, closeDatabase } from '@repo/repository';
+import repository from '@repo/repository';
 import domain from '@repo/domain';
 import { getDbPath } from '../util';
 
@@ -10,7 +10,7 @@ export function registerCreateUser(program: Command) {
     .requiredOption('--email <email>', 'User email address')
     .requiredOption('--password <password>', 'User password')
     .action(async (options: { email: string; password: string }) => {
-      await initDatabase(getDbPath(program));
+      await repository.db.init(getDbPath(program));
       try {
         const { id } = await domain.users.createUser(
           options.email,
@@ -24,7 +24,7 @@ export function registerCreateUser(program: Command) {
         }
         throw error;
       } finally {
-        await closeDatabase();
+        await repository.db.close();
       }
     });
 }

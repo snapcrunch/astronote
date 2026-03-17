@@ -1,5 +1,5 @@
 import type { Note, AuthUser } from '@repo/types';
-import * as repository from '@repo/repository';
+import repository from '@repo/repository';
 
 export async function list(
   user: AuthUser,
@@ -7,5 +7,5 @@ export async function list(
   tags?: string[],
   collectionId?: number
 ): Promise<Note[]> {
-  return repository.getNotes(user.id, query, tags, collectionId);
+  return repository.notes.list(user.id, query, tags, collectionId);
 }

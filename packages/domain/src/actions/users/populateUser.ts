@@ -1,9 +1,5 @@
 import type { AuthUser, Collection } from '@repo/types';
-import {
-  updateSettings,
-  createCollection,
-  setDefaultCollection,
-} from '@repo/repository';
+import repository from '@repo/repository';
 import { DEFAULT_SETTINGS } from '@repo/types';
 import { create as createNote } from '../notes/create';
 
@@ -22,9 +18,9 @@ const defaultNotes = [
 ];
 
 export async function populateUser(user: AuthUser): Promise<Collection> {
-  await updateSettings(user.id, DEFAULT_SETTINGS);
-  const collection = await createCollection(user.id, 'Default');
-  await setDefaultCollection(user.id, collection.id);
+  await repository.settings.update(user.id, DEFAULT_SETTINGS);
+  const collection = await repository.collections.create(user.id, 'Default');
+  await repository.collections.setDefault(user.id, collection.id);
 
   for (const note of defaultNotes) {
     await createNote(user, {

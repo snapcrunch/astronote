@@ -1,5 +1,5 @@
 import type { Command } from 'commander';
-import { initDatabase, seedDatabase, closeDatabase } from '@repo/repository';
+import repository from '@repo/repository';
 import { getDbPath } from '../util';
 
 export function registerSeed(program: Command) {
@@ -7,12 +7,12 @@ export function registerSeed(program: Command) {
     .command('seed')
     .description('Run database seeds')
     .action(async () => {
-      await initDatabase(getDbPath(program));
+      await repository.db.init(getDbPath(program));
       try {
-        await seedDatabase();
+        await repository.db.seed();
         console.log('Database seeded successfully');
       } finally {
-        await closeDatabase();
+        await repository.db.close();
       }
     });
 }

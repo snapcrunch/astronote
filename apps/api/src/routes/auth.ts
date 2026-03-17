@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
-import { getUserById } from '@repo/repository';
+import repository from '@repo/repository';
 import domain from '@repo/domain';
 import config from '#config';
 
@@ -39,7 +39,7 @@ authRouter.get('/', async (req, res) => {
       id: number;
       email: string;
     };
-    const user = await getUserById(payload.id);
+    const user = await repository.users.getById(payload.id);
     if (!user) {
       res.status(401).json({ error: 'User not found' });
       return;

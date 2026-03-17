@@ -1,5 +1,5 @@
 import type { Note, AuthUser } from '@repo/types';
-import * as repository from '@repo/repository';
+import repository from '@repo/repository';
 
 export async function removeTag(
   user: AuthUser,
@@ -7,6 +7,6 @@ export async function removeTag(
   tag: string
 ): Promise<Note | null> {
   const normalizedTag = tag.toLowerCase();
-  await repository.removeNoteTag(noteId, normalizedTag);
-  return repository.getNoteById(user.id, noteId);
+  await repository.notes.removeTag(noteId, normalizedTag);
+  return repository.notes.getById(user.id, noteId);
 }

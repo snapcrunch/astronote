@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import type { AuthUser } from '@repo/types';
-import { getApiKeyById } from '@repo/repository';
+import repository from '@repo/repository';
 import config from '#config';
 
 interface TokenPayload extends AuthUser {
@@ -26,7 +26,7 @@ export async function requireAuth(
     ) as TokenPayload;
 
     if (payload.apiKeyId) {
-      const exists = await getApiKeyById(payload.apiKeyId, payload.id);
+      const exists = await repository.apiKeys.getById(payload.apiKeyId, payload.id);
       if (!exists) {
         res.status(401).json({ error: 'API key has been revoked' });
         return;

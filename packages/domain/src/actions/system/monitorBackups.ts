@@ -1,4 +1,4 @@
-import * as repository from '@repo/repository';
+import repository from '@repo/repository';
 import { logger } from '@repo/logger';
 import { perform } from '../backup/perform';
 
@@ -6,11 +6,11 @@ const ONE_HOUR_MS = 60 * 60 * 1000;
 const ONE_DAY_MS = 24 * ONE_HOUR_MS;
 
 async function checkAndRunBackups(): Promise<void> {
-  const users = await repository.listUsers();
+  const users = await repository.users.list();
 
   for (const user of users) {
     try {
-      const settings = await repository.getSettings(user.id);
+      const settings = await repository.settings.get(user.id);
 
       if (settings.backup_mechanism === 'disabled') {
         continue;
@@ -20,7 +20,7 @@ async function checkAndRunBackups(): Promise<void> {
         continue;
       }
 
-      const lastBackup = await repository.getLastBackup(user.id);
+      const lastBackup = await repository.backupHistory.getLast(user.id);
       const now = Date.now();
 
       if (lastBackup) {

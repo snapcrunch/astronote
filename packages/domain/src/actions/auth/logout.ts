@@ -1,5 +1,5 @@
-import { deleteRefreshToken } from '@repo/repository';
+import repository from '@repo/repository';
 
 export async function logout(refreshToken: string): Promise<void> {
-  await deleteRefreshToken(refreshToken);
+  await repository.refreshTokens.deleteByToken(refreshToken);
 }

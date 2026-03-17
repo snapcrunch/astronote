@@ -1,6 +1,6 @@
 import type { AuthUser, ApiKey } from '@repo/types';
-import { getApiKeys } from '@repo/repository';
+import repository from '@repo/repository';
 
 export async function list(user: AuthUser): Promise<ApiKey[]> {
-  return getApiKeys(user.id);
+  return repository.apiKeys.list(user.id);
 }

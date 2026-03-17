@@ -3,7 +3,7 @@ import { createWriteStream } from 'node:fs';
 import { writeFile, chmod, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { AuthUser } from '@repo/types';
-import * as repository from '@repo/repository';
+import repository from '@repo/repository';
 import { logger } from '@repo/logger';
 import { exportAll } from '../notes/exportAll';
 
@@ -28,7 +28,7 @@ function git(
 }
 
 export async function perform(user: AuthUser): Promise<void> {
-  const settings = await repository.getSettings(user.id);
+  const settings = await repository.settings.get(user.id);
 
   if (settings.backup_mechanism === 'disabled') {
     throw new Error('Backup mechanism is not configured');
@@ -78,7 +78,7 @@ export async function perform(user: AuthUser): Promise<void> {
     );
     await git(['push', '--force'], { cwd: tmpDir, env: gitEnv });
 
-    await repository.recordBackup(user.id);
+    await repository.backupHistory.record(user.id);
     logger.info('Backup completed successfully');
   } finally {
     // Clean up temp files

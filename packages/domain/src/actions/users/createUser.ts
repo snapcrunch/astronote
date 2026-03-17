@@ -1,12 +1,12 @@
 import bcrypt from 'bcryptjs';
-import { createUser as repoCreateUser, getUserByEmail } from '@repo/repository';
+import repository from '@repo/repository';
 import { populateUser } from './populateUser';
 
 export async function createUser(
   email: string,
   password: string
 ): Promise<{ id: number }> {
-  const existing = await getUserByEmail(email);
+  const existing = await repository.users.getByEmail(email);
   if (existing) {
     throw new UserAlreadyExistsError(email);
   }
@@ -14,7 +14,7 @@ export async function createUser(
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  const user = await repoCreateUser(email, hashedPassword, salt);
+  const user = await repository.users.create(email, hashedPassword, salt);
 
   await populateUser({ id: user.id, email });
 

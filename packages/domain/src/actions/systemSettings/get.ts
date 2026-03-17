@@ -1,5 +1,5 @@
-import * as repository from '@repo/repository';
+import repository from '@repo/repository';
 
 export async function get(): Promise<Record<string, unknown>> {
-  return repository.getSystemSettings();
+  return repository.systemSettings.get();
 }

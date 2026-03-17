@@ -4,7 +4,7 @@ import { createKnexConfig } from './knexfile';
 
 let db: Knex;
 
-export async function initDatabase(path: string): Promise<void> {
+export async function init(path: string): Promise<void> {
   db = knexLib(createKnexConfig(path));
   await db.migrate.latest();
 
@@ -17,7 +17,7 @@ export async function initDatabase(path: string): Promise<void> {
   }
 }
 
-export async function seedDatabase(): Promise<void> {
+export async function seed(): Promise<void> {
   const noteCount = await db('notes').count('* as count').first();
   const collectionCount = await db('collections').count('* as count').first();
   if (
@@ -33,7 +33,7 @@ export function getDb(): Knex {
   return db;
 }
 
-export async function closeDatabase(): Promise<void> {
+export async function close(): Promise<void> {
   if (db) {
     await db.destroy();
   }

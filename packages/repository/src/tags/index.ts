@@ -1,1 +1,0 @@
-export { getTags } from './list';

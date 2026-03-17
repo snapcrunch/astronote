@@ -1,6 +1,6 @@
 import archiver from 'archiver';
 import type { AuthUser } from '@repo/types';
-import * as repository from '@repo/repository';
+import repository from '@repo/repository';
 import { buildFrontmatter } from '../../util/notes';
 
 /**
@@ -10,7 +10,7 @@ import { buildFrontmatter } from '../../util/notes';
  * The caller is responsible for calling `archive.finalize()` after piping.
  */
 export async function exportAll(user: AuthUser) {
-  const entries = await repository.getNotesForExport(user.id);
+  const entries = await repository.notes.listForExport(user.id);
 
   const archive = archiver('zip', { zlib: { level: 9 } });
 

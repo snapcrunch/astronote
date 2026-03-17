@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { Note, CreateNoteInput, AuthUser } from '@repo/types';
-import * as repository from '@repo/repository';
+import repository from '@repo/repository';
 
 export async function create(
   user: AuthUser,
@@ -17,11 +17,11 @@ export async function create(
     createdAt: input.createdAt ?? now,
     updatedAt: input.updatedAt ?? now,
   };
-  const created = await repository.createNote(
+  const created = await repository.notes.create(
     user.id,
     note,
     input.collectionId
   );
-  await repository.incrementTags(tags);
+  await repository.notes.incrementTags(tags);
   return created;
 }

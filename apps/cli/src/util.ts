@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { Command } from 'commander';
-import { initDatabase, closeDatabase } from '@repo/repository';
+import repository from '@repo/repository';
 import type { AuthUser } from '@repo/types';
 
 export function getDbPath(program: Command): string {
@@ -24,13 +24,13 @@ export async function run<T>(
   program: Command,
   fn: () => Promise<T>
 ): Promise<void> {
-  await initDatabase(getDbPath(program));
+  await repository.db.init(getDbPath(program));
   try {
     const result = await fn();
     if (result !== undefined) {
       console.log(JSON.stringify(result, null, 2));
     }
   } finally {
-    await closeDatabase();
+    await repository.db.close();
   }
 }

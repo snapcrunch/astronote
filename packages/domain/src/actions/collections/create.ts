@@ -1,15 +1,15 @@
 import type { Collection, AuthUser } from '@repo/types';
-import * as repository from '@repo/repository';
+import repository from '@repo/repository';
 
 export async function create(
   user: AuthUser,
   name: string
 ): Promise<Collection> {
-  const existing = await repository.getUserCollectionByName(user.id, name);
+  const existing = await repository.collections.getByName(user.id, name);
   if (existing) {
     throw new CollectionAlreadyExistsError(name);
   }
-  return repository.createCollection(user.id, name);
+  return repository.collections.create(user.id, name);
 }
 
 export class CollectionAlreadyExistsError extends Error {

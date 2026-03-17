@@ -1,43 +1,23 @@
-export { initDatabase, seedDatabase, closeDatabase } from './db';
-export {
-  getNotes,
-  getNoteById,
-  getNoteCount,
-  getNotesForExport,
-  createNote,
-  updateNote,
-  deleteNote,
-  archiveNote,
-  addNoteTag,
-  removeNoteTag,
-  incrementTags,
-  decrementTags,
-} from './notes';
-export {
-  getCollections,
-  getUserCollectionByName,
-  createCollection,
-  deleteCollection,
-  setDefaultCollection,
-} from './collections';
-export { getTags } from './tags';
-export { getSettings, updateSettings, resetAll } from './settings';
-export { createUser, getUserByEmail, getUserById, listUsers } from './users';
-export { recordBackup, getLastBackup } from './backupHistory';
-export {
-  createRefreshToken,
-  getRefreshToken,
-  deleteRefreshToken,
-  deleteRefreshTokensByUserId,
-} from './refreshTokens';
-export {
-  createApiKey,
-  getApiKeyById,
-  getApiKeys,
-  deleteApiKey,
-} from './apiKeys';
-export {
-  getSettings as getSystemSettings,
-  patchSettings as patchSystemSettings,
-  updateSettings as updateSystemSettings,
-} from './systemSettings';
+import * as apiKeys from './actions/apiKeys';
+import * as backupHistory from './actions/backupHistory';
+import * as collections from './actions/collections';
+import * as db from './db';
+import * as notes from './actions/notes';
+import * as refreshTokens from './actions/refreshTokens';
+import * as settings from './actions/settings';
+import * as systemSettings from './actions/systemSettings';
+import * as tags from './actions/tags';
+import * as users from './actions/users';
+
+export default {
+  apiKeys,
+  backupHistory,
+  collections,
+  db,
+  notes,
+  refreshTokens,
+  settings,
+  systemSettings,
+  tags,
+  users,
+};
