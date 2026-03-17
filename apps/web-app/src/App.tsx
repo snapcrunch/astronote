@@ -80,16 +80,15 @@ function MainApp() {
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {isMobile ? (
           <>
-            <Fade in={!showNoteView} mountOnEnter unmountOnExit timeout={150}>
-              <Box
-                sx={{
-                  flexDirection: 'column',
-                  height: '100%',
-                }}
-              >
-                <Sidebar />
-              </Box>
-            </Fade>
+            <Box
+              sx={{
+                flexDirection: 'column',
+                height: '100%',
+                display: showNoteView ? 'none' : 'flex',
+              }}
+            >
+              <Sidebar />
+            </Box>
             <Fade key={view} in={showNoteView} mountOnEnter unmountOnExit timeout={150}>
               <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
                 {contentView}
