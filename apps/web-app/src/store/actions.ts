@@ -33,29 +33,37 @@ export function createActions({
     set({ view, selectedNoteId, showInfoPanel: resolved });
   }
 
+  let initPromise: Promise<() => void> | null = null;
+  const inFlightNoteContent = new Map<number, Promise<void>>();
+
   return {
     init: async () => {
-      try {
-        const user = await client.getUser();
-        set({ user });
-      } catch {
-        set({ user: null, route: 'login' });
-        window.history.replaceState(null, '', '/login');
-        return () => {};
-      }
+      if (initPromise) return initPromise;
+      initPromise = (async () => {
+        try {
+          const user = await client.getUser();
+          set({ user });
+        } catch {
+          set({ user: null, route: 'login' });
+          window.history.replaceState(null, '', '/login');
+          initPromise = null;
+          return () => {};
+        }
 
-      set({ route: 'app' });
-      // Fetch collections first so activeCollectionId is set before fetching notes
-      await get().fetchCollections();
-      Promise.all([
-        get().fetchNotes(),
-        get().fetchTags(),
-        get().fetchApiKeys(),
-        get().fetchSettings(),
-        get().fetchClaudeAuthStatus(),
-      ]);
-      window.addEventListener('popstate', restoreFromUrl);
-      return () => window.removeEventListener('popstate', restoreFromUrl);
+        set({ route: 'app' });
+        // Fetch collections first so activeCollectionId is set before fetching notes
+        await get().fetchCollections();
+        Promise.all([
+          get().fetchNotes(),
+          get().fetchTags(),
+          get().fetchApiKeys(),
+          get().fetchSettings(),
+          get().fetchClaudeAuthStatus(),
+        ]);
+        window.addEventListener('popstate', restoreFromUrl);
+        return () => window.removeEventListener('popstate', restoreFromUrl);
+      })();
+      return initPromise;
     },
 
     login: async (email: string, password: string) => {
@@ -66,6 +74,7 @@ export function createActions({
 
     signOut: async () => {
       await client.logout();
+      initPromise = null;
       set({
         route: 'login',
         user: null,
@@ -265,14 +274,23 @@ export function createActions({
 
     fetchNoteContent: async (id: number) => {
       if (get().noteContentCache[id] !== undefined) return;
-      set({ loadingNoteContent: true });
+      if (inFlightNoteContent.has(id)) return inFlightNoteContent.get(id);
+      const promise = (async () => {
+        set({ loadingNoteContent: true });
+        try {
+          const note = await client.fetchNote(id);
+          set((state) => ({
+            noteContentCache: { ...state.noteContentCache, [id]: note.content },
+          }));
+        } finally {
+          set({ loadingNoteContent: false });
+        }
+      })();
+      inFlightNoteContent.set(id, promise);
       try {
-        const note = await client.fetchNote(id);
-        set((state) => ({
-          noteContentCache: { ...state.noteContentCache, [id]: note.content },
-        }));
+        await promise;
       } finally {
-        set({ loadingNoteContent: false });
+        inFlightNoteContent.delete(id);
       }
     },
 
