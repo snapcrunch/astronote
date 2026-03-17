@@ -19,6 +19,7 @@ Yet another note taking application[^1].
 - **Git backups** — Automatically back up notes to a remote Git repository on an hourly or daily schedule. Configure an SSH URL and private key in Settings, or trigger a backup manually at any time.
 - **Settings** — Configure the default editor view, info panel visibility, and dark/light theme (⌘⇧S).
 - **Mobile-friendly** — Responsive layout with touch-optimized interactions and home screen app support (iOS/Android).
+- **Alfred workflow** — Search and create notes directly from [Alfred](https://www.alfredapp.com/) using the `an` keyword. See [apps/alfred-workflow](apps/alfred-workflow).
 - **Self-hosted** — Runs as a single Docker container with an embedded SQLite database. Optional HTTP basic auth.
 - **Ask Claude** — Chat with Claude directly from the app (⌘⇧Z). Claude can search, read, create, and edit your notes, manage tags and collections, and even browse the web — all through a streaming chat interface with session persistence. Authenticate via OAuth from the command palette.
 
@@ -106,6 +107,7 @@ This project is structured as a [monorepo](https://monorepo.tools/) managed with
 - [apps/web-app](apps/web-app) - React-based UI.
 - [apps/api](apps/api) - REST API. This layer is intentionally minimal. It validates requests and forwards them to the `domain` package (see below).
 - [apps/cli](apps/cli) - Command-line interface for administrative tasks (user creation, seeding, etc.).
+- [apps/alfred-workflow](apps/alfred-workflow) - Alfred workflow for searching and creating notes.
 
 ### Libraries
 

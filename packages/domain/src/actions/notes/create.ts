@@ -28,10 +28,19 @@ export async function create(
     createdAt: input.createdAt ?? now,
     updatedAt: input.updatedAt ?? now,
   };
+  let collectionId = input.collectionId;
+  if (collectionId == null) {
+    const defaultCollection = await repository.collections.getDefault(user.id);
+    if (!defaultCollection) {
+      throw new Error('No default collection exists');
+    }
+    collectionId = defaultCollection.id;
+  }
+
   const created = await repository.notes.create({
     userId: user.id,
     note,
-    collectionId: input.collectionId,
+    collectionId,
   });
   await repository.notes.incrementTags(tags);
   return created;

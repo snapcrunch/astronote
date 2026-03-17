@@ -1,0 +1,17 @@
+{
+  "name": "@repo/alfred-workflow",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bash scripts/build.sh",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "alfy": "^3.1.0"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "eslint": "^9.39.1"
+  }
+}

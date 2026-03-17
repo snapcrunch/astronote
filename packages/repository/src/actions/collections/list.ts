@@ -39,3 +39,20 @@ export async function getByName(params: {
     .first();
   return row ? rowToCollection(row) : undefined;
 }
+
+export async function getDefault(
+  userId: number
+): Promise<Collection | undefined> {
+  const db = getDb();
+  const row = await db('collections')
+    .join(
+      'users_collections',
+      'collections.id',
+      'users_collections.collection_id'
+    )
+    .where('users_collections.user_id', userId)
+    .andWhere('collections.isDefault', 1)
+    .select('collections.*')
+    .first();
+  return row ? rowToCollection(row) : undefined;
+}
