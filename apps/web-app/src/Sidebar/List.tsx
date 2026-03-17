@@ -16,6 +16,7 @@ import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import PushPinIcon from '@mui/icons-material/PushPin';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import type { Note } from '@repo/types';
@@ -190,6 +191,13 @@ function NoteList({
   const handleMoveToCollection = (collectionId: number) => {
     if (!contextMenuNote) return;
     updateNote(contextMenuNote.id, { collectionId });
+    handleClose();
+  };
+
+  const handleCopyNoteId = () => {
+    if (contextMenu) {
+      navigator.clipboard.writeText(String(contextMenu.noteId));
+    }
     handleClose();
   };
 
@@ -462,6 +470,12 @@ function NoteList({
             <DriveFileRenameOutlineIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>Rename</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleCopyNoteId}>
+          <ListItemIcon>
+            <ContentCopyIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Copy Note ID</ListItemText>
         </MenuItem>
         <MenuItem onClick={handleDelete}>
           <ListItemIcon>
