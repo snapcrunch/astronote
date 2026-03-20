@@ -88,6 +88,26 @@ function GraphFooter() {
   const handleCy = useCallback((cy: cytoscape.Core) => {
     cyRef.current = cy;
     cy.on('layoutstop', () => {
+      // Reposition edgeless nodes as a vertical list on the left
+      const isolatedNodes = cy.nodes().filter((n) => n.degree(false) === 0);
+      if (isolatedNodes.nonempty()) {
+        const connectedNodes = cy.nodes().filter((n) => n.degree(false) > 0);
+        let leftX: number;
+        if (connectedNodes.nonempty()) {
+          leftX = connectedNodes.boundingBox().x1 - 150;
+        } else {
+          leftX = 0;
+        }
+        const spacing = 40;
+        const startY =
+          connectedNodes.nonempty()
+            ? connectedNodes.boundingBox().y1
+            : 0;
+        isolatedNodes.forEach((node, i) => {
+          node.position({ x: leftX, y: startY + i * spacing });
+        });
+      }
+
       cy.fit(undefined, 20);
       cy.minZoom(cy.zoom());
       const noteId = useNoteStore.getState().selectedNoteId;

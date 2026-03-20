@@ -15,7 +15,7 @@ export function getGraphStylesheet(theme: Theme): StylesheetStyle[] {
         'text-margin-y': 4,
         width: 10,
         height: 10,
-        'text-max-width': '100px',
+        'text-max-width': '200px',
         'text-wrap': 'ellipsis',
       },
     },
