@@ -20,6 +20,8 @@ const init = async ({
 
   const settings = await domain.systemSettings.get();
 
+  console.log('defaultPassword', defaultPassword);
+
   if (!settings.initialized) {
     if (defaultUsername && defaultPassword) {
       await domain.users.createUser(defaultUsername, defaultPassword);

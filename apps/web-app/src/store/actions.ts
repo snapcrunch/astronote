@@ -472,6 +472,15 @@ export function createActions({
       await client.performBackup();
     },
 
+    fetchGraphNotes: async () => {
+      const { activeCollectionId } = get();
+      const notes = await client.fetchNotes({
+        collectionId: activeCollectionId ?? undefined,
+        includeContent: true,
+      } as const);
+      set({ graphNotes: notes, graphNotesLoaded: true });
+    },
+
     fetchApiKeys: async () => {
       const apiKeys = await client.fetchApiKeys();
       set({ apiKeys });

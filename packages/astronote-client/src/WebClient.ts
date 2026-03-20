@@ -25,6 +25,7 @@ export interface FetchNotesParams {
   q?: string;
   tags?: string[];
   collectionId?: number;
+  includeContent?: boolean;
 }
 
 export interface CreateNoteParams {
@@ -232,14 +233,21 @@ export class WebClient {
 
   // Notes
 
-  async fetchNotes(params?: FetchNotesParams): Promise<NoteSummary[]> {
-    const { data } = await this.http.get<NoteSummary[]>('/api/notes', {
+  async fetchNotes(
+    params: FetchNotesParams & { includeContent: true }
+  ): Promise<Note[]>;
+  async fetchNotes(params?: FetchNotesParams): Promise<NoteSummary[]>;
+  async fetchNotes(
+    params?: FetchNotesParams
+  ): Promise<NoteSummary[] | Note[]> {
+    const { data } = await this.http.get('/api/notes', {
       params: {
         ...(params?.q ? { q: params.q } : {}),
         ...(params?.tags?.length ? { tags: params.tags.join(',') } : {}),
         ...(params?.collectionId != null
           ? { collectionId: params.collectionId }
           : {}),
+        ...(params?.includeContent ? { includeContent: true } : {}),
       },
     });
     return data;

@@ -1968,6 +1968,7 @@ __metadata:
     "@types/react-syntax-highlighter": ^15.5.13
     "@vitejs/plugin-react": ^4.5.2
     codemirror: ^6.0.2
+    cytoscape: ^3.33.1
     eslint: ^9.39.1
     intro.js: ^8.3.2
     jszip: ^3.10.1
@@ -1975,6 +1976,7 @@ __metadata:
     overlayscrollbars: ^2.14.0
     overlayscrollbars-react: ^0.5.6
     react: ^19.1.0
+    react-cytoscapejs: ^2.0.0
     react-dom: ^19.1.0
     react-markdown: ^10.1.0
     react-syntax-highlighter: ^16.1.1
@@ -4038,6 +4040,13 @@ __metadata:
   dependencies:
     array-find-index: ^1.0.1
   checksum: 1f59fe10b5339b54b1a1eee110022f663f3495cf7cf2f480686e89edc7fa8bfe42dbab4b54f85034bc8b092a76cc7becbc2dad4f9adad332ab5831bec39ad540
+  languageName: node
+  linkType: hard
+
+"cytoscape@npm:^3.33.1":
+  version: 3.33.1
+  resolution: "cytoscape@npm:3.33.1"
+  checksum: 4ebb9551ecb868fc6e831f523933bf96bd107d09b984d6d44db45adfd0a0f82f3383d7d0d5bc2053267ab2e8da47ce5ea280159643e818a4f2534affee248db8
   languageName: node
   linkType: hard
 
@@ -8941,6 +8950,18 @@ __metadata:
   bin:
     rc: ./cli.js
   checksum: 2e26e052f8be2abd64e6d1dabfbd7be03f80ec18ccbc49562d31f617d0015fbdbcf0f9eed30346ea6ab789e0fdfe4337f033f8016efdbee0df5354751842080e
+  languageName: node
+  linkType: hard
+
+"react-cytoscapejs@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "react-cytoscapejs@npm:2.0.0"
+  dependencies:
+    prop-types: ^15.8.1
+  peerDependencies:
+    cytoscape: ^3.2.19
+    react: ">=15.0.0"
+  checksum: 911a972262a4a7752b476108b334e53764198703802b7f3d2018f34be6a49ccfac43e3b5c33e8fb589e21be60c6745b131d2854a48903c29d8f9e2849d7d436a
   languageName: node
   linkType: hard
 

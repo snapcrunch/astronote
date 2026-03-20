@@ -43,8 +43,17 @@ async function main() {
   app.use('/api/keys', requireAuth, keysRouter);
   app.use('/api/settings', requireAuth, settingsRouter);
   app.use('/api/backup', requireAuth, backupRouter);
-  app.use('/api/claude/auth', requireAuth, claudeAuthRouter);
-  app.use('/api/claude/prompt', requireAuth, claudePromptRouter(config.dbPath));
+  const extendTimeout: express.RequestHandler = (_req, res, next) => {
+    res.setTimeout(10 * 60 * 1000);
+    next();
+  };
+  app.use('/api/claude/auth', requireAuth, extendTimeout, claudeAuthRouter);
+  app.use(
+    '/api/claude/prompt',
+    requireAuth,
+    extendTimeout,
+    claudePromptRouter(config.dbPath)
+  );
   app.use(errorHandler);
 
   // Serve built frontend static files

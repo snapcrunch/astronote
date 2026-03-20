@@ -14,6 +14,8 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   tags: [],
   collections: [],
   apiKeys: [],
+  graphNotes: [],
+  graphNotesLoaded: false,
   activeCollectionId: null,
   selectedNoteId: initialUrl.selectedNoteId,
   searchQuery: '',

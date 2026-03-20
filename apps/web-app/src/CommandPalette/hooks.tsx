@@ -110,6 +110,14 @@ export function useCommands(callbacks: {
         }),
       },
       {
+        id: 'knowledge-graph',
+        label: 'Knowledge Graph',
+        platforms: both,
+        action: run(() => {
+          useNoteStore.getState().setView('graph');
+        }),
+      },
+      {
         id: 'manage-collections',
         label: 'Manage Collections',
         platforms: both,
