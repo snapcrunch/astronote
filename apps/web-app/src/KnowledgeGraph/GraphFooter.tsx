@@ -14,7 +14,7 @@ import { useNoteStore } from '../store';
 import { useFullGraphElements } from '../hooks/useGraphElements';
 import { getGraphStylesheet } from './graphStyles';
 
-const FOOTER_HEIGHT = 300;
+const FOOTER_HEIGHT = '40vh';
 
 function GraphFooter() {
   const showGraphFooter = useNoteStore((s) => s.showGraphFooter);
@@ -53,12 +53,13 @@ function GraphFooter() {
           display: 'flex',
           alignItems: 'center',
           gap: 1,
-          px: 2,
-          py: 0.5,
+          px: 3,
+          height: 40,
+          minHeight: 40,
+          boxSizing: 'content-box',
+          bgcolor: 'grey.100',
           cursor: 'pointer',
           userSelect: 'none',
-          '&:hover': { bgcolor: 'action.hover' },
-          transition: 'background-color 100ms ease',
         }}
         onClick={toggleGraphFooter}
       >
@@ -68,8 +69,9 @@ function GraphFooter() {
           <ExpandLessOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />
         )}
         <Typography
-          variant="caption"
-          sx={{ fontWeight: 600, textTransform: 'uppercase', mr: 'auto' }}
+          variant="body1"
+          sx={{ fontWeight: 600, mr: 'auto' }}
+          noWrap
         >
           Knowledge Graph
         </Typography>
