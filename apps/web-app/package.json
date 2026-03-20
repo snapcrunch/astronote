@@ -26,6 +26,7 @@
     "@repo/types": "*",
     "codemirror": "^6.0.2",
     "cytoscape": "^3.33.1",
+    "cytoscape-fcose": "^2.2.0",
     "intro.js": "^8.3.2",
     "jszip": "^3.10.1",
     "moment": "^2.30.1",

@@ -9,25 +9,29 @@ import ExpandLessOutlined from '@mui/icons-material/ExpandLessOutlined';
 import ExpandMoreOutlined from '@mui/icons-material/ExpandMoreOutlined';
 import { useTheme } from '@mui/material/styles';
 import CytoscapeComponent from 'react-cytoscapejs';
-import type cytoscape from 'cytoscape';
+import cytoscape from 'cytoscape';
 import type { ElementDefinition, StylesheetStyle } from 'cytoscape';
+import fcose from 'cytoscape-fcose';
 import { useNoteStore } from '../store';
 import { useFullGraphElements } from '../hooks/useGraphElements';
 import { getGraphStylesheet } from './graphStyles';
+
+cytoscape.use(fcose);
 
 const DEFAULT_HEIGHT_VH = 40;
 const MIN_HEIGHT = 120;
 const HANDLE_HEIGHT = 5;
 
 const LAYOUT: cytoscape.LayoutOptions = {
-  name: 'cose',
+  name: 'fcose',
   animate: true,
+  quality: 'proof',
+  nodeSeparation: 150,
   nodeRepulsion: () => 500000,
-  idealEdgeLength: () => 300,
-  nodeOverlap: 80,
-  gravity: 0.05,
-  numIter: 2500,
-  maxSimulationTime: 5000,
+  idealEdgeLength: () => 200,
+  gravity: 0.1,
+  tilingPaddingVertical: 80,
+  tilingPaddingHorizontal: 80,
   padding: 30,
 } as cytoscape.LayoutOptions;
 

@@ -1,3 +1,8 @@
+declare module 'cytoscape-fcose' {
+  const ext: cytoscape.Ext;
+  export default ext;
+}
+
 declare module 'react-cytoscapejs' {
   import type { Component } from 'react';
   import type cytoscape from 'cytoscape';
