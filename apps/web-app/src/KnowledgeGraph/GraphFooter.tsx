@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -25,13 +25,13 @@ function GraphFooter() {
   const graphNotesLoaded = useNoteStore((s) => s.graphNotesLoaded);
   const theme = useTheme();
   const cyRef = useRef<cytoscape.Core | null>(null);
-  const [panelHeight, setPanelHeight] = useState(
-    () => Math.round(window.innerHeight * (DEFAULT_HEIGHT_VH / 100))
-  );
   const dragging = useRef(false);
   const startY = useRef(0);
   const startHeight = useRef(0);
   const panelRef = useRef<HTMLDivElement>(null);
+  const currentHeight = useRef(
+    Math.round(window.innerHeight * (DEFAULT_HEIGHT_VH / 100))
+  );
 
   const { nodes, edges } = useFullGraphElements(graphNotes);
   const elements = useMemo(() => [...nodes, ...edges], [nodes, edges]);
@@ -49,15 +49,12 @@ function GraphFooter() {
     if (showGraphFooter) toggleGraphFooter();
   }, [showGraphFooter, toggleGraphFooter]);
 
-  const onDragStart = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      dragging.current = true;
-      startY.current = e.clientY;
-      startHeight.current = panelHeight;
-    },
-    [panelHeight]
-  );
+  const onDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    dragging.current = true;
+    startY.current = e.clientY;
+    startHeight.current = currentHeight.current;
+  }, []);
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
@@ -66,15 +63,11 @@ function GraphFooter() {
       const maxHeight = window.innerHeight - 100;
       const next = Math.max(MIN_HEIGHT, Math.min(maxHeight, startHeight.current + delta));
       panelRef.current.style.height = `${next}px`;
+      currentHeight.current = next;
     };
 
     const onMouseUp = () => {
-      if (!dragging.current) return;
       dragging.current = false;
-      if (panelRef.current) {
-        const finalHeight = parseInt(panelRef.current.style.height, 10);
-        if (!isNaN(finalHeight)) setPanelHeight(finalHeight);
-      }
     };
 
     window.addEventListener('mousemove', onMouseMove);
@@ -189,7 +182,7 @@ function GraphFooter() {
         )}
       </Box>
       {showGraphFooter && (
-        <Box ref={panelRef} sx={{ height: panelHeight, position: 'relative' }}>
+        <Box ref={panelRef} sx={{ height: currentHeight.current, position: 'relative' }}>
           {!graphNotesLoaded ? (
             <Box
               sx={{
