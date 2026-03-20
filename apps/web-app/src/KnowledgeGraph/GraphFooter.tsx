@@ -86,6 +86,17 @@ function GraphFooter() {
     cy.on('layoutstop', () => {
       cy.fit(undefined, 20);
       cy.minZoom(cy.zoom());
+      const noteId = useNoteStore.getState().selectedNoteId;
+      if (noteId) {
+        const node = cy.getElementById(String(noteId));
+        if (node.nonempty()) {
+          cy.animate({
+            center: { eles: node },
+            duration: 1200,
+            easing: 'ease-in-out-cubic',
+          });
+        }
+      }
     });
     cy.on('tap', 'node', (e) => {
       const noteId = Number(e.target.id());
@@ -100,7 +111,11 @@ function GraphFooter() {
     if (!cy || !selectedNoteId || !showGraphFooter) return;
     const node = cy.getElementById(String(selectedNoteId));
     if (node.nonempty()) {
-      cy.animate({ center: { eles: node }, duration: 200 });
+      cy.animate({
+        center: { eles: node },
+        duration: 1200,
+        easing: 'ease-in-out-cubic',
+      });
     }
   }, [selectedNoteId, showGraphFooter]);
 
