@@ -5,7 +5,6 @@ import { useNoteStore, useSelectedNote } from '../store';
 import Statistics from './Statistics';
 import TableOfContents from './TableOfContents';
 import TagManager from './TagManager';
-import LocalGraph from './LocalGraph';
 import RelatedNotes from './RelatedNotes';
 import StatRow from './StatRow';
 import { formatDateTime } from './util';
@@ -55,7 +54,6 @@ function InfoPanel({ variant = 'side' }: InfoPanelProps) {
           <TagManager />
           <Statistics />
         </Box>
-        <LocalGraph />
         <RelatedNotes sx={{ flex: 1, minHeight: 0 }} />
       </Box>
     );

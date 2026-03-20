@@ -110,14 +110,6 @@ export function useCommands(callbacks: {
         }),
       },
       {
-        id: 'knowledge-graph',
-        label: 'Knowledge Graph',
-        platforms: ['desktop'],
-        action: run(() => {
-          useNoteStore.getState().toggleGraphFooter();
-        }),
-      },
-      {
         id: 'manage-collections',
         label: 'Manage Collections',
         platforms: both,

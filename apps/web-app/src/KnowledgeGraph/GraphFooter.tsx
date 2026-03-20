@@ -31,6 +31,7 @@ function GraphFooter() {
   const dragging = useRef(false);
   const startY = useRef(0);
   const startHeight = useRef(0);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const { nodes, edges } = useFullGraphElements(graphNotes);
   const elements = useMemo(() => [...nodes, ...edges], [nodes, edges]);
@@ -60,15 +61,20 @@ function GraphFooter() {
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
-      if (!dragging.current) return;
+      if (!dragging.current || !panelRef.current) return;
       const delta = startY.current - e.clientY;
       const maxHeight = window.innerHeight - 100;
       const next = Math.max(MIN_HEIGHT, Math.min(maxHeight, startHeight.current + delta));
-      setPanelHeight(next);
+      panelRef.current.style.height = `${next}px`;
     };
 
     const onMouseUp = () => {
+      if (!dragging.current) return;
       dragging.current = false;
+      if (panelRef.current) {
+        const finalHeight = parseInt(panelRef.current.style.height, 10);
+        if (!isNaN(finalHeight)) setPanelHeight(finalHeight);
+      }
     };
 
     window.addEventListener('mousemove', onMouseMove);
@@ -183,7 +189,7 @@ function GraphFooter() {
         )}
       </Box>
       {showGraphFooter && (
-        <Box sx={{ height: panelHeight, position: 'relative' }}>
+        <Box ref={panelRef} sx={{ height: panelHeight, position: 'relative' }}>
           {!graphNotesLoaded ? (
             <Box
               sx={{
