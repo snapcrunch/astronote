@@ -83,9 +83,14 @@ function GraphFooter() {
   const handleCy = useCallback((cy: cytoscape.Core) => {
     cyRef.current = cy;
     cy.on('layoutstop', () => {
-      // Fit first, then lock the zoom level as the minimum
       cy.fit(undefined, 20);
       cy.minZoom(cy.zoom());
+    });
+    cy.on('tap', 'node', (e) => {
+      const noteId = Number(e.target.id());
+      if (!isNaN(noteId)) {
+        useNoteStore.getState().setSelectedNoteId(noteId);
+      }
     });
   }, []);
 
