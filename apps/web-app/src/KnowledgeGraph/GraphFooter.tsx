@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -25,6 +25,11 @@ function GraphFooter() {
   const graphNotesLoaded = useNoteStore((s) => s.graphNotesLoaded);
   const theme = useTheme();
   const cyRef = useRef<cytoscape.Core | null>(null);
+  const [everOpened, setEverOpened] = useState(showGraphFooter);
+
+  useEffect(() => {
+    if (showGraphFooter && !everOpened) setEverOpened(true);
+  }, [showGraphFooter, everOpened]);
   const dragging = useRef(false);
   const startY = useRef(0);
   const startHeight = useRef(0);
@@ -87,20 +92,19 @@ function GraphFooter() {
         position: 'relative',
       }}
     >
-      {showGraphFooter && (
-        <Box
-          onMouseDown={onDragStart}
-          sx={{
-            position: 'absolute',
-            top: -Math.floor(HANDLE_HEIGHT / 2),
-            left: 0,
-            right: 0,
-            height: HANDLE_HEIGHT,
-            cursor: 'row-resize',
-            zIndex: 1,
-          }}
-        />
-      )}
+      <Box
+        onMouseDown={onDragStart}
+        sx={{
+          position: 'absolute',
+          top: -Math.floor(HANDLE_HEIGHT / 2),
+          left: 0,
+          right: 0,
+          height: HANDLE_HEIGHT,
+          cursor: 'row-resize',
+          zIndex: 1,
+          display: showGraphFooter ? 'block' : 'none',
+        }}
+      />
       <Box
         sx={{
           display: 'flex',
@@ -181,8 +185,15 @@ function GraphFooter() {
           </>
         )}
       </Box>
-      {showGraphFooter && (
-        <Box ref={panelRef} sx={{ height: currentHeight.current, position: 'relative' }}>
+      {everOpened && (
+        <Box
+          ref={panelRef}
+          sx={{
+            height: currentHeight.current,
+            position: 'relative',
+            display: showGraphFooter ? 'block' : 'none',
+          }}
+        >
           {!graphNotesLoaded ? (
             <Box
               sx={{
