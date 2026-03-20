@@ -472,6 +472,14 @@ export function createActions({
       await client.performBackup();
     },
 
+    toggleGraphFooter: () => {
+      const next = !get().showGraphFooter;
+      set({ showGraphFooter: next });
+      if (next && !get().graphNotesLoaded) {
+        get().fetchGraphNotes();
+      }
+    },
+
     fetchGraphNotes: async () => {
       const { activeCollectionId } = get();
       const notes = await client.fetchNotes({

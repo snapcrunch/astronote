@@ -10,7 +10,7 @@ import type { Tag, User } from '@repo/astronote-client/WebClient';
 export type { Tag, User };
 
 export type Route = 'loading' | 'login' | 'app';
-export type View = 'notes' | 'settings' | 'collections' | 'keys' | 'graph';
+export type View = 'notes' | 'settings' | 'collections' | 'keys';
 
 export interface NoteStore {
   route: Route;
@@ -40,6 +40,7 @@ export interface NoteStore {
   graphNotesLoaded: boolean;
   view: View;
   showInfoPanel: boolean;
+  showGraphFooter: boolean;
 
   init: () => Promise<() => void>;
   login: (email: string, password: string) => Promise<void>;
@@ -49,6 +50,7 @@ export interface NoteStore {
   resetAll: () => Promise<void>;
   setView: (view: View) => void;
   toggleInfoPanel: () => void;
+  toggleGraphFooter: () => void;
   setSearchQuery: (query: string) => void;
   setSelectedNoteId: (id: number | null) => void;
   setActiveCollectionId: (id: number) => void;

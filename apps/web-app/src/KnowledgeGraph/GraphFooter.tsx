@@ -1,0 +1,183 @@
+import { useCallback, useMemo, useRef } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import CircularProgress from '@mui/material/CircularProgress';
+import CenterFocusStrongOutlined from '@mui/icons-material/CenterFocusStrongOutlined';
+import CloseOutlined from '@mui/icons-material/CloseOutlined';
+import ExpandLessOutlined from '@mui/icons-material/ExpandLessOutlined';
+import ExpandMoreOutlined from '@mui/icons-material/ExpandMoreOutlined';
+import { useTheme } from '@mui/material/styles';
+import CytoscapeComponent from 'react-cytoscapejs';
+import type cytoscape from 'cytoscape';
+import { useNoteStore } from '../store';
+import { useFullGraphElements } from '../hooks/useGraphElements';
+import { getGraphStylesheet } from './graphStyles';
+
+const FOOTER_HEIGHT = 300;
+
+function GraphFooter() {
+  const showGraphFooter = useNoteStore((s) => s.showGraphFooter);
+  const toggleGraphFooter = useNoteStore((s) => s.toggleGraphFooter);
+  const graphNotes = useNoteStore((s) => s.graphNotes);
+  const graphNotesLoaded = useNoteStore((s) => s.graphNotesLoaded);
+  const theme = useTheme();
+  const cyRef = useRef<cytoscape.Core | null>(null);
+
+  const { nodes, edges } = useFullGraphElements(graphNotes);
+  const elements = useMemo(() => [...nodes, ...edges], [nodes, edges]);
+  const stylesheet = useMemo(() => getGraphStylesheet(theme), [theme]);
+
+  const handleCy = useCallback((cy: cytoscape.Core) => {
+    cyRef.current = cy;
+  }, []);
+
+  const handleFit = useCallback(() => {
+    cyRef.current?.fit(undefined, 20);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    if (showGraphFooter) toggleGraphFooter();
+  }, [showGraphFooter, toggleGraphFooter]);
+
+  return (
+    <Box
+      sx={{
+        borderTop: 1,
+        borderColor: 'divider',
+        flexShrink: 0,
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          px: 2,
+          py: 0.5,
+          cursor: 'pointer',
+          userSelect: 'none',
+          '&:hover': { bgcolor: 'action.hover' },
+          transition: 'background-color 100ms ease',
+        }}
+        onClick={toggleGraphFooter}
+      >
+        {showGraphFooter ? (
+          <ExpandMoreOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />
+        ) : (
+          <ExpandLessOutlined sx={{ fontSize: 16, color: 'text.secondary' }} />
+        )}
+        <Typography
+          variant="caption"
+          sx={{ fontWeight: 600, textTransform: 'uppercase', mr: 'auto' }}
+        >
+          Knowledge Graph
+        </Typography>
+        {showGraphFooter && (
+          <>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Box
+                  sx={{
+                    width: 12,
+                    height: 1.5,
+                    bgcolor: 'primary.light',
+                    borderRadius: 1,
+                  }}
+                />
+                <Typography variant="caption" color="text.secondary">
+                  Link
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Box
+                  sx={{
+                    width: 12,
+                    height: 1.5,
+                    bgcolor: 'secondary.light',
+                    borderRadius: 1,
+                  }}
+                />
+                <Typography variant="caption" color="text.secondary">
+                  Shared tag
+                </Typography>
+              </Box>
+            </Box>
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleFit();
+              }}
+              title="Fit to screen"
+            >
+              <CenterFocusStrongOutlined sx={{ fontSize: 16 }} />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClose();
+              }}
+              title="Close"
+            >
+              <CloseOutlined sx={{ fontSize: 16 }} />
+            </IconButton>
+          </>
+        )}
+      </Box>
+      {showGraphFooter && (
+        <Box sx={{ height: FOOTER_HEIGHT, position: 'relative' }}>
+          {!graphNotesLoaded ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+              }}
+            >
+              <CircularProgress size={20} />
+            </Box>
+          ) : elements.length === 0 ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+              }}
+            >
+              <Typography variant="caption" color="text.secondary">
+                No notes to display
+              </Typography>
+            </Box>
+          ) : (
+            <CytoscapeComponent
+              elements={elements}
+              stylesheet={stylesheet}
+              layout={{
+                name: 'cose',
+                animate: true,
+                nodeRepulsion: () => 500000,
+                idealEdgeLength: () => 300,
+                nodeOverlap: 80,
+                gravity: 0.05,
+                numIter: 2500,
+                maxSimulationTime: 5000,
+                padding: 30,
+              } as cytoscape.LayoutOptions}
+              style={{ width: '100%', height: '100%', position: 'absolute' }}
+              cy={handleCy}
+              userPanningEnabled
+              userZoomingEnabled
+              boxSelectionEnabled={false}
+            />
+          )}
+        </Box>
+      )}
+    </Box>
+  );
+}
+
+export default GraphFooter;

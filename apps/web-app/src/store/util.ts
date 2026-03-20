@@ -20,8 +20,6 @@ export function buildUrl({
     path = '/collections';
   } else if (view === 'keys') {
     path = '/keys';
-  } else if (view === 'graph') {
-    path = '/graph';
   } else if (selectedNoteId) {
     path = `/notes/${selectedNoteId}`;
   } else {
@@ -61,10 +59,6 @@ export function parseUrl(): {
 
   if (path === '/keys') {
     return { view: 'keys', selectedNoteId: null, showInfoPanel };
-  }
-
-  if (path === '/graph') {
-    return { view: 'graph', selectedNoteId: null, showInfoPanel };
   }
 
   const noteMatch = path.match(/^\/notes\/(.+)$/);

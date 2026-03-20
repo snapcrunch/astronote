@@ -112,9 +112,9 @@ export function useCommands(callbacks: {
       {
         id: 'knowledge-graph',
         label: 'Knowledge Graph',
-        platforms: both,
+        platforms: ['desktop'],
         action: run(() => {
-          useNoteStore.getState().setView('graph');
+          useNoteStore.getState().toggleGraphFooter();
         }),
       },
       {
