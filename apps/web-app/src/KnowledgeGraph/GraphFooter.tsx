@@ -110,6 +110,7 @@ function GraphFooter() {
 
       cy.fit(undefined, 20);
       cy.minZoom(cy.zoom());
+      cy.maxZoom(2.5);
       const noteId = useNoteStore.getState().selectedNoteId;
       if (noteId) {
         const node = cy.getElementById(String(noteId));

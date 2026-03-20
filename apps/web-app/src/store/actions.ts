@@ -28,9 +28,9 @@ export function createActions({
   const sd = () => get().settings.show_info_panel;
 
   function restoreFromUrl() {
-    const { view, selectedNoteId, showInfoPanel } = parseUrl();
+    const { view, selectedNoteId, showInfoPanel, showGraphFooter } = parseUrl();
     const resolved = showInfoPanel ?? get().settings.show_info_panel;
-    set({ view, selectedNoteId, showInfoPanel: resolved });
+    set({ view, selectedNoteId, showInfoPanel: resolved, showGraphFooter });
   }
 
   let initPromise: Promise<() => void> | null = null;
@@ -59,6 +59,7 @@ export function createActions({
           get().fetchApiKeys(),
           get().fetchSettings(),
           get().fetchClaudeAuthStatus(),
+          ...(get().showGraphFooter ? [get().fetchGraphNotes()] : []),
         ]);
         window.addEventListener('popstate', restoreFromUrl);
         return () => window.removeEventListener('popstate', restoreFromUrl);
@@ -140,6 +141,7 @@ export function createActions({
         selectedNoteId: null,
         showInfoPanel: get().showInfoPanel,
         settingDefault: sd(),
+        showGraphFooter: get().showGraphFooter,
       });
       await Promise.all([get().fetchCollections(), get().fetchSettings()]);
     },
@@ -152,6 +154,7 @@ export function createActions({
         selectedNoteId: get().selectedNoteId,
         showInfoPanel: next,
         settingDefault: sd(),
+        showGraphFooter: get().showGraphFooter,
       });
     },
 
@@ -163,6 +166,7 @@ export function createActions({
         selectedNoteId: noteId,
         showInfoPanel: get().showInfoPanel,
         settingDefault: sd(),
+        showGraphFooter: get().showGraphFooter,
       });
     },
 
@@ -179,6 +183,7 @@ export function createActions({
         selectedNoteId: id,
         showInfoPanel: get().showInfoPanel,
         settingDefault: sd(),
+        showGraphFooter: get().showGraphFooter,
       });
     },
 
@@ -194,6 +199,7 @@ export function createActions({
         selectedNoteId: null,
         showInfoPanel: get().showInfoPanel,
         settingDefault: sd(),
+        showGraphFooter: get().showGraphFooter,
       });
       get().fetchNotes();
       get().fetchTags();
@@ -209,7 +215,7 @@ export function createActions({
       } else {
         next = current.length === 1 && current[0] === tag ? [] : [tag];
       }
-      set({ selectedTags: next });
+      set({ selectedTags: next, selectedNoteId: null });
       get().fetchNotes();
     },
 
@@ -323,6 +329,7 @@ export function createActions({
           selectedNoteId: note.id,
           showInfoPanel: get().showInfoPanel,
           settingDefault: sd(),
+          showGraphFooter: get().showGraphFooter,
         });
         await get().fetchNotes();
         get().fetchTags();
@@ -415,6 +422,7 @@ export function createActions({
             selectedNoteId: nextId,
             showInfoPanel: state.showInfoPanel,
             settingDefault: state.settings.show_info_panel,
+            showGraphFooter: state.showGraphFooter,
           });
           return {
             notes: state.notes.filter((n) => n.id !== id),
@@ -475,18 +483,29 @@ export function createActions({
     toggleGraphFooter: () => {
       const next = !get().showGraphFooter;
       set({ showGraphFooter: next });
+      syncUrl({
+        view: get().view,
+        selectedNoteId: get().selectedNoteId,
+        showInfoPanel: get().showInfoPanel,
+        settingDefault: sd(),
+        showGraphFooter: next,
+      });
       if (next && !get().graphNotesLoaded) {
         get().fetchGraphNotes();
       }
     },
 
     fetchGraphNotes: async () => {
-      const { activeCollectionId } = get();
-      const notes = await client.fetchNotes({
-        collectionId: activeCollectionId ?? undefined,
-        includeContent: true,
-      } as const);
-      set({ graphNotes: notes, graphNotesLoaded: true });
+      try {
+        const { activeCollectionId } = get();
+        const notes = await client.fetchNotes({
+          collectionId: activeCollectionId ?? undefined,
+          includeContent: true,
+        } as const);
+        set({ graphNotes: notes, graphNotesLoaded: true });
+      } catch {
+        // Non-critical — don't block the app if graph data fails to load
+      }
     },
 
     fetchApiKeys: async () => {

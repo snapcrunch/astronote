@@ -5,6 +5,7 @@ interface UrlParams {
   selectedNoteId: number | null;
   showInfoPanel: boolean;
   settingDefault: boolean;
+  showGraphFooter: boolean;
 }
 
 export function buildUrl({
@@ -12,6 +13,7 @@ export function buildUrl({
   selectedNoteId,
   showInfoPanel,
   settingDefault,
+  showGraphFooter,
 }: UrlParams): string {
   let path: string;
   if (view === 'settings') {
@@ -29,6 +31,9 @@ export function buildUrl({
   if (showInfoPanel !== settingDefault) {
     params.set('info', showInfoPanel ? '1' : '0');
   }
+  if (showGraphFooter) {
+    params.set('graph', '1');
+  }
   const qs = params.toString();
   return qs ? `${path}?${qs}` : path;
 }
@@ -44,21 +49,23 @@ export function parseUrl(): {
   view: View;
   selectedNoteId: number | null;
   showInfoPanel: boolean | null;
+  showGraphFooter: boolean;
 } {
   const path = window.location.pathname;
   const params = new URLSearchParams(window.location.search);
   const showInfoPanel = params.has('info') ? params.get('info') !== '0' : null;
+  const showGraphFooter = params.get('graph') === '1';
 
   if (path === '/settings') {
-    return { view: 'settings', selectedNoteId: null, showInfoPanel };
+    return { view: 'settings', selectedNoteId: null, showInfoPanel, showGraphFooter };
   }
 
   if (path === '/collections') {
-    return { view: 'collections', selectedNoteId: null, showInfoPanel };
+    return { view: 'collections', selectedNoteId: null, showInfoPanel, showGraphFooter };
   }
 
   if (path === '/keys') {
-    return { view: 'keys', selectedNoteId: null, showInfoPanel };
+    return { view: 'keys', selectedNoteId: null, showInfoPanel, showGraphFooter };
   }
 
   const noteMatch = path.match(/^\/notes\/(.+)$/);
@@ -67,8 +74,9 @@ export function parseUrl(): {
       view: 'notes',
       selectedNoteId: Number(noteMatch[1]),
       showInfoPanel,
+      showGraphFooter,
     };
   }
 
-  return { view: 'notes', selectedNoteId: null, showInfoPanel };
+  return { view: 'notes', selectedNoteId: null, showInfoPanel, showGraphFooter };
 }

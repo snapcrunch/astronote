@@ -46,7 +46,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   loadingNoteContent: false,
   view: initialUrl.view,
   showInfoPanel: initialUrl.showInfoPanel ?? true,
-  showGraphFooter: false,
+  showGraphFooter: initialUrl.showGraphFooter,
   ...createActions({
     set,
     get,
