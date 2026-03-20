@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -14,7 +14,9 @@ import { useNoteStore } from '../store';
 import { useFullGraphElements } from '../hooks/useGraphElements';
 import { getGraphStylesheet } from './graphStyles';
 
-const FOOTER_HEIGHT = '40vh';
+const DEFAULT_HEIGHT_VH = 40;
+const MIN_HEIGHT = 120;
+const HANDLE_HEIGHT = 5;
 
 function GraphFooter() {
   const showGraphFooter = useNoteStore((s) => s.showGraphFooter);
@@ -23,6 +25,12 @@ function GraphFooter() {
   const graphNotesLoaded = useNoteStore((s) => s.graphNotesLoaded);
   const theme = useTheme();
   const cyRef = useRef<cytoscape.Core | null>(null);
+  const [panelHeight, setPanelHeight] = useState(
+    () => Math.round(window.innerHeight * (DEFAULT_HEIGHT_VH / 100))
+  );
+  const dragging = useRef(false);
+  const startY = useRef(0);
+  const startHeight = useRef(0);
 
   const { nodes, edges } = useFullGraphElements(graphNotes);
   const elements = useMemo(() => [...nodes, ...edges], [nodes, edges]);
@@ -40,14 +48,60 @@ function GraphFooter() {
     if (showGraphFooter) toggleGraphFooter();
   }, [showGraphFooter, toggleGraphFooter]);
 
+  const onDragStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      dragging.current = true;
+      startY.current = e.clientY;
+      startHeight.current = panelHeight;
+    },
+    [panelHeight]
+  );
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!dragging.current) return;
+      const delta = startY.current - e.clientY;
+      const maxHeight = window.innerHeight - 100;
+      const next = Math.max(MIN_HEIGHT, Math.min(maxHeight, startHeight.current + delta));
+      setPanelHeight(next);
+    };
+
+    const onMouseUp = () => {
+      dragging.current = false;
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, []);
+
   return (
     <Box
       sx={{
         borderTop: 1,
         borderColor: 'divider',
         flexShrink: 0,
+        position: 'relative',
       }}
     >
+      {showGraphFooter && (
+        <Box
+          onMouseDown={onDragStart}
+          sx={{
+            position: 'absolute',
+            top: -Math.floor(HANDLE_HEIGHT / 2),
+            left: 0,
+            right: 0,
+            height: HANDLE_HEIGHT,
+            cursor: 'row-resize',
+            zIndex: 1,
+          }}
+        />
+      )}
       <Box
         sx={{
           display: 'flex',
@@ -129,7 +183,7 @@ function GraphFooter() {
         )}
       </Box>
       {showGraphFooter && (
-        <Box sx={{ height: FOOTER_HEIGHT, position: 'relative' }}>
+        <Box sx={{ height: panelHeight, position: 'relative' }}>
           {!graphNotesLoaded ? (
             <Box
               sx={{
