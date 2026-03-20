@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, memo } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -10,6 +10,7 @@ import ExpandMoreOutlined from '@mui/icons-material/ExpandMoreOutlined';
 import { useTheme } from '@mui/material/styles';
 import CytoscapeComponent from 'react-cytoscapejs';
 import type cytoscape from 'cytoscape';
+import type { ElementDefinition, StylesheetStyle } from 'cytoscape';
 import { useNoteStore } from '../store';
 import { useFullGraphElements } from '../hooks/useGraphElements';
 import { getGraphStylesheet } from './graphStyles';
@@ -17,6 +18,43 @@ import { getGraphStylesheet } from './graphStyles';
 const DEFAULT_HEIGHT_VH = 40;
 const MIN_HEIGHT = 120;
 const HANDLE_HEIGHT = 5;
+
+const LAYOUT: cytoscape.LayoutOptions = {
+  name: 'cose',
+  animate: true,
+  nodeRepulsion: () => 500000,
+  idealEdgeLength: () => 300,
+  nodeOverlap: 80,
+  gravity: 0.05,
+  numIter: 2500,
+  maxSimulationTime: 5000,
+  padding: 30,
+} as cytoscape.LayoutOptions;
+
+interface GraphCanvasProps {
+  elements: ElementDefinition[];
+  stylesheet: StylesheetStyle[];
+  onCy: (cy: cytoscape.Core) => void;
+}
+
+const GraphCanvas = memo(function GraphCanvas({
+  elements,
+  stylesheet,
+  onCy,
+}: GraphCanvasProps) {
+  return (
+    <CytoscapeComponent
+      elements={elements}
+      stylesheet={stylesheet}
+      layout={LAYOUT}
+      style={{ width: '100%', height: '100%', position: 'absolute' }}
+      cy={onCy}
+      userPanningEnabled
+      userZoomingEnabled
+      boxSelectionEnabled={false}
+    />
+  );
+});
 
 function GraphFooter() {
   const showGraphFooter = useNoteStore((s) => s.showGraphFooter);
@@ -115,6 +153,8 @@ function GraphFooter() {
           minHeight: 40,
           boxSizing: 'content-box',
           bgcolor: 'grey.100',
+          borderBottom: showGraphFooter ? 1 : 0,
+          borderColor: 'divider',
           cursor: 'pointer',
           userSelect: 'none',
         }}
@@ -192,6 +232,7 @@ function GraphFooter() {
             height: currentHeight.current,
             position: 'relative',
             display: showGraphFooter ? 'block' : 'none',
+            overflow: 'hidden',
           }}
         >
           {!graphNotesLoaded ? (
@@ -219,25 +260,10 @@ function GraphFooter() {
               </Typography>
             </Box>
           ) : (
-            <CytoscapeComponent
+            <GraphCanvas
               elements={elements}
               stylesheet={stylesheet}
-              layout={{
-                name: 'cose',
-                animate: true,
-                nodeRepulsion: () => 500000,
-                idealEdgeLength: () => 300,
-                nodeOverlap: 80,
-                gravity: 0.05,
-                numIter: 2500,
-                maxSimulationTime: 5000,
-                padding: 30,
-              } as cytoscape.LayoutOptions}
-              style={{ width: '100%', height: '100%', position: 'absolute' }}
-              cy={handleCy}
-              userPanningEnabled
-              userZoomingEnabled
-              boxSelectionEnabled={false}
+              onCy={handleCy}
             />
           )}
         </Box>
