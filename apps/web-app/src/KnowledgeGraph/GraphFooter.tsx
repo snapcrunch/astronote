@@ -61,6 +61,7 @@ function GraphFooter() {
   const toggleGraphFooter = useNoteStore((s) => s.toggleGraphFooter);
   const graphNotes = useNoteStore((s) => s.graphNotes);
   const graphNotesLoaded = useNoteStore((s) => s.graphNotesLoaded);
+  const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
   const theme = useTheme();
   const cyRef = useRef<cytoscape.Core | null>(null);
   const [everOpened, setEverOpened] = useState(showGraphFooter);
@@ -93,6 +94,15 @@ function GraphFooter() {
       }
     });
   }, []);
+
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy || !selectedNoteId || !showGraphFooter) return;
+    const node = cy.getElementById(String(selectedNoteId));
+    if (node.nonempty()) {
+      cy.animate({ center: { eles: node }, duration: 200 });
+    }
+  }, [selectedNoteId, showGraphFooter]);
 
   const handleFit = useCallback(() => {
     cyRef.current?.fit(undefined, 20);
