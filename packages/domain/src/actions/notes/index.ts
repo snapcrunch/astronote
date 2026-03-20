@@ -6,3 +6,4 @@ export { addTag } from './addTag';
 export { removeTag } from './removeTag';
 export { remove } from './remove';
 export { exportAll } from './exportAll';
+export { graph } from './graph';

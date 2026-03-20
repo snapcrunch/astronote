@@ -253,6 +253,24 @@ export class WebClient {
     return data;
   }
 
+  async fetchGraph(params?: {
+    collectionId?: number;
+    tags?: string[];
+  }): Promise<{
+    nodes: { id: number; label: string }[];
+    edges: { source: number; target: number; type: 'wikilink' | 'shared-tag' }[];
+  }> {
+    const { data } = await this.http.get('/api/notes/graph', {
+      params: {
+        ...(params?.collectionId != null
+          ? { collectionId: params.collectionId }
+          : {}),
+        ...(params?.tags?.length ? { tags: params.tags.join(',') } : {}),
+      },
+    });
+    return data;
+  }
+
   async fetchNote(id: number): Promise<Note> {
     const { data } = await this.http.get<Note>(`/api/notes/${id}`);
     return data;

@@ -13,7 +13,6 @@ import cytoscape from 'cytoscape';
 import type { ElementDefinition, StylesheetStyle } from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 import { useNoteStore } from '../store';
-import { useFullGraphElements } from '../hooks/useGraphElements';
 import { getGraphStylesheet } from './graphStyles';
 
 cytoscape.use(fcose);
@@ -63,10 +62,9 @@ const GraphCanvas = memo(function GraphCanvas({
 function GraphFooter() {
   const showGraphFooter = useNoteStore((s) => s.showGraphFooter);
   const toggleGraphFooter = useNoteStore((s) => s.toggleGraphFooter);
-  const graphNotes = useNoteStore((s) => s.graphNotes);
-  const graphNotesLoaded = useNoteStore((s) => s.graphNotesLoaded);
+  const graphData = useNoteStore((s) => s.graphData);
+  const graphDataLoaded = useNoteStore((s) => s.graphDataLoaded);
   const selectedNoteId = useNoteStore((s) => s.selectedNoteId);
-  const selectedTags = useNoteStore((s) => s.selectedTags);
   const theme = useTheme();
   const cyRef = useRef<cytoscape.Core | null>(null);
   const [everOpened, setEverOpened] = useState(showGraphFooter);
@@ -82,15 +80,21 @@ function GraphFooter() {
     Math.round(window.innerHeight * (DEFAULT_HEIGHT_VH / 100))
   );
 
-  const filteredGraphNotes = useMemo(
-    () =>
-      selectedTags.length > 0
-        ? graphNotes.filter((n) => selectedTags.every((t) => n.tags.includes(t)))
-        : graphNotes,
-    [graphNotes, selectedTags]
-  );
-  const { nodes, edges } = useFullGraphElements(filteredGraphNotes);
-  const elements = useMemo(() => [...nodes, ...edges], [nodes, edges]);
+  const elements = useMemo(() => {
+    const nodes: ElementDefinition[] = graphData.nodes.map((n) => ({
+      data: { id: String(n.id), label: n.label },
+    }));
+    const edges: ElementDefinition[] = graphData.edges.map((e, i) => ({
+      data: {
+        id: `e${i}`,
+        source: String(e.source),
+        target: String(e.target),
+        type: e.type,
+      },
+    }));
+    return [...nodes, ...edges];
+  }, [graphData]);
+
   const stylesheet = useMemo(() => getGraphStylesheet(theme), [theme]);
 
   const handleCy = useCallback((cy: cytoscape.Core) => {
@@ -303,7 +307,7 @@ function GraphFooter() {
             overflow: 'hidden',
           }}
         >
-          {!graphNotesLoaded ? (
+          {!graphDataLoaded ? (
             <Box
               sx={{
                 display: 'flex',

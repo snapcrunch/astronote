@@ -59,7 +59,7 @@ export function createActions({
           get().fetchApiKeys(),
           get().fetchSettings(),
           get().fetchClaudeAuthStatus(),
-          ...(get().showGraphFooter ? [get().fetchGraphNotes()] : []),
+          ...(get().showGraphFooter ? [get().fetchGraph()] : []),
         ]);
         window.addEventListener('popstate', restoreFromUrl);
         return () => window.removeEventListener('popstate', restoreFromUrl);
@@ -217,6 +217,9 @@ export function createActions({
       }
       set({ selectedTags: next, selectedNoteId: null });
       get().fetchNotes();
+      if (get().showGraphFooter) {
+        get().fetchGraph();
+      }
     },
 
     fetchTags: async () => {
@@ -490,19 +493,19 @@ export function createActions({
         settingDefault: sd(),
         showGraphFooter: next,
       });
-      if (next && !get().graphNotesLoaded) {
-        get().fetchGraphNotes();
+      if (next && !get().graphDataLoaded) {
+        get().fetchGraph();
       }
     },
 
-    fetchGraphNotes: async () => {
+    fetchGraph: async () => {
       try {
-        const { activeCollectionId } = get();
-        const notes = await client.fetchNotes({
+        const { activeCollectionId, selectedTags } = get();
+        const graphData = await client.fetchGraph({
           collectionId: activeCollectionId ?? undefined,
-          includeContent: true,
-        } as const);
-        set({ graphNotes: notes, graphNotesLoaded: true });
+          tags: selectedTags.length > 0 ? selectedTags : undefined,
+        });
+        set({ graphData, graphDataLoaded: true });
       } catch {
         // Non-critical — don't block the app if graph data fails to load
       }

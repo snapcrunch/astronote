@@ -36,8 +36,11 @@ export interface NoteStore {
   settings: Settings;
   settingsLoaded: boolean;
   apiKeys: ApiKey[];
-  graphNotes: Note[];
-  graphNotesLoaded: boolean;
+  graphData: {
+    nodes: { id: number; label: string }[];
+    edges: { source: number; target: number; type: 'wikilink' | 'shared-tag' }[];
+  };
+  graphDataLoaded: boolean;
   view: View;
   showInfoPanel: boolean;
   showGraphFooter: boolean;
@@ -89,7 +92,7 @@ export interface NoteStore {
   removeTag: (noteId: number, tag: string) => Promise<void>;
   exportNotes: () => Promise<void>;
   performBackup: () => Promise<void>;
-  fetchGraphNotes: () => Promise<void>;
+  fetchGraph: () => Promise<void>;
   fetchApiKeys: () => Promise<void>;
   createApiKey: (name: string) => Promise<{ token: string }>;
   deleteApiKey: (id: string) => Promise<void>;

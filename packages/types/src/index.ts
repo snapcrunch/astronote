@@ -48,6 +48,14 @@ export const ListNotesQuerySchema = z.object({
   includeContent: z.coerce.boolean().optional(),
 });
 
+export const GraphQuerySchema = z.object({
+  collectionId: z.coerce.number().optional(),
+  tags: z
+    .string()
+    .transform((s) => s.split(','))
+    .optional(),
+});
+
 export const AddTagInputSchema = z.object({
   tag: z.string().min(1),
 });

@@ -3,6 +3,7 @@ import {
   CreateNoteInputSchema,
   UpdateNoteInputSchema,
   ListNotesQuerySchema,
+  GraphQuerySchema,
   AddTagInputSchema,
   NoteIdParamSchema,
 } from '@repo/types';
@@ -34,6 +35,17 @@ notesRouter.get('/', async (req, res) => {
     includeContent,
   });
   res.json(notes);
+});
+
+notesRouter.get('/graph', async (req, res) => {
+  const result = GraphQuerySchema.safeParse(req.query);
+  if (!result.success) {
+    res.status(400).json({ error: result.error.flatten().fieldErrors });
+    return;
+  }
+  const { collectionId, tags } = result.data;
+  const graph = await domain.notes.graph(req.user!, { collectionId, tags });
+  res.json(graph);
 });
 
 notesRouter.get('/:id', async (req, res) => {
