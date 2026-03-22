@@ -1,5 +1,107 @@
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { WebClient } from '@repo/astronote-client/WebClient';
 import { useNoteStore } from '../store';
+
+const client = new WebClient();
+
+function extractErrorMessage(err: unknown, fallback: string): string {
+  if (err && typeof err === 'object' && 'response' in err) {
+    const resp = (err as { response?: { data?: Record<string, string> } })
+      .response;
+    if (resp?.data?.error) return resp.data.error;
+    if (resp?.data?.output) return resp.data.output;
+  }
+  if (err instanceof Error) return err.message;
+  return fallback;
+}
+
+type ClaudeAuthStep =
+  | 'idle'
+  | 'loading-url'
+  | 'awaiting-code'
+  | 'submitting'
+  | 'success'
+  | 'error';
+
+export function useClaudeAuth() {
+  const [claudeAuthOpen, setClaudeAuthOpen] = useState(false);
+  const [claudeAuthStep, setClaudeAuthStep] = useState<ClaudeAuthStep>('idle');
+  const [claudeAuthUrl, setClaudeAuthUrl] = useState('');
+  const [claudeAuthCode, setClaudeAuthCode] = useState('');
+  const [claudeAuthError, setClaudeAuthError] = useState('');
+  const fetchClaudeAuthStatus = useNoteStore((s) => s.fetchClaudeAuthStatus);
+
+  const handleOpenClaudeAuth = useCallback(async () => {
+    setClaudeAuthOpen(true);
+    setClaudeAuthStep('loading-url');
+    setClaudeAuthUrl('');
+    setClaudeAuthCode('');
+    setClaudeAuthError('');
+    try {
+      const { url } = await client.startClaudeLogin();
+      setClaudeAuthUrl(url);
+      setClaudeAuthStep('awaiting-code');
+    } catch (err: unknown) {
+      setClaudeAuthError(extractErrorMessage(err, 'Failed to start login'));
+      setClaudeAuthStep('error');
+    }
+  }, []);
+
+  const handleClaudeAuthClose = useCallback(() => {
+    setClaudeAuthOpen(false);
+    setClaudeAuthStep('idle');
+  }, []);
+
+  const handleSubmitClaudeCode = useCallback(async () => {
+    setClaudeAuthStep('submitting');
+    setClaudeAuthError('');
+    try {
+      await client.submitClaudeAuthCode(claudeAuthCode);
+      setClaudeAuthStep('success');
+      await fetchClaudeAuthStatus();
+    } catch (err: unknown) {
+      setClaudeAuthError(extractErrorMessage(err, 'Authentication failed'));
+      setClaudeAuthStep('error');
+    }
+  }, [claudeAuthCode, fetchClaudeAuthStatus]);
+
+  return {
+    claudeAuthOpen,
+    claudeAuthStep,
+    claudeAuthUrl,
+    claudeAuthCode,
+    claudeAuthError,
+    setClaudeAuthCode,
+    handleOpenClaudeAuth,
+    handleClaudeAuthClose,
+    handleSubmitClaudeCode,
+  };
+}
+
+export function usePaletteKeyboardShortcuts(
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  setCollectionPickerOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  setClaudeChatOpen: React.Dispatch<React.SetStateAction<boolean>>
+) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey && e.shiftKey && e.key === 'p') {
+        e.preventDefault();
+        setOpen((prev) => !prev);
+      }
+      if (e.metaKey && e.shiftKey && (e.key === 'c' || e.key === 'C')) {
+        e.preventDefault();
+        setCollectionPickerOpen((prev) => !prev);
+      }
+      if (e.metaKey && e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
+        e.preventDefault();
+        setClaudeChatOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [setOpen, setCollectionPickerOpen, setClaudeChatOpen]);
+}
 
 export type Platform = 'desktop' | 'mobile';
 
