@@ -1,4 +1,5 @@
 import * as apiKeys from './actions/apiKeys';
+import * as attachments from './actions/attachments';
 import * as auth from './actions/auth';
 import * as backup from './actions/backup';
 import * as claude from './actions/claude';
@@ -12,6 +13,7 @@ import * as users from './actions/users';
 
 export default {
   apiKeys,
+  attachments,
   auth,
   backup,
   claude,

@@ -7,6 +7,11 @@ export function titleFromFilename(name: string): string {
   return basename.replace(/\.[^.]+$/, '');
 }
 
+export interface FrontmatterAttachment {
+  id: string;
+  filename: string;
+}
+
 export interface Frontmatter {
   id?: number;
   title?: string;
@@ -15,6 +20,7 @@ export interface Frontmatter {
   pinned?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  attachments?: FrontmatterAttachment[];
 }
 
 export function parseFrontmatter(content: string): {
@@ -27,12 +33,15 @@ export function parseFrontmatter(content: string): {
   const raw = match[1]!;
   const body = match[2]!;
   const frontmatter: Frontmatter = {};
+  const lines = raw.split(/\r?\n/);
 
-  for (const line of raw.split(/\r?\n/)) {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!;
     const sep = line.indexOf(':');
     if (sep === -1) continue;
     const key = line.slice(0, sep).trim().toLowerCase();
     const value = line.slice(sep + 1).trim();
+
     if (key === 'id' && value) {
       const parsed = parseInt(value, 10);
       if (!isNaN(parsed)) frontmatter.id = parsed;
@@ -51,6 +60,40 @@ export function parseFrontmatter(content: string): {
       frontmatter.createdAt = value;
     } else if (key === 'updatedat' && value) {
       frontmatter.updatedAt = value;
+    } else if (key === 'attachments' && !value) {
+      // Parse YAML-style list items that follow
+      const attachments: FrontmatterAttachment[] = [];
+      let current: Partial<FrontmatterAttachment> = {};
+      while (i + 1 < lines.length) {
+        const next = lines[i + 1]!;
+        if (/^\s+-\s+/.test(next)) {
+          // New list item — save previous if complete
+          if (current.id && current.filename) {
+            attachments.push(current as FrontmatterAttachment);
+          }
+          current = {};
+          const kvMatch = next.match(/^\s+-\s+(\w+):\s*(.+)$/);
+          if (kvMatch) {
+            current[kvMatch[1] as 'id' | 'filename'] = kvMatch[2]!;
+          }
+          i++;
+        } else if (/^\s+\w+:/.test(next)) {
+          // Continuation property of current item
+          const kvMatch = next.match(/^\s+(\w+):\s*(.+)$/);
+          if (kvMatch) {
+            current[kvMatch[1] as 'id' | 'filename'] = kvMatch[2]!;
+          }
+          i++;
+        } else {
+          break;
+        }
+      }
+      if (current.id && current.filename) {
+        attachments.push(current as FrontmatterAttachment);
+      }
+      if (attachments.length > 0) {
+        frontmatter.attachments = attachments;
+      }
     }
   }
 

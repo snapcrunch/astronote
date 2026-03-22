@@ -19,6 +19,7 @@ interface MarkdownEditorProps {
   onEscape?: () => void;
   notes?: NoteSummary[];
   currentNoteId?: number;
+  onFileDrop?: (file: File) => Promise<string | null>;
 }
 
 function MarkdownEditor({
@@ -28,6 +29,7 @@ function MarkdownEditor({
   onEscape,
   notes,
   currentNoteId,
+  onFileDrop,
 }: MarkdownEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -39,6 +41,8 @@ function MarkdownEditor({
   notesRef.current = notes ?? [];
   const currentNoteIdRef = useRef(currentNoteId);
   currentNoteIdRef.current = currentNoteId;
+  const onFileDropRef = useRef(onFileDrop);
+  onFileDropRef.current = onFileDrop;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -74,6 +78,47 @@ function MarkdownEditor({
             () => notesRef.current,
             () => currentNoteIdRef.current
           ),
+          EditorView.domEventHandlers({
+            drop(event, view) {
+              const handler = onFileDropRef.current;
+              const files = event.dataTransfer?.files;
+              if (!handler || !files?.length) return false;
+              const file = files[0]!;
+              // Only handle file drops, not text drops
+              if (!file.type) return false;
+              event.preventDefault();
+              const pos = view.posAtCoords({
+                x: event.clientX,
+                y: event.clientY,
+              });
+              handler(file).then((text) => {
+                if (text != null && pos != null) {
+                  view.dispatch({ changes: { from: pos, insert: text } });
+                }
+              });
+              return true;
+            },
+            paste(event, view) {
+              const handler = onFileDropRef.current;
+              const items = event.clipboardData?.items;
+              if (!handler || !items) return false;
+              for (const item of items) {
+                if (item.kind === 'file') {
+                  const file = item.getAsFile();
+                  if (!file) continue;
+                  event.preventDefault();
+                  handler(file).then((text) => {
+                    if (text != null) {
+                      const { from, to } = view.state.selection.main;
+                      view.dispatch({ changes: { from, to, insert: text } });
+                    }
+                  });
+                  return true;
+                }
+              }
+              return false;
+            },
+          }),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
               onChangeRef.current(update.state.doc.toString());

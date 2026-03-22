@@ -24,6 +24,7 @@
     "express": "^5.1.0",
     "fs-extra": "^11.3.4",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.1.1",
     "swagger-ui-express": "^5.0.1",
     "tsx": "^4.19.4"
   },
@@ -35,6 +36,7 @@
     "@types/express": "^5.0.0",
     "@types/fs-extra": "^11.0.4",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.1.0",
     "@types/swagger-ui-express": "^4.1.8",
     "eslint": "^9.39.1",
     "typescript": "^5.9.2"

@@ -1,4 +1,5 @@
 import * as apiKeys from './actions/apiKeys';
+import * as attachments from './actions/attachments';
 import * as backupHistory from './actions/backupHistory';
 import * as collections from './actions/collections';
 import * as db from './db';
@@ -11,6 +12,7 @@ import * as users from './actions/users';
 
 export default {
   apiKeys,
+  attachments,
   backupHistory,
   collections,
   db,

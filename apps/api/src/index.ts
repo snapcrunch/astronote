@@ -2,6 +2,7 @@ import path from 'node:path';
 import express from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
+import { noteAttachmentsRouter, attachmentsRouter } from '#routes/attachments';
 import { notesRouter } from '#routes/notes';
 import { tagsRouter } from '#routes/tags';
 import { collectionsRouter } from '#routes/collections';
@@ -37,7 +38,8 @@ async function main() {
   app.use('/docs/api', swaggerUi.serve, swaggerUi.setup(openApiSpec));
   app.use(requestLogger);
   app.use('/api/auth', authRouter);
-  app.use('/api/notes', requireAuth, notesRouter);
+  app.use('/api/attachments', attachmentsRouter);
+  app.use('/api/notes', requireAuth, notesRouter, noteAttachmentsRouter);
   app.use('/api/tags', requireAuth, tagsRouter);
   app.use('/api/collections', requireAuth, collectionsRouter);
   app.use('/api/keys', requireAuth, keysRouter);

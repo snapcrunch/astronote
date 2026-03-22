@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -22,6 +22,7 @@ import MarkdownEditor from '../MarkdownEditor';
 import CodeBlock from './CodeBlock';
 import { headingComponents } from './HeadingWithId';
 import rehypeWikiLinks from './rehypeWikiLinks';
+import rehypeAttachments from './rehypeAttachments';
 import WikiLink from './WikiLink';
 import { useDebouncedNoteUpdate, useEditingState } from './hooks';
 import Placeholder from './Placeholder';
@@ -40,7 +41,7 @@ function rehypeNumberCheckboxes() {
   };
 }
 
-const rehypePlugins = [rehypeNumberCheckboxes, rehypeWikiLinks];
+// rehypeAttachments needs the store's getAttachmentUrl, so it's built per-render below
 
 function NoteEditor() {
   const isMobile = useIsMobile();
@@ -58,6 +59,8 @@ function NoteEditor() {
     }
   }, [selectedNoteId, fetchNoteContent]);
   const updateNote = useNoteStore((s) => s.updateNote);
+  const uploadAttachment = useNoteStore((s) => s.uploadAttachment);
+  const getAttachmentUrl = useNoteStore((s) => s.getAttachmentUrl);
   const [mobileInfoOpen, setMobileInfoOpen] = useState(false);
   const [checkboxContent, setCheckboxContent] = useState<string | null>(null);
   const { editing, setEditing } = useEditingState(note?.id);
@@ -85,6 +88,68 @@ function NoteEditor() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setSelectedNoteId, flushAndExitEdit, setEditing]);
+
+  const rehypePlugins = useMemo(
+    () => [rehypeNumberCheckboxes, rehypeWikiLinks, rehypeAttachments(getAttachmentUrl)],
+    [getAttachmentUrl]
+  );
+
+  const buildAttachmentMarkdown = useCallback(
+    (filename: string, id: string, mimeType: string) => {
+      const isImage = mimeType.startsWith('image/');
+      return isImage
+        ? `![${filename}](attachment:${id})`
+        : `[${filename}](attachment:${id})`;
+    },
+    []
+  );
+
+  const handleFileDrop = useCallback(
+    async (file: File) => {
+      if (!note) return null;
+      const attachment = await uploadAttachment(note.id, file);
+      return buildAttachmentMarkdown(attachment.filename, attachment.id, attachment.mimeType);
+    },
+    [note, uploadAttachment, buildAttachmentMarkdown]
+  );
+
+  const handlePanelDrop = useCallback(
+    async (e: React.DragEvent) => {
+      // If the CodeMirror editor already handled this drop, skip
+      if (e.defaultPrevented) return;
+      if (!note) return;
+
+      // Handle attachment dragged from the info panel
+      if (e.dataTransfer?.types?.includes('application/x-astronote-attachment')) {
+        e.preventDefault();
+        const md = e.dataTransfer.getData('text/plain');
+        if (md) {
+          const separator = note.content.endsWith('\n') ? '\n' : '\n\n';
+          updateNote(note.id, { content: note.content + separator + md + '\n' });
+        }
+        return;
+      }
+
+      // Handle file drops
+      const files = e.dataTransfer?.files;
+      if (!files?.length) return;
+      const file = files[0]!;
+      if (!file.type) return;
+      e.preventDefault();
+      const attachment = await uploadAttachment(note.id, file);
+      const md = buildAttachmentMarkdown(attachment.filename, attachment.id, attachment.mimeType);
+      const separator = note.content.endsWith('\n') ? '\n' : '\n\n';
+      updateNote(note.id, { content: note.content + separator + md + '\n' });
+    },
+    [note, uploadAttachment, updateNote, buildAttachmentMarkdown]
+  );
+
+  const handlePanelDragOver = useCallback((e: React.DragEvent) => {
+    const types = e.dataTransfer?.types;
+    if (types?.includes('Files') || types?.includes('application/x-astronote-attachment')) {
+      e.preventDefault();
+    }
+  }, []);
 
   // Clear optimistic checkbox state when switching notes or entering edit mode
   useEffect(() => {
@@ -153,6 +218,8 @@ function NoteEditor() {
       onKeyDown={(e) => {
         if (e.key === 'Escape' && editingRef.current) e.stopPropagation();
       }}
+      onDrop={handlePanelDrop}
+      onDragOver={handlePanelDragOver}
     >
       <Box sx={styles.toolbar(isMobile)}>
         {isMobile && (
@@ -210,6 +277,7 @@ function NoteEditor() {
                 autoFocus
                 notes={notes}
                 currentNoteId={note.id}
+                onFileDrop={handleFileDrop}
               />
             ) : (
               <Box sx={styles.markdownContent}>

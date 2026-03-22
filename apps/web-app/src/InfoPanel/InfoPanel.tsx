@@ -5,6 +5,7 @@ import { useNoteStore, useSelectedNote } from '../store';
 import Statistics from './Statistics';
 import TableOfContents from './TableOfContents';
 import TagManager from './TagManager';
+import Attachments from './Attachments';
 import RelatedNotes from './RelatedNotes';
 import StatRow from './StatRow';
 import { formatDateTime } from './util';
@@ -53,6 +54,7 @@ function InfoPanel({ variant = 'side' }: InfoPanelProps) {
           <TableOfContents />
           <TagManager />
           <Statistics />
+          <Attachments />
         </Box>
         <RelatedNotes sx={{ flex: 1, minHeight: 0 }} />
       </Box>

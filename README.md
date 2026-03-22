@@ -17,7 +17,10 @@ Yet another note taking application[^1].
 - **Import & export** — Import notes from ZIP archives and export all notes for backup.
 - **API keys** — Generate keys for programmatic access to the REST API. Create, view, and revoke keys from Settings.
 - **Git backups** — Automatically back up notes to a remote Git repository on an hourly or daily schedule. Configure an SSH URL and private key in Settings, or trigger a backup manually at any time.
-- **Settings** — Configure the default editor view, info panel visibility, and dark/light theme (⌘⇧S).
+- **Knowledge graph** — An interactive graph visualization at the bottom of the screen shows relationships between notes. Notes are connected by wiki-links (solid edges) and shared tags (dashed edges). Click any node to jump to that note. The panel is resizable by dragging the top border and its state persists in the URL.
+- **Color themes** — Choose from seven built-in themes: Default, Dark, Solarized Light, Solarized Dark, Nord, Dracula, and Geek (Light). Configure in Settings (⌘⇧S).
+- **Interactive onboarding** — A guided tutorial walks new users through core features on first visit.
+- **Settings** — Configure the default editor view, info panel visibility, and color theme (⌘⇧S).
 - **Mobile-friendly** — Responsive layout with touch-optimized interactions and home screen app support (iOS/Android).
 - **Alfred workflow** — Search and create notes directly from [Alfred](https://www.alfredapp.com/) using the `an` keyword. See [apps/alfred-workflow](apps/alfred-workflow).
 - **Self-hosted** — Runs as a single Docker container with an embedded SQLite database. Optional HTTP basic auth.
@@ -57,24 +60,43 @@ yarn
 yarn dev
 ```
 
-## Manually Creating a New User
+## CLI
+
+The CLI (`yarn cli`) provides commands for administrative and programmatic access to your data.
 
 ```sh
-# If running locally
+# User management
 yarn cli create-user --email <email> --password <password>
 
-# If running in Docker
-docker exec <container> node_modules/.bin/tsx apps/cli/src/index.ts create-user --email <email> --password <password>
-```
-
-## Seeding the Database with Sample Data
-
-```sh
-# If running locally
+# Seed the database with sample data
 yarn cli seed
 
-# If running in Docker
-docker exec <container> node_modules/.bin/tsx apps/cli/src/index.ts seed
+# Notes
+yarn cli notes list [--query <q>] [--tags <csv>] [--collection-id <id>]
+yarn cli notes get --id <id>
+yarn cli notes create --title <title> [--content <content>] [--tags <csv>]
+yarn cli notes update --id <id> [--title <title>] [--content <content>]
+yarn cli notes delete --id <id>
+yarn cli notes add-tag --id <noteId> --tag <tag>
+yarn cli notes remove-tag --id <noteId> --tag <tag>
+
+# Tags & collections
+yarn cli tags list
+yarn cli collections list
+yarn cli collections create --name <name>
+yarn cli collections delete --id <id>
+
+# Settings
+yarn cli settings get
+yarn cli settings update --key <key> --value <value>
+```
+
+Global options: `--user-id <id>` (target a specific user), `--db <path>` (custom database path).
+
+When running in Docker, prefix commands with:
+
+```sh
+docker exec <container> node_modules/.bin/tsx apps/cli/src/index.ts <command>
 ```
 
 ## Git Backups

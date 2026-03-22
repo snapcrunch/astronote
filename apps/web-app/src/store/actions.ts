@@ -296,6 +296,7 @@ export function createActions({
           set((state) => ({
             noteContentCache: { ...state.noteContentCache, [id]: note.content },
           }));
+          get().fetchAttachments(id);
         } finally {
           set({ loadingNoteContent: false });
         }
@@ -354,7 +355,7 @@ export function createActions({
       }
     ) => {
       const collectionId = opts?.collectionId ?? get().activeCollectionId;
-      await client.createNote({
+      return client.createNote({
         id: opts?.id,
         title,
         content,
@@ -509,6 +510,49 @@ export function createActions({
       } catch {
         // Non-critical — don't block the app if graph data fails to load
       }
+    },
+
+    fetchAttachments: async (noteId: number) => {
+      try {
+        const attachments = await client.fetchAttachments(noteId);
+        set((state) => ({
+          attachments: { ...state.attachments, [noteId]: attachments },
+        }));
+      } catch {
+        // Non-critical
+      }
+    },
+
+    uploadAttachment: async (noteId: number, file: File) => {
+      set({ uploadingAttachment: true });
+      try {
+        const attachment = await client.uploadAttachment(noteId, file);
+        set((state) => ({
+          attachments: {
+            ...state.attachments,
+            [noteId]: [...(state.attachments[noteId] ?? []), attachment],
+          },
+        }));
+        return attachment;
+      } finally {
+        set({ uploadingAttachment: false });
+      }
+    },
+
+    deleteAttachment: async (noteId: number, attachmentId: string) => {
+      await client.deleteAttachment(attachmentId);
+      set((state) => ({
+        attachments: {
+          ...state.attachments,
+          [noteId]: (state.attachments[noteId] ?? []).filter(
+            (a) => a.id !== attachmentId
+          ),
+        },
+      }));
+    },
+
+    getAttachmentUrl: (id: string) => {
+      return client.getAttachmentUrl(id);
     },
 
     fetchApiKeys: async () => {

@@ -3,6 +3,7 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from 'axios';
 import type {
+  Attachment,
   Note,
   NoteSummary,
   Collection,
@@ -460,6 +461,36 @@ export class WebClient {
       }
       onError(err instanceof Error ? err.message : 'Stream error');
     }
+  }
+
+  // Attachments
+
+  async fetchAttachments(noteId: number): Promise<Attachment[]> {
+    const { data } = await this.http.get<Attachment[]>(
+      `/api/notes/${noteId}/attachments`
+    );
+    return data;
+  }
+
+  async uploadAttachment(noteId: number, file: File): Promise<Attachment> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await this.http.post<Attachment>(
+      `/api/notes/${noteId}/attachments`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    return data;
+  }
+
+  async deleteAttachment(id: string): Promise<void> {
+    await this.http.delete(`/api/attachments/${id}`);
+  }
+
+  getAttachmentUrl(id: string): string {
+    const token = localStorage.getItem('astronote.token') ?? '';
+    const baseURL = this.http.defaults.baseURL ?? '';
+    return `${baseURL}/api/attachments/${id}/file?token=${encodeURIComponent(token)}`;
   }
 
   async exportNotes(): Promise<void> {

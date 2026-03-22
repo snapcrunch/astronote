@@ -45,3 +45,41 @@ The remaining area of the screen (to the right of the sidebar) is the "content v
 - Views the content of a selected note.
 - Creates new notes
 - Edits existing notes
+
+#### The Info Panel
+
+On the right-hand side of the content view there is a collapsible "info panel" that displays metadata about the currently selected note, including:
+
+- Note attributes (ID, created/modified dates)
+- Table of contents (generated from headings)
+- Tags (with ability to add/remove)
+- Statistics (word count, character count, etc.)
+- Related notes (notes sharing tags or linked via wiki-links)
+
+#### The Knowledge Graph Footer
+
+At the bottom of the screen there is a collapsible "Knowledge Graph" footer panel. When expanded, it displays an interactive graph visualization ([Cytoscape.js](https://js.cytoscape.org/) with the [fcose](https://github.com/iVis-at-Bilkent/cytoscape.js-fcose) layout algorithm) showing relationships between notes. Notes are connected by:
+
+- **Wiki-links** (`[[noteId]]` syntax in note content) — shown as solid directed edges
+- **Shared tags** — shown as dashed undirected edges
+
+Features:
+
+- The panel height is adjustable by dragging the top border
+- Clicking a node selects the corresponding note in the sidebar/editor
+- The graph pans smoothly to center the selected note
+- The graph respects the active collection and selected tag filters
+- The open/closed state is persisted in the URL via a `?graph=1` query parameter
+- Graph data is computed server-side via `GET /api/notes/graph` for efficiency
+
+#### The Command Palette
+
+The command palette is accessible via `CMD-SHIFT-P` or by clicking the planet icon in the omnibar. It provides quick access to actions like managing collections, importing/exporting notes, and changing settings.
+
+### Note Relationships
+
+Notes can be related to other notes by virtue of the fact that they:
+
+- Have common tags
+- Link to one another via `[[wiki-style]]` links (where the number inside the brackets is the target note's ID)
+- Exist in the same collection

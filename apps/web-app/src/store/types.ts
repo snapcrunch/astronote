@@ -1,4 +1,5 @@
 import type {
+  Attachment,
   Note,
   NoteSummary,
   Collection,
@@ -36,6 +37,8 @@ export interface NoteStore {
   settings: Settings;
   settingsLoaded: boolean;
   apiKeys: ApiKey[];
+  attachments: Record<number, Attachment[]>;
+  uploadingAttachment: boolean;
   graphData: {
     nodes: { id: number; label: string }[];
     edges: { source: number; target: number; type: 'wikilink' | 'shared-tag' }[];
@@ -78,7 +81,7 @@ export interface NoteStore {
       createdAt?: string;
       updatedAt?: string;
     }
-  ) => Promise<void>;
+  ) => Promise<Note>;
   importing: boolean;
   importedCount: number;
   updateNote: (
@@ -93,6 +96,10 @@ export interface NoteStore {
   exportNotes: () => Promise<void>;
   performBackup: () => Promise<void>;
   fetchGraph: () => Promise<void>;
+  fetchAttachments: (noteId: number) => Promise<void>;
+  uploadAttachment: (noteId: number, file: File) => Promise<Attachment>;
+  deleteAttachment: (noteId: number, attachmentId: string) => Promise<void>;
+  getAttachmentUrl: (id: string) => string;
   fetchApiKeys: () => Promise<void>;
   createApiKey: (name: string) => Promise<{ token: string }>;
   deleteApiKey: (id: string) => Promise<void>;

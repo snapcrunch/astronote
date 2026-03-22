@@ -1,10 +1,22 @@
 import { useState, useRef, useCallback } from 'react';
 import JSZip from 'jszip';
 import { useNoteStore } from '../../store';
-import { isMarkdownFile, titleFromFilename, parseFrontmatter } from './util';
+import {
+  isMarkdownFile,
+  titleFromFilename,
+  parseFrontmatter,
+  type FrontmatterAttachment,
+} from './util';
+
+interface ImportFile {
+  name: string;
+  content: string;
+}
 
 export function useImport() {
   const importNote = useNoteStore((s) => s.importNote);
+  const uploadAttachment = useNoteStore((s) => s.uploadAttachment);
+  const updateNote = useNoteStore((s) => s.updateNote);
   const fetchNotes = useNoteStore((s) => s.fetchNotes);
   const fetchTags = useNoteStore((s) => s.fetchTags);
   const fetchCollections = useNoteStore((s) => s.fetchCollections);
@@ -35,7 +47,10 @@ export function useImport() {
   );
 
   const importMarkdownFiles = useCallback(
-    async (files: { name: string; content: string }[]) => {
+    async (
+      files: ImportFile[],
+      attachmentBlobs: Map<string, Blob>
+    ) => {
       const validFiles = files.filter((f) => titleFromFilename(f.name));
       if (validFiles.length === 0) {
         setStatus('No markdown files found.');
@@ -56,7 +71,8 @@ export function useImport() {
           if (frontmatter.collection) {
             collectionId = await resolveCollectionId(frontmatter.collection);
           }
-          await importNote(title, body, {
+
+          const note = await importNote(title, body, {
             id: frontmatter.id,
             tags,
             collectionId,
@@ -64,6 +80,37 @@ export function useImport() {
             createdAt: frontmatter.createdAt,
             updatedAt: frontmatter.updatedAt,
           });
+
+          // Upload attachments and rewrite UUIDs in content
+          if (frontmatter.attachments && frontmatter.attachments.length > 0) {
+            let updatedContent = note.content;
+            let contentChanged = false;
+
+            for (const fmAtt of frontmatter.attachments) {
+              const blob = findAttachmentBlob(attachmentBlobs, fmAtt);
+              if (!blob) continue;
+
+              const attachmentFile = new File([blob], fmAtt.filename, {
+                type: blob.type || guessMimeType(fmAtt.filename),
+              });
+              const uploaded = await uploadAttachment(note.id, attachmentFile);
+
+              // Replace old UUID references with new UUID
+              if (fmAtt.id !== uploaded.id) {
+                const oldRef = `attachment:${fmAtt.id}`;
+                const newRef = `attachment:${uploaded.id}`;
+                if (updatedContent.includes(oldRef)) {
+                  updatedContent = updatedContent.split(oldRef).join(newRef);
+                  contentChanged = true;
+                }
+              }
+            }
+
+            if (contentChanged) {
+              await updateNote(note.id, { content: updatedContent });
+            }
+          }
+
           setProgress({ current: i + 1, total: validFiles.length });
         }
         await Promise.all([fetchNotes(), fetchTags(), fetchCollections()]);
@@ -75,12 +122,21 @@ export function useImport() {
         setProgress(null);
       }
     },
-    [importNote, fetchNotes, fetchTags, fetchCollections, resolveCollectionId]
+    [
+      importNote,
+      uploadAttachment,
+      updateNote,
+      fetchNotes,
+      fetchTags,
+      fetchCollections,
+      resolveCollectionId,
+    ]
   );
 
   const processFiles = useCallback(
     async (fileList: File[]) => {
-      const mdFiles: { name: string; content: string }[] = [];
+      const mdFiles: ImportFile[] = [];
+      const attachmentBlobs = new Map<string, Blob>();
       let zipFile: File | null = null;
 
       for (const file of fileList) {
@@ -98,9 +154,15 @@ export function useImport() {
         const entries = Object.entries(zip.files);
         for (const [path, entry] of entries) {
           if (entry.dir) continue;
-          if (!isMarkdownFile(path)) continue;
-          const content = await entry.async('string');
-          mdFiles.push({ name: path, content });
+          if (isMarkdownFile(path)) {
+            const content = await entry.async('string');
+            mdFiles.push({ name: path, content });
+          } else if (path.startsWith('attachments/')) {
+            const blob = await entry.async('blob');
+            // Key by the filename in the attachments/ folder (e.g. "uuid.png")
+            const filename = path.split('/').pop()!;
+            attachmentBlobs.set(filename, blob);
+          }
         }
       }
 
@@ -110,7 +172,7 @@ export function useImport() {
         return;
       }
 
-      await importMarkdownFiles(mdFiles);
+      await importMarkdownFiles(mdFiles, attachmentBlobs);
     },
     [importMarkdownFiles]
   );
@@ -143,4 +205,42 @@ export function useImport() {
     handleDrop,
     handleFileInput,
   };
+}
+
+/**
+ * Find the blob for a frontmatter attachment in the extracted attachments map.
+ * The ZIP stores files as `attachments/{uuid}.{ext}`, so we match by UUID prefix.
+ */
+function findAttachmentBlob(
+  blobs: Map<string, Blob>,
+  att: FrontmatterAttachment
+): Blob | undefined {
+  // Try exact match by UUID prefix
+  for (const [filename, blob] of blobs) {
+    if (filename.startsWith(att.id)) {
+      return blob;
+    }
+  }
+  return undefined;
+}
+
+function guessMimeType(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  const mimeTypes: Record<string, string> = {
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    gif: 'image/gif',
+    webp: 'image/webp',
+    svg: 'image/svg+xml',
+    pdf: 'application/pdf',
+    doc: 'application/msword',
+    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    xls: 'application/vnd.ms-excel',
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    csv: 'text/csv',
+    txt: 'text/plain',
+    zip: 'application/zip',
+  };
+  return mimeTypes[ext ?? ''] ?? 'application/octet-stream';
 }

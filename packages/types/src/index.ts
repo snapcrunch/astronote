@@ -149,6 +149,17 @@ export const CreateApiKeyInputSchema = z.object({
 
 export type CreateApiKeyInput = z.infer<typeof CreateApiKeyInputSchema>;
 
+export const AttachmentSchema = z.object({
+  id: z.string().uuid(),
+  noteId: z.number(),
+  filename: z.string(),
+  mimeType: z.string(),
+  size: z.number(),
+  createdAt: z.string(),
+});
+
+export type Attachment = z.infer<typeof AttachmentSchema>;
+
 export const NoteIdParamSchema = z.object({
   id: z.coerce.number(),
 });

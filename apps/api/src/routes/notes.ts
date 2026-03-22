@@ -8,11 +8,12 @@ import {
   NoteIdParamSchema,
 } from '@repo/types';
 import domain from '@repo/domain';
+import config from '#config';
 
 export const notesRouter = Router();
 
 notesRouter.get('/export', async (req, res) => {
-  const archive = await domain.notes.exportAll(req.user!);
+  const archive = await domain.notes.exportAll(req.user!, config.dataDir);
 
   res.setHeader('Content-Type', 'application/zip');
   res.setHeader('Content-Disposition', 'attachment; filename=notes.zip');
@@ -110,7 +111,7 @@ notesRouter.delete('/:id/tags/:tag', async (req, res) => {
 
 notesRouter.delete('/:id', async (req, res) => {
   const { id } = NoteIdParamSchema.parse(req.params);
-  const archived = await domain.notes.remove(req.user!, id);
+  const archived = await domain.notes.remove(req.user!, id, config.dataDir);
   if (!archived) {
     res.status(404).json({ error: 'Note not found' });
     return;
