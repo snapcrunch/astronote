@@ -24,6 +24,7 @@ import { headingComponents } from './HeadingWithId';
 import rehypeWikiLinks from './rehypeWikiLinks';
 import rehypeAttachments from './rehypeAttachments';
 import WikiLink from './WikiLink';
+import ResizableImage from './ResizableImage';
 import { useDebouncedNoteUpdate, useEditingState } from './hooks';
 import Placeholder from './Placeholder';
 import * as styles from './styles';
@@ -151,6 +152,22 @@ function NoteEditor() {
     }
   }, []);
 
+  const handleImageResize = useCallback(
+    (attachmentId: string, width: number) => {
+      if (!note) return;
+      const content = note.content;
+      const re = new RegExp(
+        `(!\\[[^\\]]*\\]\\(attachment:${attachmentId})(#w=\\d+)?(\\))`,
+        'g'
+      );
+      const newContent = content.replace(re, `$1#w=${width}$3`);
+      if (newContent !== content) {
+        updateNote(note.id, { content: newContent });
+      }
+    },
+    [note, updateNote]
+  );
+
   // Clear optimistic checkbox state when switching notes or entering edit mode
   useEffect(() => {
     setCheckboxContent(null);
@@ -191,6 +208,9 @@ function NoteEditor() {
     pre: CodeBlock,
     ...headingComponents,
     'wiki-link': WikiLink,
+    img: (props: React.ComponentPropsWithoutRef<'img'> & { 'data-attachment-id'?: string }) => (
+      <ResizableImage {...props} onResize={handleImageResize} />
+    ),
     input({
       checked,
       type,

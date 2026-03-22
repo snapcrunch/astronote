@@ -92,6 +92,7 @@ export const markdownContent: SxProps<Theme> = {
   },
   '& img': {
     maxWidth: '100%',
+    height: 'auto',
   },
   '& a': {
     color: 'primary.main',
