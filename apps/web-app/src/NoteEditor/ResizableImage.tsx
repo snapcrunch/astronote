@@ -26,16 +26,18 @@ function ResizableImage({
       const startX = e.clientX;
       const startWidth = imgRef.current.offsetWidth;
 
+      const snap = (w: number) => Math.max(50, Math.round(w / 10) * 10);
+
       const onMouseMove = (moveEvent: MouseEvent) => {
         if (!imgRef.current) return;
-        const newWidth = Math.max(50, startWidth + (moveEvent.clientX - startX));
+        const newWidth = snap(startWidth + (moveEvent.clientX - startX));
         imgRef.current.style.width = `${newWidth}px`;
       };
 
       const onMouseUp = (upEvent: MouseEvent) => {
         window.removeEventListener('mousemove', onMouseMove);
         window.removeEventListener('mouseup', onMouseUp);
-        const finalWidth = Math.max(50, startWidth + (upEvent.clientX - startX));
+        const finalWidth = snap(startWidth + (upEvent.clientX - startX));
         onResize(attachmentId, finalWidth);
       };
 
