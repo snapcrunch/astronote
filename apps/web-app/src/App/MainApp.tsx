@@ -10,7 +10,7 @@ import ApiKeysView from '../ApiKeysView';
 import GraphFooter from '../KnowledgeGraph/GraphFooter';
 import InfoPanel from '../InfoPanel';
 import CommandPalette from '../CommandPalette';
-import Omnibar from '../Sidebar/Omnibar';
+import Omnibar from '../Omnibar';
 import MobileBottomNav from '../components/MobileBottomNav';
 import { useNoteStore } from '../store';
 import { useDocumentTitle, useIsMobile } from '../hooks';

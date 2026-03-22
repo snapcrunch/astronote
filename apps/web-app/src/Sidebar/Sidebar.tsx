@@ -7,7 +7,7 @@ import { useNoteStore } from '../store';
 import { useIsMobile } from '../hooks';
 import { kbdSx } from '../themes';
 import { useOmnibar, useNoteList } from './hooks';
-import Omnibar from './Omnibar';
+import Omnibar from '../Omnibar';
 import NoteList from './List';
 import Tags from './Tags';
 import RenameDialog from './RenameDialog';

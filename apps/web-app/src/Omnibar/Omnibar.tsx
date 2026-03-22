@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { omnibarRef, omnibarKeyDownHandler } from './refs';
-import { useSearch } from './hooks';
+import { useSearch } from './Omnibar.hooks';
 import SaveStatusIndicator from '../NoteEditor/SaveStatusIndicator';
 import { kbdSx } from '../themes';
 
