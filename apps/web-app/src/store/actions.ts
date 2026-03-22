@@ -541,6 +541,18 @@ export function createActions({
 
     deleteAttachment: async (noteId: number, attachmentId: string) => {
       await client.deleteAttachment(attachmentId);
+      const { noteContentCache, updateNote } = get();
+      const content = noteContentCache[noteId];
+      if (content !== undefined) {
+        const re = new RegExp(
+          `!?\\[[^\\]]*\\]\\(attachment:${attachmentId}(?:#w=\\d+)?\\)\\n?`,
+          'g'
+        );
+        const newContent = content.replace(re, '');
+        if (newContent !== content) {
+          updateNote(noteId, { content: newContent });
+        }
+      }
       set((state) => ({
         attachments: {
           ...state.attachments,
