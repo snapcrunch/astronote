@@ -25,7 +25,12 @@ import rehypeWikiLinks from './rehypeWikiLinks';
 import rehypeAttachments from './rehypeAttachments';
 import WikiLink from './WikiLink';
 import ResizableImage from './ResizableImage';
-import { useDebouncedNoteUpdate, useEditingState } from './hooks';
+import {
+  useDebouncedNoteUpdate,
+  useEditingState,
+  useImageResize,
+  useAttachmentMarkdown,
+} from './NoteEditor.hooks';
 import Placeholder from './Placeholder';
 import * as styles from './styles';
 
@@ -99,74 +104,21 @@ function NoteEditor() {
     [getAttachmentUrl]
   );
 
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  const getImageDimensions = useCallback(
-    (file: File): Promise<{ width: number; height: number } | null> => {
-      if (!file.type.startsWith('image/')) return Promise.resolve(null);
-      return new Promise((resolve) => {
-        const url = URL.createObjectURL(file);
-        const img = new Image();
-        img.onload = () => {
-          resolve({ width: img.naturalWidth, height: img.naturalHeight });
-          URL.revokeObjectURL(url);
-        };
-        img.onerror = () => {
-          resolve(null);
-          URL.revokeObjectURL(url);
-        };
-        img.src = url;
-      });
-    },
-    []
-  );
-
-  const buildAttachmentMarkdown = useCallback(
-    (attachment: {
-      filename: string;
-      id: string;
-      mimeType: string;
-      dims: { width: number; height: number } | null;
-    }) => {
-      const { filename, id, mimeType, dims } = attachment;
-      if (!mimeType.startsWith('image/')) {
-        return `[${filename}](attachment:${id})`;
-      }
-
-      if (!dims) {
-        return `![${filename}](attachment:${id})`;
-      }
-
-      const containerWidth = contentRef.current?.offsetWidth ?? 700;
-      const isLandscape = dims.width >= dims.height;
-      const maxRatio = isLandscape ? 0.6 : 0.4;
-      const maxWidth = Math.round(containerWidth * maxRatio);
-
-      if (dims.width <= maxWidth) {
-        return `![${filename}](attachment:${id})`;
-      }
-
-      const snapped = Math.round(maxWidth / 10) * 10;
-      return `![${filename}](attachment:${id}#w=${snapped})`;
-    },
-    []
-  );
+  const { contentRef, buildFromFile, buildFromUrl } =
+    useAttachmentMarkdown(getAttachmentUrl);
+  const handleImageResize = useImageResize(note, updateNote);
 
   const handleFileDrop = useCallback(
     async (file: File) => {
       if (!note) return null;
-      const [attachment, dims] = await Promise.all([
-        uploadAttachment(note.id, file),
-        getImageDimensions(file),
-      ]);
-      return buildAttachmentMarkdown({ ...attachment, dims });
+      const attachment = await uploadAttachment(note.id, file);
+      return buildFromFile(attachment, file);
     },
-    [note, uploadAttachment, buildAttachmentMarkdown, getImageDimensions]
+    [note, uploadAttachment, buildFromFile]
   );
 
   const handlePanelDrop = useCallback(
     async (e: React.DragEvent) => {
-      // If the CodeMirror editor already handled this drop, skip
       if (e.defaultPrevented) return;
       if (!note) return;
 
@@ -175,39 +127,14 @@ function NoteEditor() {
         e.dataTransfer?.types?.includes('application/x-astronote-attachment')
       ) {
         e.preventDefault();
-        let md = e.dataTransfer.getData('text/plain');
-        if (md) {
-          // Try to size images intelligently
-          const imgMatch = md.match(
+        const raw = e.dataTransfer.getData('text/plain');
+        if (raw) {
+          const imgMatch = raw.match(
             /^!\[([^\]]*)\]\(attachment:([0-9a-f-]+)\)$/
           );
-          if (imgMatch) {
-            const [, filename, attachmentId] = imgMatch;
-            const url = getAttachmentUrl(attachmentId!);
-            try {
-              const dims = await new Promise<{
-                width: number;
-                height: number;
-              }>((resolve, reject) => {
-                const img = new Image();
-                img.onload = () =>
-                  resolve({
-                    width: img.naturalWidth,
-                    height: img.naturalHeight,
-                  });
-                img.onerror = reject;
-                img.src = url;
-              });
-              md = buildAttachmentMarkdown({
-                filename: filename!,
-                id: attachmentId!,
-                mimeType: 'image/',
-                dims,
-              });
-            } catch {
-              // Use original md if image fails to load
-            }
-          }
+          const md = imgMatch
+            ? await buildFromUrl(imgMatch[1]!, imgMatch[2]!)
+            : raw;
           const separator = note.content.endsWith('\n') ? '\n' : '\n\n';
           updateNote(note.id, {
             content: note.content + separator + md + '\n',
@@ -222,22 +149,12 @@ function NoteEditor() {
       const file = files[0]!;
       if (!file.type) return;
       e.preventDefault();
-      const [attachment, dims] = await Promise.all([
-        uploadAttachment(note.id, file),
-        getImageDimensions(file),
-      ]);
-      const md = buildAttachmentMarkdown({ ...attachment, dims });
+      const attachment = await uploadAttachment(note.id, file);
+      const md = await buildFromFile(attachment, file);
       const separator = note.content.endsWith('\n') ? '\n' : '\n\n';
       updateNote(note.id, { content: note.content + separator + md + '\n' });
     },
-    [
-      note,
-      uploadAttachment,
-      updateNote,
-      buildAttachmentMarkdown,
-      getImageDimensions,
-      getAttachmentUrl,
-    ]
+    [note, uploadAttachment, updateNote, buildFromFile, buildFromUrl]
   );
 
   const handlePanelDragOver = useCallback((e: React.DragEvent) => {
@@ -249,22 +166,6 @@ function NoteEditor() {
       e.preventDefault();
     }
   }, []);
-
-  const handleImageResize = useCallback(
-    (attachmentId: string, width: number) => {
-      if (!note) return;
-      const content = note.content;
-      const re = new RegExp(
-        `(!\\[[^\\]]*\\]\\(attachment:${attachmentId})(#w=\\d+)?(\\))`,
-        'g'
-      );
-      const newContent = content.replace(re, `$1#w=${width}$3`);
-      if (newContent !== content) {
-        updateNote(note.id, { content: newContent });
-      }
-    },
-    [note, updateNote]
-  );
 
   // Clear optimistic checkbox state when switching notes or entering edit mode
   useEffect(() => {

@@ -1,31 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Fade from '@mui/material/Fade';
 import CheckIcon from '@mui/icons-material/Check';
 import { useNoteStore } from '../store';
-
-function useActivityStatus(
-  busy: boolean,
-  activeText: string,
-  doneText: string
-) {
-  const [showDone, setShowDone] = useState(false);
-  const prev = useRef(busy);
-
-  useEffect(() => {
-    if (prev.current && !busy) {
-      setShowDone(true);
-      const timer = setTimeout(() => setShowDone(false), 2000);
-      return () => clearTimeout(timer);
-    }
-    prev.current = busy;
-  }, [busy]);
-
-  if (busy) return { visible: true, text: activeText, done: false };
-  if (showDone) return { visible: true, text: doneText, done: true };
-  return { visible: false, text: '', done: false };
-}
+import { useActivityStatus } from './SaveStatusIndicator.hooks';
 
 function SaveStatusIndicator() {
   const saving = useNoteStore((s) => s.saving);
