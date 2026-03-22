@@ -40,10 +40,14 @@ function ResizableImage({
         ref={imgRef}
         src={src}
         alt={alt}
+        onClick={() => {
+          if (src) window.open(src, '_blank', 'noopener,noreferrer');
+        }}
         style={{
           display: 'block',
           maxWidth: '100%',
           height: 'auto',
+          cursor: 'pointer',
           ...(width ? { width: `${width}px` } : {}),
         }}
         {...rest}

@@ -2,6 +2,7 @@ import { useRef, useState, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -24,7 +25,7 @@ function Attachments() {
   const note = useSelectedNote();
   const noteId = note?.id;
   const attachments = useNoteStore((s) =>
-    noteId != null ? s.attachments[noteId] ?? EMPTY : EMPTY
+    noteId != null ? (s.attachments[noteId] ?? EMPTY) : EMPTY
   );
   const uploadAttachment = useNoteStore((s) => s.uploadAttachment);
   const deleteAttachment = useNoteStore((s) => s.deleteAttachment);
@@ -83,7 +84,11 @@ function Attachments() {
               <UploadFileIcon
                 sx={{ fontSize: 20, color: 'text.secondary', mb: 0.25 }}
               />
-              <Typography variant="caption" color="text.secondary" display="block">
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                display="block"
+              >
                 {uploadingAttachment
                   ? 'Uploading...'
                   : 'Drop files here or click to browse'}
@@ -98,7 +103,11 @@ function Attachments() {
             />
           </Box>
           {attachments.length > 0 && (
-            <List dense disablePadding sx={{ mx: -2, borderTop: 1, borderColor: 'divider' }}>
+            <List
+              dense
+              disablePadding
+              sx={{ mx: -2, borderTop: 1, borderColor: 'divider' }}
+            >
               {attachments.map((att, index) => (
                 <ListItem
                   key={att.id}
@@ -110,7 +119,10 @@ function Attachments() {
                       ? `![${att.filename}](attachment:${att.id})`
                       : `[${att.filename}](attachment:${att.id})`;
                     e.dataTransfer.setData('text/plain', md);
-                    e.dataTransfer.setData('application/x-astronote-attachment', 'true');
+                    e.dataTransfer.setData(
+                      'application/x-astronote-attachment',
+                      'true'
+                    );
                   }}
                   secondaryAction={
                     <Box sx={{ display: 'flex', gap: 0.25 }}>
@@ -136,27 +148,35 @@ function Attachments() {
                     </Box>
                   }
                   sx={{
-                    py: 0.25,
-                    px: 2,
                     cursor: 'grab',
-                    borderBottom:
-                      index < attachments.length - 1 ? 1 : 0,
+                    borderBottom: index < attachments.length - 1 ? 1 : 0,
                     borderColor: 'divider',
                     bgcolor: 'background.paper',
                   }}
                 >
-                  <ListItemText
-                    primary={att.filename}
-                    secondary={formatFileSize(att.size)}
-                    primaryTypographyProps={{
-                      variant: 'body2',
-                      noWrap: true,
-                      sx: { maxWidth: 140 },
-                    }}
-                    secondaryTypographyProps={{
-                      variant: 'caption',
-                    }}
-                  />
+                  <ListItemButton
+                    onClick={() =>
+                      window.open(
+                        getAttachmentUrl(att.id),
+                        '_blank',
+                        'noopener,noreferrer'
+                      )
+                    }
+                    sx={{ py: 0.25, px: 2 }}
+                  >
+                    <ListItemText
+                      primary={att.filename}
+                      secondary={formatFileSize(att.size)}
+                      primaryTypographyProps={{
+                        variant: 'body2',
+                        noWrap: true,
+                        sx: { maxWidth: 140 },
+                      }}
+                      secondaryTypographyProps={{
+                        variant: 'caption',
+                      }}
+                    />
+                  </ListItemButton>
                 </ListItem>
               ))}
             </List>
