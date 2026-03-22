@@ -91,16 +91,63 @@ function NoteEditor() {
   }, [setSelectedNoteId, flushAndExitEdit, setEditing]);
 
   const rehypePlugins = useMemo(
-    () => [rehypeNumberCheckboxes, rehypeWikiLinks, rehypeAttachments(getAttachmentUrl)],
+    () => [
+      rehypeNumberCheckboxes,
+      rehypeWikiLinks,
+      rehypeAttachments(getAttachmentUrl),
+    ],
     [getAttachmentUrl]
   );
 
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const getImageDimensions = useCallback(
+    (file: File): Promise<{ width: number; height: number } | null> => {
+      if (!file.type.startsWith('image/')) return Promise.resolve(null);
+      return new Promise((resolve) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          resolve({ width: img.naturalWidth, height: img.naturalHeight });
+          URL.revokeObjectURL(url);
+        };
+        img.onerror = () => {
+          resolve(null);
+          URL.revokeObjectURL(url);
+        };
+        img.src = url;
+      });
+    },
+    []
+  );
+
   const buildAttachmentMarkdown = useCallback(
-    (filename: string, id: string, mimeType: string) => {
-      const isImage = mimeType.startsWith('image/');
-      return isImage
-        ? `![${filename}](attachment:${id})`
-        : `[${filename}](attachment:${id})`;
+    (attachment: {
+      filename: string;
+      id: string;
+      mimeType: string;
+      dims: { width: number; height: number } | null;
+    }) => {
+      const { filename, id, mimeType, dims } = attachment;
+      if (!mimeType.startsWith('image/')) {
+        return `[${filename}](attachment:${id})`;
+      }
+
+      if (!dims) {
+        return `![${filename}](attachment:${id})`;
+      }
+
+      const containerWidth = contentRef.current?.offsetWidth ?? 700;
+      const isLandscape = dims.width >= dims.height;
+      const maxRatio = isLandscape ? 0.6 : 0.4;
+      const maxWidth = Math.round(containerWidth * maxRatio);
+
+      if (dims.width <= maxWidth) {
+        return `![${filename}](attachment:${id})`;
+      }
+
+      const snapped = Math.round(maxWidth / 10) * 10;
+      return `![${filename}](attachment:${id}#w=${snapped})`;
     },
     []
   );
@@ -108,10 +155,13 @@ function NoteEditor() {
   const handleFileDrop = useCallback(
     async (file: File) => {
       if (!note) return null;
-      const attachment = await uploadAttachment(note.id, file);
-      return buildAttachmentMarkdown(attachment.filename, attachment.id, attachment.mimeType);
+      const [attachment, dims] = await Promise.all([
+        uploadAttachment(note.id, file),
+        getImageDimensions(file),
+      ]);
+      return buildAttachmentMarkdown({ ...attachment, dims });
     },
-    [note, uploadAttachment, buildAttachmentMarkdown]
+    [note, uploadAttachment, buildAttachmentMarkdown, getImageDimensions]
   );
 
   const handlePanelDrop = useCallback(
@@ -121,12 +171,47 @@ function NoteEditor() {
       if (!note) return;
 
       // Handle attachment dragged from the info panel
-      if (e.dataTransfer?.types?.includes('application/x-astronote-attachment')) {
+      if (
+        e.dataTransfer?.types?.includes('application/x-astronote-attachment')
+      ) {
         e.preventDefault();
-        const md = e.dataTransfer.getData('text/plain');
+        let md = e.dataTransfer.getData('text/plain');
         if (md) {
+          // Try to size images intelligently
+          const imgMatch = md.match(
+            /^!\[([^\]]*)\]\(attachment:([0-9a-f-]+)\)$/
+          );
+          if (imgMatch) {
+            const [, filename, attachmentId] = imgMatch;
+            const url = getAttachmentUrl(attachmentId!);
+            try {
+              const dims = await new Promise<{
+                width: number;
+                height: number;
+              }>((resolve, reject) => {
+                const img = new Image();
+                img.onload = () =>
+                  resolve({
+                    width: img.naturalWidth,
+                    height: img.naturalHeight,
+                  });
+                img.onerror = reject;
+                img.src = url;
+              });
+              md = buildAttachmentMarkdown({
+                filename: filename!,
+                id: attachmentId!,
+                mimeType: 'image/',
+                dims,
+              });
+            } catch {
+              // Use original md if image fails to load
+            }
+          }
           const separator = note.content.endsWith('\n') ? '\n' : '\n\n';
-          updateNote(note.id, { content: note.content + separator + md + '\n' });
+          updateNote(note.id, {
+            content: note.content + separator + md + '\n',
+          });
         }
         return;
       }
@@ -137,17 +222,30 @@ function NoteEditor() {
       const file = files[0]!;
       if (!file.type) return;
       e.preventDefault();
-      const attachment = await uploadAttachment(note.id, file);
-      const md = buildAttachmentMarkdown(attachment.filename, attachment.id, attachment.mimeType);
+      const [attachment, dims] = await Promise.all([
+        uploadAttachment(note.id, file),
+        getImageDimensions(file),
+      ]);
+      const md = buildAttachmentMarkdown({ ...attachment, dims });
       const separator = note.content.endsWith('\n') ? '\n' : '\n\n';
       updateNote(note.id, { content: note.content + separator + md + '\n' });
     },
-    [note, uploadAttachment, updateNote, buildAttachmentMarkdown]
+    [
+      note,
+      uploadAttachment,
+      updateNote,
+      buildAttachmentMarkdown,
+      getImageDimensions,
+      getAttachmentUrl,
+    ]
   );
 
   const handlePanelDragOver = useCallback((e: React.DragEvent) => {
     const types = e.dataTransfer?.types;
-    if (types?.includes('Files') || types?.includes('application/x-astronote-attachment')) {
+    if (
+      types?.includes('Files') ||
+      types?.includes('application/x-astronote-attachment')
+    ) {
       e.preventDefault();
     }
   }, []);
@@ -208,9 +306,11 @@ function NoteEditor() {
     pre: CodeBlock,
     ...headingComponents,
     'wiki-link': WikiLink,
-    img: (props: React.ComponentPropsWithoutRef<'img'> & { 'data-attachment-id'?: string }) => (
-      <ResizableImage {...props} onResize={handleImageResize} />
-    ),
+    img: (
+      props: React.ComponentPropsWithoutRef<'img'> & {
+        'data-attachment-id'?: string;
+      }
+    ) => <ResizableImage {...props} onResize={handleImageResize} />,
     input({
       checked,
       type,
@@ -285,7 +385,7 @@ function NoteEditor() {
           style={{ flex: 1 }}
           options={{ scrollbars: { autoHide: 'move' } }}
         >
-          <Box sx={styles.contentAreaInner(isMobile)}>
+          <Box ref={contentRef} sx={styles.contentAreaInner(isMobile)}>
             {editing ? (
               <MarkdownEditor
                 value={note.content}

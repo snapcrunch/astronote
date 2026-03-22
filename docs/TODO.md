@@ -16,4 +16,4 @@
 - [x] In the chat window interface that allows the user to interact with Claude Code - messages from Claude that are displayed should be parsed as Markdown.
 - [x] In the notes list in the left-hand sidebar, add an action labeled "Copy Note ID" that copies the selected note's ID to the clipboard.
 - [x] Alfred workflow. Use alfy.
-- [ ] In the right-hand "notes metadata" sidebar, move the "Dates" section to the top and rename it to simply "Note". Add a new item within this section labled "ID". On this row, display the note's ID.
+- [x] In the right-hand "notes metadata" sidebar, move the "Dates" section to the top and rename it to simply "Note". Add a new item within this section labled "ID". On this row, display the note's ID.
