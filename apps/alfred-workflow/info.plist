@@ -153,7 +153,37 @@ Configure the following workflow variables:
 			<key>variable</key>
 			<string>api_token</string>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<string></string>
+				<key>placeholder</key>
+				<string>/path/to/corporate-ca.pem</string>
+				<key>required</key>
+				<false/>
+				<key>trim</key>
+				<true/>
+			</dict>
+			<key>description</key>
+			<string>Path to a CA certificate file (e.g. for corporate VPNs that perform SSL inspection)</string>
+			<key>label</key>
+			<string>CA Certificate Path</string>
+			<key>type</key>
+			<string>textfield</string>
+			<key>variable</key>
+			<string>NODE_EXTRA_CA_CERTS</string>
+		</dict>
 	</array>
+	<key>variables</key>
+	<dict>
+		<key>api_url</key>
+		<string></string>
+		<key>api_token</key>
+		<string></string>
+		<key>NODE_EXTRA_CA_CERTS</key>
+		<string></string>
+	</dict>
 	<key>version</key>
 	<string>1.0.0</string>
 	<key>webaddress</key>
